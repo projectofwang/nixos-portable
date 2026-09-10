@@ -16,7 +16,7 @@ The design keeps machine identity and hardware local, while shared system and us
 ### 1. Clone
 
 ```bash
-git clone https://github.com/ChicoOneForAll/nixos-portable.git
+git clone https://github.com/projectofwang/nixos-portable.git
 cd nixos-portable
 ```
 
