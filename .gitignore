@@ -1,0 +1,4 @@
+# Nix build / test outputs
+result
+result-*
+result-*/

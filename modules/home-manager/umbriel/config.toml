@@ -1,0 +1,114 @@
+# Umbriel configuration for nixos-portable.
+# Home Manager installs this file as ~/.config/umbriel/config.toml.
+# Edit this file in the repository, then rebuild NixOS.
+
+[general]
+autostart = ["noctalia"]
+xwayland = true
+show_cheatsheet = true
+focus_on_activate = false
+honor_restored_maximize = false
+
+[environment]
+
+[events]
+
+[workspaces]
+back_and_forth = false
+empty_above = false
+
+[appearance]
+prefer_no_csd = true
+border_width = 2
+outer_border_width = 0
+corner_radius = 10
+drag_opacity = 0.75
+
+[appearance.blur]
+enabled = true
+optimized = true
+passes = 3
+radius = 3
+noise = 0.02
+brightness = 0.9
+contrast = 0.9
+saturation = 1.1
+
+[appearance.shadow]
+enabled = true
+softness = 10
+offset_x = 2
+offset_y = 2
+
+[input]
+middle_click_paste = true
+window_drag_toggle = "none"
+
+[input.keyboard]
+layout = ""
+variant = ""
+options = ""
+repeat_rate = 25
+repeat_delay = 600
+numlock_toggle = true
+track_layout = "global"
+
+[input.touchpad]
+tap = true
+
+[input.mouse]
+sensitivity = 0.0
+scroll_wheel_step = 60
+
+[input.tablet]
+enabled = true
+
+[input.cursor]
+theme = ""
+size = 24
+hardware_cursor = true
+follows_focus = false
+hide_when_typing = false
+hide_timeout_ms = 0
+
+[input.focus]
+follows_mouse = false
+
+[keybinds]
+# Workspaces: Mod+1..9 switches directly to workspace 1..9.
+"Mod+1" = "workspace-switch:1"
+"Mod+2" = "workspace-switch:2"
+"Mod+3" = "workspace-switch:3"
+"Mod+4" = "workspace-switch:4"
+"Mod+5" = "workspace-switch:5"
+"Mod+6" = "workspace-switch:6"
+"Mod+7" = "workspace-switch:7"
+"Mod+8" = "workspace-switch:8"
+"Mod+9" = "workspace-switch:9"
+
+# Move the focused window to another workspace.
+"Mod+Shift+1" = "window-move-to-workspace:1"
+"Mod+Shift+2" = "window-move-to-workspace:2"
+"Mod+Shift+3" = "window-move-to-workspace:3"
+"Mod+Shift+4" = "window-move-to-workspace:4"
+"Mod+Shift+5" = "window-move-to-workspace:5"
+"Mod+Shift+6" = "window-move-to-workspace:6"
+"Mod+Shift+7" = "window-move-to-workspace:7"
+"Mod+Shift+8" = "window-move-to-workspace:8"
+"Mod+Shift+9" = "window-move-to-workspace:9"
+
+# Window focus.
+"Mod+Up" = "window-focus-up"
+"Mod+Down" = "window-focus-down"
+"Mod+Left" = "window-focus-left"
+"Mod+Right" = "window-focus-right"
+
+# Terminal: the repository's terminal stack is WezTerm -> Zellij -> Zsh.
+"Mod+Return" = "spawn:wezterm"
+
+# Noctalia launcher and settings.
+"Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
+"Mod+Comma" = "spawn:noctalia msg settings-toggle"
+
+# Fullscreen screenshot.
+"Ctrl+Shift+1" = "spawn:noctalia msg screenshot-fullscreen"
