@@ -31,9 +31,9 @@ jobs:
       - name: Check formatting
         run: nix fmt -- --check $(git ls-files '*.nix')
 
-      - name: Evaluate production system
-        run: nix eval .#nixosConfigurations.nixos.config.system.build.toplevel.drvPath --no-write-lock-file
-
+      # The production host intentionally imports machine-specific hardware.
+      # Do not evaluate it on a generic GitHub runner: that cannot provide the
+      # real root filesystem and would make CI fail for the wrong reason.
       - name: Evaluate CI system
         run: nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
 
