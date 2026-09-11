@@ -17,8 +17,6 @@
       nixfmt
     ];
 
-    # Keep the LazyVim bootstrap reproducible from nixpkgs while allowing
-    # LazyVim to manage its own plugin graph. This avoids a second flake input.
     plugins = with pkgs.vimPlugins; [ lazy-nvim ];
 
     initLua =
