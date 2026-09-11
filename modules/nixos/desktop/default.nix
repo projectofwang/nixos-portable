@@ -25,9 +25,13 @@
 
   # Install desktop utilities that are intentionally system-wide; for example, GPU Screen Recorder and Krusader are launched by the desktop.
   environment.systemPackages = [
+    pkgs.flatpak
     pkgs.gpu-screen-recorder
     pkgs.krusader
   ];
+
+  # Enable Flatpak's system service so graphical Flatpak applications can be installed with `flatpak install flathub org.mozilla.firefox`.
+  services.flatpak.enable = true;
 
   # Provide PipeWire audio with real-time scheduling and 32-bit ALSA compatibility.
   security.rtkit.enable = true;
