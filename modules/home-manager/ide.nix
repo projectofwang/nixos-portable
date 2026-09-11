@@ -1,7 +1,6 @@
 { ... }:
 
 {
-  # GUI IDE only. Terminal Neovim/LazyVim is owned by the terminal-ide profile.
   programs.zed-editor = {
     enable = true;
     mutableUserSettings = false;
