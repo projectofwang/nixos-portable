@@ -69,7 +69,7 @@ in
       "toml"
       "rust"
     ];
-    userSettings =
+    userSettings = lib.mkMerge [
       {
         format_on_save = true;
         hour_format = "hour24";
@@ -77,7 +77,7 @@ in
           working_directory = "current_project_directory";
         };
       }
-      // lib.optionalAttrs config.my.ai.enable {
+      (lib.mkIf config.my.ai.enable {
         language_models.ollama = {
           api_url = "http://127.0.0.1:11434";
           auto_discover = false;
@@ -92,7 +92,8 @@ in
             }
           ];
         };
-      };
+      })
+    ];
   };
 
   programs.neovim = {
@@ -104,11 +105,9 @@ in
       curl
       ripgrep
     ];
-
-    plugins =
-      [
-        pkgs.vimPlugins.plenary-nvim
-      ]
-      ++ lib.optional config.my.ai.enable aiPlugin;
+    plugins = lib.concatLists [
+      [ pkgs.vimPlugins.plenary-nvim ]
+      (lib.optional config.my.ai.enable aiPlugin)
+    ];
   };
 }
