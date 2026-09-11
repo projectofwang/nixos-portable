@@ -8,10 +8,10 @@ on:
 permissions:
   contents: read
 
-# Temporarily allow the latest validation run to replace an older run while generating the lock.
+# Cancel superseded PR checks, but let main validation finish.
 concurrency:
   group: check-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:
@@ -27,12 +27,6 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
-
-      - name: Generate lock for inspection
-        run: |
-          nix flake lock
-          cat flake.lock
-          exit 1
 
       - name: Check formatting
         run: nix fmt -- --check $(git ls-files '*.nix')
