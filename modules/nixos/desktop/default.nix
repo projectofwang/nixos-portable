@@ -1,4 +1,9 @@
-{ inputs, username, pkgs, ... }:
+{
+  inputs,
+  username,
+  pkgs,
+  ...
+}:
 
 let
   hostSystem = pkgs.stdenv.hostPlatform.system;
@@ -53,7 +58,10 @@ in
     ];
     config.common.default = [ "gtk" ];
     config.Umbriel = {
-      default = [ "umbriel" "gtk" ];
+      default = [
+        "umbriel"
+        "gtk"
+      ];
       "org.freedesktop.impl.portal.ScreenCast" = [ "umbriel" ];
       "org.freedesktop.impl.portal.Screenshot" = [ "umbriel" ];
     };
