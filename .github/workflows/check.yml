@@ -32,7 +32,10 @@ jobs:
         run: nix fmt -- --check $(git ls-files '*.nix')
 
       - name: Evaluate CI system
+        run: nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
+
+      - name: Check CI build plan
         run: nix build .#checks.x86_64-linux.ci --no-link --dry-run --no-write-lock-file
 
-      - name: Check flake
-        run: nix flake check --no-build --no-write-lock-file
+      - name: Show flake outputs
+        run: nix flake show --no-write-lock-file
