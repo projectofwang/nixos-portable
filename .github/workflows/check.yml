@@ -28,6 +28,11 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
+      - name: Generate lock for inspection
+        run: |
+          nix flake lock
+          cat flake.lock
+
       - name: Check formatting
         run: nix fmt -- --check $(git ls-files '*.nix')
 
