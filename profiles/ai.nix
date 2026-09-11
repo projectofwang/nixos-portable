@@ -1,16 +1,20 @@
 { username, pkgs, ... }:
 
 {
-  services.ollama = {
+  services.llama-cpp = {
     enable = true;
-    package = pkgs.ollama-vulkan;
-    host = "127.0.0.1";
-    port = 11434;
-    environmentVariables = {
-      OLLAMA_CONTEXT_LENGTH = "65536";
-      OLLAMA_NUM_PARALLEL = "1";
-      OLLAMA_MAX_LOADED_MODELS = "1";
-      OLLAMA_KEEP_ALIVE = "10m";
+    package = pkgs.llama-cpp-vulkan;
+    settings = {
+      host = "127.0.0.1";
+      port = 8080;
+      hf-repo = "unsloth/Qwen3.5-4B-GGUF";
+      hf-file = "Qwen3.5-4B-UD-Q4_K_XL.gguf";
+      alias = "qwen3.5-4b";
+      ctx-size = 65536;
+      temp = 0.2;
+      top-p = 0.95;
+      top-k = 40;
+      flash-attn = "on";
     };
   };
 
