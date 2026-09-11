@@ -28,10 +28,10 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Check formatting
-        run: nix fmt -- --check
+        run: nix --no-write-lock-file fmt -- --check $(git ls-files '*.nix')
 
       - name: Check flake
-        run: nix flake check
+        run: nix flake check --no-write-lock-file
 
       - name: Show flake outputs
-        run: nix flake show
+        run: nix flake show --no-write-lock-file
