@@ -41,7 +41,6 @@ let
     buildInputs = [
       pkgs.acl
       pkgs.fcitx5
-      pkgs.kdePackages.extra-cmake-modules
       pkgs.libinput
       pkgs.libx11
       pythonEnv
