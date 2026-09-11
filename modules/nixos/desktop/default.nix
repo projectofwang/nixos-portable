@@ -30,6 +30,10 @@ in
     pkgs.xdg-desktop-portal-gtk
   ];
 
+  # Thunar provides a lightweight graphical file manager without pulling in
+  # a full desktop environment.
+  programs.thunar.enable = true;
+
   # Audio capture/recording and PipeWire-based desktop capture plumbing.
   security.rtkit.enable = true;
   services.pipewire = {
