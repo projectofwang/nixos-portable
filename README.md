@@ -266,7 +266,9 @@ Machine-specific data stays in `hosts/machine/`. Reusable configuration belongs 
 
 ## CI
 
-GitHub Actions validates the flake and evaluates both the portable machine configuration and the CI configuration using synthetic hardware.
+GitHub Actions runs read-only repository validation on pushes to `main` and pull requests. The workflow installs Nix, checks formatting, evaluates the flake, and displays its outputs. It does not deploy the machine configuration, modify repository contents, access repository secrets, or run privileged commands.
+
+The CI configuration evaluates the same production profile set as the portable machine configuration, using synthetic container hardware rather than real machine hardware.
 
 Run the same checks locally:
 
