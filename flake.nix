@@ -60,7 +60,24 @@
         timeZone = "UTC";
         nixosStateVersion = "26.05";
         homeStateVersion = "26.05";
-        profiles = framework.profiles.available;
+        profiles = [
+          "base"
+          "desktop"
+          "terminal"
+          "terminal-ide"
+          "browser-firefox"
+          "browser-helium"
+          "gaming"
+          "ai"
+          "ide"
+          "media"
+          "downloads"
+          "mail-thunderbird"
+          "password-bitwarden"
+          "password-keepassxc"
+          "umbriel"
+          "vietnamese-input"
+        ];
       };
 
       ci = framework.mkHost {
