@@ -9,6 +9,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    fcitx5-lotus = {
+      url = "github:projectofwang/fcitx5-lotus";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     noctalia = {
       url = "github:projectofwang/noctalia";
       inputs.nixpkgs.follows = "nixpkgs";
