@@ -6,8 +6,6 @@
 }:
 
 {
-  # Only augment an editor when another profile already enabled it. The AI
-  # profile therefore never installs an editor by itself.
   config = lib.mkMerge [
     (lib.mkIf config.programs.zed-editor.enable {
       programs.zed-editor.userSettings = {
