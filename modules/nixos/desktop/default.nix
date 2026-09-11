@@ -23,7 +23,6 @@
   # Umbriel's portal module supplies the compositor-specific portal backend.
   environment.systemPackages = [
     pkgs.gpu-screen-recorder
-    pkgs.xdg-desktop-portal-gtk
     pkgs.krusader
   ];
 
