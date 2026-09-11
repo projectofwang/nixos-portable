@@ -28,35 +28,8 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - name: Check formatting - flake
-        run: nix fmt -- --check flake.nix
-
-      - name: Check formatting - profiles
-        run: nix fmt -- --check lib/profiles.nix
-
-      - name: Check formatting - HM default
-        run: nix fmt -- --check modules/home-manager/default.nix
-
-      - name: Check formatting - IDE
-        run: nix fmt -- --check modules/home-manager/ide.nix
-
-      - name: Format AI integration and show diff
-        run: |
-          nix fmt -- modules/home-manager/ai-integration.nix
-          git diff -- modules/home-manager/ai-integration.nix
-          test -z "$(git status --short -- modules/home-manager/ai-integration.nix)"
-
-      - name: Check formatting - browser
-        run: nix fmt -- --check modules/nixos/browser/default.nix
-
-      - name: Check formatting - graphics
-        run: nix fmt -- --check modules/nixos/graphics.nix
-
-      - name: Check formatting - AI profile
-        run: nix fmt -- --check profiles/ai.nix
-
-      - name: Check formatting - gaming
-        run: nix fmt -- --check profiles/gaming.nix
+      - name: Check Nix formatting
+        run: nix fmt -- --check $(git ls-files '*.nix')
 
       # The production host intentionally imports machine-specific hardware.
       # Do not evaluate it on a generic GitHub runner: that cannot provide the
