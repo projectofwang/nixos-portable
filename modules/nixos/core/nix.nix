@@ -1,7 +1,6 @@
 { ... }:
 
 {
-  # The flake is the source of truth; do not use NixOS channels.
   nix.channel.enable = false;
 
   nix.settings = {
@@ -10,7 +9,6 @@
       "flakes"
     ];
 
-    # Keep the trust boundary small. sudo/root is sufficient for rebuilds.
     trusted-users = [ "root" ];
   };
 
@@ -19,7 +17,6 @@
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    # Keep a useful rollback window without allowing unbounded store growth.
     options = "--delete-older-than 30d";
   };
 }
