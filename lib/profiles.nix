@@ -17,7 +17,8 @@ in
       unknown = lib.filter (profile: !(builtins.elem profile available)) selected;
       unique = lib.unique selected;
       duplicates = lib.filter (
-        profile: builtins.length (lib.filter (p: p == profile) selected) > 1
+        profile:
+        builtins.length (lib.filter (p: p == profile) selected) > 1
       ) unique;
     in
     assert lib.assertMsg (unknown == [ ])
