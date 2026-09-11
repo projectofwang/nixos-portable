@@ -40,8 +40,8 @@ jobs:
       - name: Check CI build plan
         run: nix build .#checks.x86_64-linux.ci --no-link --dry-run --no-write-lock-file
 
-      - name: Check flake outputs
-        run: nix flake check --no-build --no-write-lock-file
-
+      # `nix flake check` evaluates every NixOS configuration, including the
+      # production template whose real hardware file is intentionally absent.
+      # The CI configuration is validated explicitly above instead.
       - name: Show flake outputs
         run: nix flake show --no-write-lock-file
