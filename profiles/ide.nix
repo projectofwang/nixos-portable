@@ -1,8 +1,8 @@
-# Add Zed as an independent editor profile; for example, this profile does not pull in Neovim or LazyVim.
+# Provide VS Code through the existing `ide` profile.
 { username, ... }:
 
 {
-  # Attach only the Zed Home Manager implementation to the selected user.
+  # Attach only the VS Code Home Manager implementation to the selected user.
   home-manager.users.${username}.imports = [
     ../modules/home-manager/ide.nix
   ];
