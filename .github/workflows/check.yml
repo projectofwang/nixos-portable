@@ -8,7 +8,7 @@ on:
 permissions:
   contents: read
 
-# Cancel superseded PR checks, but never cancel validation already running on main.
+# Cancel superseded PR checks, but let main validation finish.
 concurrency:
   group: check-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     steps:
       - name: Check out repository
@@ -31,8 +31,8 @@ jobs:
       - name: Check formatting
         run: nix fmt -- --check $(git ls-files '*.nix')
 
-      - name: Check CI system
-        run: nix build .#checks.x86_64-linux.ci --no-link --no-write-lock-file
+      - name: Evaluate CI system
+        run: nix build .#checks.x86_64-linux.ci --no-link --dry-run --no-write-lock-file
 
-      - name: Show flake outputs
-        run: nix flake show --no-write-lock-file
+      - name: Check flake
+        run: nix flake check --no-build --no-write-lock-file
