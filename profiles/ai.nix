@@ -18,8 +18,6 @@
     };
   };
 
-  # Add AI client integration only to editors that are already enabled by
-  # another profile; selecting AI alone never installs an editor.
   home-manager.users.${username}.imports = [
     ../modules/home-manager/ai-integration.nix
   ];
