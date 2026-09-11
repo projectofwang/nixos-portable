@@ -1,4 +1,9 @@
-{ inputs, lib, home-manager, profiles }:
+{
+  inputs,
+  lib,
+  home-manager,
+  profiles,
+}:
 
 {
   mkHost =
