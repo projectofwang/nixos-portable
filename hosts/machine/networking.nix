@@ -8,7 +8,6 @@
       "1.1.1.1"
     ];
 
-    # Keep the non-local fallback usable when dnscrypt-proxy is unavailable.
     resolvconf.extraConfig = "resolv_conf_local_only=NO";
 
     networkmanager = {
@@ -30,7 +29,6 @@
           "[::1]:53"
         ];
 
-        # Cloudflare is the plain-DNS emergency fallback; encrypted DNS remains primary.
         fallback_resolvers = [ "1.1.1.1:53" ];
 
         server_names = [ "sdns" ];
