@@ -13,8 +13,9 @@
     viAlias = true;
     vimAlias = true;
 
-    # Keep language tooling next to the editor; for example, `nil` and `nixfmt` support Nix development.
+    # Keep language tooling and the C compiler next to the editor; for example, GCC lets nvim-treesitter build its parsers.
     extraPackages = with pkgs; [
+      gcc
       lua-language-server
       stylua
       nil
