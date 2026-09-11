@@ -1,9 +1,13 @@
-# Install only system-wide base tools; for example, Git is available before any optional profile is enabled.
+# Install common command-line and diagnostic tools; for example, Git, wget, iperf3, vulkaninfo, and vainfo are available on every host.
 { pkgs, ... }:
 
 {
-  # Keep the base system minimal and place feature-specific applications in profiles.
+  # Keep universally useful tools in the base layer; feature-specific applications remain in profiles.
   environment.systemPackages = with pkgs; [
     git
+    wget
+    iperf3
+    vulkan-tools
+    libva-utils
   ];
 }
