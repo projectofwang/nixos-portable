@@ -1,6 +1,5 @@
 {
-  # This is the only file you need to edit when moving the configuration
-  # to a new machine.
+  # Machine identity lives here. Hardware and boot configuration remain machine-specific.
   hostname = "nixos"; # Change this on a new machine if you want a different hostname.
   username = "chicoarun"; # Change this on a new machine if you want a different username.
   system = "x86_64-linux"; # Change this if the architecture differs.
