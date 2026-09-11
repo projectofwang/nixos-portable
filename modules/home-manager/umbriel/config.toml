@@ -106,13 +106,23 @@ follows_mouse = false
 # Window management.
 "Mod+F" = "window-toggle-maximize"
 "Mod+Q" = "window-close"
+"Mod+O" = "overview-toggle"
 
-# Terminal: the repository's terminal stack is WezTerm -> Zellij -> Zsh.
+# Terminal and file manager.
 "Mod+Return" = "spawn:wezterm"
+"Mod+E" = "spawn:krusader"
 
-# Noctalia launcher and settings.
+# Noctalia launcher, clipboard, wallpaper, and settings.
 "Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
+"Mod+V" = "spawn:noctalia msg panel-toggle clipboard"
+"Mod+W" = "spawn:noctalia msg panel-toggle wallpaper"
 "Mod+Comma" = "spawn:noctalia msg settings-toggle"
 
-# Fullscreen screenshot.
+# PipeWire volume controls; no extra mixer package required.
+"XF86AudioRaiseVolume" = "spawn:wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
+"XF86AudioLowerVolume" = "spawn:wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+"Mod+XF86AudioMute" = "spawn:wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+
+# Fullscreen and region screenshots.
 "Ctrl+Shift+1" = "spawn:noctalia msg screenshot-fullscreen"
+"Ctrl+Shift+2" = "spawn:noctalia msg screenshot-region"
