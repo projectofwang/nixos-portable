@@ -28,7 +28,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Check formatting
-        run: nix --no-write-lock-file fmt -- --check $(git ls-files '*.nix')
+        run: nix fmt -- --check $(git ls-files '*.nix')
 
       - name: Check flake
         run: nix flake check --no-write-lock-file
