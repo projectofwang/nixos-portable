@@ -1,16 +1,19 @@
-{ config
-, lib
-, pkgs
-, username
-, ...
+{
+  config,
+  lib,
+  pkgs,
+  username,
+  ...
 }:
 
 let
-  pythonEnv = pkgs.python3.withPackages (ps: with ps; [
-    dbus-python
-    pyqt6
-    qtpy
-  ]);
+  pythonEnv = pkgs.python3.withPackages (
+    ps: with ps; [
+      dbus-python
+      pyqt6
+      qtpy
+    ]
+  );
 
   fcitx5-lotus = pkgs.stdenv.mkDerivation (finalAttrs: {
     pname = "fcitx5-lotus";
@@ -47,12 +50,13 @@ let
       pkgs.udev
     ];
 
-    vendorDir = (pkgs.buildGoModule {
-      pname = "fcitx5-lotus-go-modules";
-      inherit (finalAttrs) version src;
-      modRoot = "bamboo";
-      vendorHash = "sha256-CNDYjxDfqh9nGs5vlpb/7qXZeNtkvegC5nPvBOZcDrc=";
-    }).goModules;
+    vendorDir =
+      (pkgs.buildGoModule {
+        pname = "fcitx5-lotus-go-modules";
+        inherit (finalAttrs) version src;
+        modRoot = "bamboo";
+        vendorHash = "sha256-CNDYjxDfqh9nGs5vlpb/7qXZeNtkvegC5nPvBOZcDrc=";
+      }).goModules;
 
     preConfigure = ''
       export GOCACHE=$TMPDIR/go-cache
