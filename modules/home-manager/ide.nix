@@ -1,6 +1,7 @@
-{ pkgs, ... }:
+{ ... }:
 
 {
+  # GUI IDE only. Terminal Neovim/LazyVim is owned by the terminal-ide profile.
   programs.zed-editor = {
     enable = true;
     mutableUserSettings = false;
@@ -16,19 +17,5 @@
         working_directory = "current_project_directory";
       };
     };
-  };
-
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    viAlias = true;
-    vimAlias = true;
-    extraPackages = with pkgs; [
-      curl
-      ripgrep
-    ];
-    plugins = [
-      pkgs.vimPlugins.plenary-nvim
-    ];
   };
 }
