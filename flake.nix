@@ -84,6 +84,9 @@
           "keepassxc"
           "umbriel"
           "vietnamese-input"
+          "vesktop"
+          "telegram"
+          "signal"
         ];
       };
 
