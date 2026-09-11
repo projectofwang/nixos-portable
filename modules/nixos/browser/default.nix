@@ -1,4 +1,4 @@
-# Provide browser-specific Wayland integration; for example, Firefox and Chromium-family browsers use the Wayland/Ozone environment.
+# Provide browser-specific Wayland integration; for example, Firefox and Chromium-family browsers use native Wayland/Ozone backends.
 { ... }:
 
 {
