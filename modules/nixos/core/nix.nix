@@ -19,6 +19,7 @@
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 7d";
+    # Keep a useful rollback window without allowing unbounded store growth.
+    options = "--delete-older-than 30d";
   };
 }
