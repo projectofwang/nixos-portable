@@ -1,7 +1,6 @@
 { username, pkgs, ... }:
 
 {
-  # Optional entertainment stack. It is intentionally not part of desktop.
   nixpkgs.config.allowUnfreePackages = [
     "stremio-linux-shell"
   ];
