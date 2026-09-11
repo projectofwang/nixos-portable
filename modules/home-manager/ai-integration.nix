@@ -6,19 +6,20 @@
   config = lib.mkMerge [
     (lib.mkIf config.programs.zed-editor.enable {
       programs.zed-editor.userSettings = {
-        language_models.ollama = {
-          api_url = "http://127.0.0.1:11434";
-          auto_discover = false;
-          available_models = [
-            {
-              name = "qwen3.5:4b";
-              display_name = "Qwen 3.5 4B (local)";
-              max_tokens = 65536;
-              supports_tools = true;
-              supports_thinking = true;
-              supports_images = true;
-            }
-          ];
+        language_models = {
+          "llama.cpp" = {
+            api_url = "http://127.0.0.1:8080";
+            auto_discover = false;
+            available_models = [
+              {
+                name = "qwen3.5-4b";
+                display_name = "Qwen 3.5 4B (llama.cpp)";
+                max_tokens = 65536;
+                supports_tools = true;
+                supports_images = true;
+              }
+            ];
+          };
         };
       };
     })
@@ -31,18 +32,15 @@
             require("codecompanion").setup({
               adapters = {
                 http = {
-                  ollama_qwen = function()
-                    return require("codecompanion.adapters").extend("ollama", {
-                      name = "ollama_qwen",
+                  ["llama.cpp"] = function()
+                    return require("codecompanion.adapters").extend("openai_compatible", {
                       env = {
-                        url = "http://127.0.0.1:11434",
+                        url = "http://127.0.0.1:8080",
+                        chat_url = "/v1/chat/completions",
                       },
                       schema = {
                         model = {
-                          default = "qwen3.5:4b",
-                        },
-                        num_ctx = {
-                          default = 65536,
+                          default = "qwen3.5-4b",
                         },
                       },
                     })
@@ -51,22 +49,13 @@
               },
               interactions = {
                 chat = {
-                  adapter = {
-                    name = "ollama_qwen",
-                    model = "qwen3.5:4b",
-                  },
+                  adapter = "llama.cpp",
                 },
                 inline = {
-                  adapter = {
-                    name = "ollama_qwen",
-                    model = "qwen3.5:4b",
-                  },
+                  adapter = "llama.cpp",
                 },
                 cmd = {
-                  adapter = {
-                    name = "ollama_qwen",
-                    model = "qwen3.5:4b",
-                  },
+                  adapter = "llama.cpp",
                 },
               },
               opts = {
@@ -81,7 +70,7 @@
               desc = "AI chat",
             })
           '';
-        }
+        },
       ];
     })
   ];
