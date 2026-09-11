@@ -55,6 +55,7 @@ Set the machine-specific values:
     "base"
     "desktop"
     "terminal"
+    "terminal-ide"
     "gaming"
     "ai"
     "ide"
@@ -64,9 +65,14 @@ Set the machine-specific values:
 }
 ```
 
-Profiles are the feature boundary: add or remove a profile here instead of editing shared modules for machine-specific software choices. For example, `ai` enables the local Ollama service and AI integration for the IDE when `ide` is also selected; `ide` by itself does not enable or require Ollama.
+Profiles are the feature boundary: add or remove a profile here instead of editing shared modules for machine-specific software choices.
 
-`vietnamese-input` enables Fcitx5 with the [Fcitx5 Lotus](https://github.com/LotusInputMethod/fcitx5-lotus) Vietnamese input method. The package is built reproducibly from the upstream Lotus release and includes its required udev/systemd integration.
+- `ai` provides a local **llama.cpp** server and augments editors that are already enabled; it does not install an editor by itself.
+- `ide` provides the GUI IDE stack (Zed). `terminal-ide` owns the Neovim/LazyVim stack separately.
+- `desktop` provides Noctalia/Umbriel and enables the official Noctalia Screen Recorder plugin declaratively.
+- `vietnamese-input` enables Fcitx5 with the Lotus Vietnamese input method.
+
+The AI service uses `llama-cpp-vulkan` and exposes an OpenAI-compatible local endpoint on `127.0.0.1:8080`. Zed uses the native llama.cpp provider; CodeCompanion uses the same server through its OpenAI-compatible API.
 
 Change only the values required by the target machine. Keep state versions at the versions originally selected for that machine.
 
