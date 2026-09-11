@@ -69,29 +69,30 @@ in
       "toml"
       "rust"
     ];
-    userSettings = {
-      format_on_save = true;
-      hour_format = "hour24";
-      terminal = {
-        working_directory = "current_project_directory";
+    userSettings =
+      {
+        format_on_save = true;
+        hour_format = "hour24";
+        terminal = {
+          working_directory = "current_project_directory";
+        };
+      }
+      // lib.optionalAttrs config.my.ai.enable {
+        language_models.ollama = {
+          api_url = "http://127.0.0.1:11434";
+          auto_discover = false;
+          available_models = [
+            {
+              name = "qwen3.5:4b";
+              display_name = "Qwen 3.5 4B (local)";
+              max_tokens = 65536;
+              supports_tools = true;
+              supports_thinking = true;
+              supports_images = true;
+            }
+          ];
+        };
       };
-    }
-    // lib.optionalAttrs config.my.ai.enable {
-      language_models.ollama = {
-        api_url = "http://127.0.0.1:11434";
-        auto_discover = false;
-        available_models = [
-          {
-            name = "qwen3.5:4b";
-            display_name = "Qwen 3.5 4B (local)";
-            max_tokens = 65536;
-            supports_tools = true;
-            supports_thinking = true;
-            supports_images = true;
-          }
-        ];
-      };
-    };
   };
 
   programs.neovim = {
@@ -104,8 +105,10 @@ in
       ripgrep
     ];
 
-    plugins = [
-      pkgs.vimPlugins.plenary-nvim
-    ] ++ lib.optional config.my.ai.enable aiPlugin;
+    plugins =
+      [
+        pkgs.vimPlugins.plenary-nvim
+      ]
+      ++ lib.optional config.my.ai.enable aiPlugin;
   };
 }
