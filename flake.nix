@@ -31,7 +31,7 @@
 
     umbriel = {
       url = "github:projectofwang/umbriel";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "xdg-desktop-portal-umbriel";
       inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
     };
 
@@ -60,24 +60,7 @@
         timeZone = "UTC";
         nixosStateVersion = "26.05";
         homeStateVersion = "26.05";
-        profiles = [
-          "base"
-          "desktop"
-          "terminal"
-          "terminal-ide"
-          "browser-firefox"
-          "browser-helium"
-          "gaming"
-          "ai"
-          "ide"
-          "media"
-          "downloads"
-          "mail-thunderbird"
-          "password-bitwarden"
-          "password-keepassxc"
-          "umbriel"
-          "vietnamese-input"
-        ];
+        profiles = framework.profiles.available;
       };
 
       ci = framework.mkHost {
