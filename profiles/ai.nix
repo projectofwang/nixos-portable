@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ username, pkgs, ... }:
 
 {
   services.ollama = {
@@ -13,4 +13,8 @@
       OLLAMA_KEEP_ALIVE = "10m";
     };
   };
+
+  # The IDE profile owns the editor itself; this profile only turns on the
+  # optional local-AI integration when both profiles are selected.
+  home-manager.users.${username}.my.ai.enable = true;
 }
