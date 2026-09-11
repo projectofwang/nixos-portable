@@ -40,6 +40,9 @@ jobs:
       - name: Check formatting - IDE
         run: nix fmt -- --check modules/home-manager/ide.nix
 
+      - name: Check formatting - AI integration
+        run: nix fmt -- --check modules/home-manager/ai-integration.nix
+
       - name: Check formatting - browser
         run: nix fmt -- --check modules/nixos/browser/default.nix
 
