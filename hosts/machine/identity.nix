@@ -14,6 +14,7 @@
     "terminal"
     "terminal-ide"
     "gaming"
+    "gpu-tools"
     "ai"
     "ide"
     "umbriel"
