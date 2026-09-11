@@ -36,27 +36,29 @@
     };
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, ... }:
+  outputs =
+    inputs@{ nixpkgs, home-manager, ... }:
     let
       lib = nixpkgs.lib;
 
       profileFiles = builtins.readDir ./profiles;
-      availableProfiles =
-        map
-          (name: lib.removeSuffix ".nix" name)
-          (lib.filter
-            (name: profileFiles.${name} == "regular" && lib.hasSuffix ".nix" name)
-            (builtins.attrNames profileFiles));
+      availableProfiles = map (name: lib.removeSuffix ".nix" name) (
+        lib.filter (name: profileFiles.${name} == "regular" && lib.hasSuffix ".nix" name) (
+          builtins.attrNames profileFiles
+        )
+      );
 
-      validateProfiles = selected:
+      validateProfiles =
+        selected:
         let
           unknown = lib.filter (profile: !(builtins.elem profile availableProfiles)) selected;
         in
-        assert lib.assertMsg (unknown == [])
+        assert lib.assertMsg (unknown == [ ])
           "Unknown profile(s): ${lib.concatStringsSep ", " unknown}. Available profiles: ${lib.concatStringsSep ", " availableProfiles}";
         selected;
 
-      mkHome = { username, homeStateVersion }:
+      mkHome =
+        { username, homeStateVersion }:
         {
           useGlobalPkgs = true;
           useUserPackages = true;
@@ -80,14 +82,23 @@
         system
         timeZone
         nixosStateVersion
-        homeStateVersion;
+        homeStateVersion
+        ;
       profiles = validateProfiles machine.profiles;
 
       nixosConfiguration = lib.nixosSystem {
         inherit system;
 
         specialArgs = {
-          inherit inputs machine hostname username timeZone nixosStateVersion homeStateVersion;
+          inherit
+            inputs
+            machine
+            hostname
+            username
+            timeZone
+            nixosStateVersion
+            homeStateVersion
+            ;
         };
 
         modules = [
