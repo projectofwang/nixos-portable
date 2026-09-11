@@ -80,8 +80,6 @@ in
         echo "Noctalia screen recorder plugin could not be enabled" >&2
         exit 1
       '';
-      Restart = "on-failure";
-      RestartSec = 5;
     };
   };
 
