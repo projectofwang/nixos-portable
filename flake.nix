@@ -40,143 +40,47 @@
     inputs@{ nixpkgs, home-manager, ... }:
     let
       lib = nixpkgs.lib;
-
-      profileFiles = builtins.readDir ./profiles;
-      availableProfiles = map (name: lib.removeSuffix ".nix" name) (
-        lib.filter (name: profileFiles.${name} == "regular" && lib.hasSuffix ".nix" name) (
-          builtins.attrNames profileFiles
-        )
-      );
-
-      validateProfiles =
-        selected:
-        let
-          unknown = lib.filter (profile: !(builtins.elem profile availableProfiles)) selected;
-        in
-        assert lib.assertMsg (unknown == [ ])
-          "Unknown profile(s): ${lib.concatStringsSep ", " unknown}. Available profiles: ${lib.concatStringsSep ", " availableProfiles}";
-        selected;
-
-      mkHome =
-        { username, homeStateVersion }:
-        {
-          useGlobalPkgs = true;
-          useUserPackages = true;
-          backupFileExtension = "hm-bak";
-          extraSpecialArgs = {
-            inherit inputs homeStateVersion username;
-          };
-          users.${username} = {
-            imports = [
-              ./modules/home-manager
-              ./home/default.nix
-            ];
-            home.stateVersion = homeStateVersion;
-          };
-        };
+      framework = import ./lib { inherit inputs lib home-manager; };
 
       machine = import ./hosts/machine/identity.nix;
-      inherit (machine)
-        hostname
-        username
-        system
-        timeZone
-        nixosStateVersion
-        homeStateVersion
-        ;
-      profiles = validateProfiles machine.profiles;
-
-      nixosConfiguration = lib.nixosSystem {
-        inherit system;
-
-        specialArgs = {
-          inherit
-            inputs
-            machine
-            hostname
-            username
-            timeZone
-            nixosStateVersion
-            homeStateVersion
-            ;
-        };
-
-        modules = [
-          ./hosts/machine
-          home-manager.nixosModules.home-manager
-        ]
-        ++ map (profile: ./profiles/${profile}.nix) profiles
-        ++ [
-          {
-            system.stateVersion = nixosStateVersion;
-            home-manager = mkHome { inherit username homeStateVersion; };
-          }
-        ];
+      production = framework.mkHost {
+        inherit machine;
+        hostModule = ./hosts/machine;
       };
-
-      ciSystem = "x86_64-linux";
-      ciUsername = "ci";
-      ciStateVersion = "26.05";
-      ciHostname = "nixos-portable-ci";
-      ciProfiles = validateProfiles [
-        "base"
-        "desktop"
-        "terminal"
-        "browser"
-        "gaming"
-        "ai"
-        "ide"
-        "umbriel"
-        "vietnamese-input"
-      ];
 
       ciMachine = {
-        hostname = ciHostname;
-        username = ciUsername;
-        system = ciSystem;
+        hostname = "nixos-portable-ci";
+        username = "ci";
+        system = "x86_64-linux";
         timeZone = "UTC";
-        nixosStateVersion = ciStateVersion;
-        homeStateVersion = ciStateVersion;
-        profiles = ciProfiles;
+        nixosStateVersion = "26.05";
+        homeStateVersion = "26.05";
+        profiles = [
+          "base"
+          "desktop"
+          "terminal"
+          "browser"
+          "gaming"
+          "ai"
+          "ide"
+          "umbriel"
+          "vietnamese-input"
+        ];
       };
 
-      ciConfiguration = lib.nixosSystem {
-        system = ciSystem;
-
-        specialArgs = {
-          inherit inputs;
-          machine = ciMachine;
-          hostname = ciMachine.hostname;
-          username = ciMachine.username;
-          timeZone = ciMachine.timeZone;
-          nixosStateVersion = ciMachine.nixosStateVersion;
-          homeStateVersion = ciMachine.homeStateVersion;
-        };
-
-        modules = [
-          ./hosts/ci
-          home-manager.nixosModules.home-manager
-        ]
-        ++ map (profile: ./profiles/${profile}.nix) ciProfiles
-        ++ [
-          {
-            system.stateVersion = ciStateVersion;
-            home-manager = mkHome {
-              username = ciUsername;
-              homeStateVersion = ciStateVersion;
-            };
-          }
-        ];
+      ci = framework.mkHost {
+        machine = ciMachine;
+        hostModule = ./hosts/ci;
       };
     in
     {
       nixosConfigurations = {
-        ${hostname} = nixosConfiguration;
-        ci = ciConfiguration;
+        ${machine.hostname} = production;
+        ci = ci;
       };
 
-      checks.${ciSystem}.ci = ciConfiguration.config.system.build.toplevel;
+      checks.x86_64-linux.ci = ci.config.system.build.toplevel;
 
-      formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt;
+      formatter.${machine.system} = nixpkgs.legacyPackages.${machine.system}.nixfmt;
     };
 }
