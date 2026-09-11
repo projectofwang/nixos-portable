@@ -15,8 +15,11 @@ in
     selected:
     let
       unknown = lib.filter (profile: !(builtins.elem profile available)) selected;
+      unique = lib.unique selected;
     in
     assert lib.assertMsg (unknown == [ ])
       "Unknown profile(s): ${lib.concatStringsSep ", " unknown}. Available profiles: ${lib.concatStringsSep ", " available}";
+    assert lib.assertMsg (unique == selected)
+      "Duplicate profile(s): ${lib.concatStringsSep ", " selected}";
     selected;
 }
