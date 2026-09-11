@@ -1,4 +1,9 @@
-{ lib, hostname, timeZone, ... }:
+{
+  lib,
+  hostname,
+  timeZone,
+  ...
+}:
 
 {
   networking.hostName = lib.mkDefault hostname;
