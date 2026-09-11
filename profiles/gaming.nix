@@ -1,11 +1,9 @@
 { ... }:
 
 {
-  # Mesa/RADV plus 32-bit graphics for Steam/Proton on supported GPUs.
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-  };
+  imports = [
+    ../modules/nixos/graphics.nix
+  ];
 
   # Steam and its runtime are unfree; keep the exception scoped to the profile.
   nixpkgs.config.allowUnfreePackages = [
