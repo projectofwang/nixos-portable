@@ -107,6 +107,16 @@
       ciUsername = "ci";
       ciStateVersion = "26.05";
       ciHostname = "nixos-portable-ci";
+      ciProfiles = validateProfiles [
+        "base"
+        "desktop"
+        "terminal"
+        "browser"
+        "gaming"
+        "ai"
+        "ide"
+        "umbriel"
+      ];
 
       ciMachine = {
         hostname = ciHostname;
@@ -115,7 +125,7 @@
         timeZone = "UTC";
         nixosStateVersion = ciStateVersion;
         homeStateVersion = ciStateVersion;
-        profiles = validateProfiles [ "base" "umbriel" ];
+        profiles = ciProfiles;
       };
 
       ciConfiguration = lib.nixosSystem {
@@ -132,10 +142,11 @@
         };
 
         modules = [
-          ./profiles/base.nix
-          ./profiles/umbriel.nix
           ./hosts/ci
           home-manager.nixosModules.home-manager
+        ]
+        ++ map (profile: ./profiles/${profile}.nix) ciProfiles
+        ++ [
           {
             system.stateVersion = ciStateVersion;
             home-manager = mkHome {
