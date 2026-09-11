@@ -1,4 +1,4 @@
-{ inputs, pkgs, ... }:
+{ inputs, pkgs, username, ... }:
 
 {
   imports = [
@@ -20,5 +20,6 @@
   services.fcitx5-lotus = {
     enable = true;
     package = inputs.fcitx5-lotus.packages.${pkgs.stdenv.hostPlatform.system}.fcitx5-lotus;
+    users = [ username ];
   };
 }
