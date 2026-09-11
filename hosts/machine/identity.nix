@@ -1,4 +1,4 @@
-# Identify the physical machine; for example, optional software is selected outside this machine identity.
+# Identify the physical machine; for example, the hostname and user are defined once and all optional profiles are enabled below.
 {
   hostname = "nixos";
   username = "chicoarun";
@@ -7,8 +7,26 @@
   nixosStateVersion = "26.05";
   homeStateVersion = "26.05";
 
-  # Keep the machine profile set minimal; for example, optional features are not enabled by the hardware identity.
+  # Enable every available profile in alphabetical order; for example, rebuilding this host activates the complete workstation feature set.
   profiles = [
+    "ai"
     "base"
+    "bitwarden"
+    "desktop"
+    "downloads"
+    "firefox"
+    "gaming"
+    "helium"
+    "ide"
+    "keepassxc"
+    "media"
+    "signal"
+    "telegram"
+    "terminal"
+    "terminal-ide"
+    "thunderbird"
+    "umbriel"
+    "vesktop"
+    "vietnamese-input"
   ];
 }
