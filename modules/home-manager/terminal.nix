@@ -32,18 +32,12 @@
     };
   };
 
-  # Small, widely useful CLI tools that complement the shell/editor stack.
+  # Tools not already provided by the shell module.
   home.packages = with pkgs; [
-    bat
     btop
     cava
-    eza
     fastfetch
-    fd
-    fzf
-    htop
     jq
-    ripgrep
     tree
     yazi
   ];
