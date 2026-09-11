@@ -8,10 +8,10 @@ on:
 permissions:
   contents: read
 
-# Cancel superseded PR checks, but let main validation finish.
+# Temporarily allow the latest main run to replace an older validation run.
 concurrency:
   group: check-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 jobs:
   check:
