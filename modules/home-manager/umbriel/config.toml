@@ -103,6 +103,10 @@ follows_mouse = false
 "Mod+Left" = "window-focus-left"
 "Mod+Right" = "window-focus-right"
 
+# Window management.
+"Mod+F" = "window-toggle-maximize"
+"Mod+Q" = "window-close"
+
 # Terminal: the repository's terminal stack is WezTerm -> Zellij -> Zsh.
 "Mod+Return" = "spawn:wezterm"
 
