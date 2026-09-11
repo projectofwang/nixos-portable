@@ -9,9 +9,9 @@
     settings = {
       host = "127.0.0.1";
       port = 8080;
-      hf-repo = "unsloth/Qwen3.5-4B-GGUF";
-      hf-file = "Qwen3.5-4B-UD-Q4_K_XL.gguf";
-      alias = "qwen3.5-4b";
+      hf-repo = "unsloth/Qwen3.5-35B-A3B-GGUF";
+      hf-file = "Qwen3.5-35B-A3B-Q4_K_M.gguf";
+      alias = "qwen3.5-35b-a3b-q4_k_m";
       ctx-size = 65536;
       temp = 0.2;
       top-p = 0.95;
