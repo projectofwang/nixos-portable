@@ -8,7 +8,7 @@ on:
 permissions:
   contents: read
 
-# Temporarily allow the latest main run to replace an older validation run.
+# Temporarily allow the latest validation run to replace an older run while generating the lock.
 concurrency:
   group: check-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -32,6 +32,7 @@ jobs:
         run: |
           nix flake lock
           cat flake.lock
+          exit 1
 
       - name: Check formatting
         run: nix fmt -- --check $(git ls-files '*.nix')
