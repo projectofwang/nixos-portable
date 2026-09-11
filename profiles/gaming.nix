@@ -8,7 +8,8 @@
   };
 
   # Steam and its runtime are unfree; keep the exception scoped to the profile.
-  nixpkgs.config.allowUnfreePredicate = pkg:
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
     builtins.elem (lib.getName pkg) [
       "steam"
       "steam-unwrapped"
