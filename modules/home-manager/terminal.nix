@@ -31,4 +31,20 @@
       vimAlias = true;
     };
   };
+
+  # Small, widely useful CLI tools that complement the shell/editor stack.
+  home.packages = with pkgs; [
+    bat
+    btop
+    cava
+    eza
+    fastfetch
+    fd
+    fzf
+    htop
+    jq
+    ripgrep
+    tree
+    yazi
+  ];
 }
