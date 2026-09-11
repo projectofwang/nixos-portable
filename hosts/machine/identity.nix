@@ -15,6 +15,7 @@
     "base"
     "desktop"
     "terminal"
+    "terminal-ide"
     "gaming"
     "ai"
     "ide"
