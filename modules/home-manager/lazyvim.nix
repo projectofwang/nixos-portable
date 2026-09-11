@@ -13,7 +13,7 @@
     # LazyVim to manage its own plugin graph. This avoids a second flake input.
     plugins = with pkgs.vimPlugins; [ lazy-nvim ];
 
-    extraLuaConfig =
+    initLua =
       let
         plugins = with pkgs.vimPlugins; [
           lazy-nvim
