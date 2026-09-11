@@ -5,7 +5,7 @@
     nameservers = [
       "127.0.0.1"
       "::1"
-      "9.9.9.9"
+      "1.1.1.1"
     ];
 
     # Keep the non-local fallback usable when dnscrypt-proxy is unavailable.
@@ -30,11 +30,11 @@
           "[::1]:53"
         ];
 
-        # Plain DNS is only a fallback when the encrypted resolver is down.
-        fallback_resolvers = [ "9.9.9.9:53" ];
+        # Cloudflare is the plain-DNS emergency fallback; encrypted DNS remains primary.
+        fallback_resolvers = [ "1.1.1.1:53" ];
 
         server_names = [ "sdns" ];
-        static.sdns.stamp = "sdns://AgcAAAAAAAAAAAAYc2Rucy5jaGljb2FydW4uZHBkbnMub3JnCi9kbnMtcXVlcnk";
+        static.sdns.stamp = "sdns://AgcAAAAAAAAAAAAdc2Rucy50YWl5dWFud2FuZ2ppZS5kcGRucy5vcmcKL2Rucy1xdWVyeQ";
       };
     };
   };
