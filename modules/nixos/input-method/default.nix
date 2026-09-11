@@ -1,4 +1,5 @@
-{ lib
+{ config
+, lib
 , pkgs
 , username
 , ...
@@ -73,10 +74,10 @@ let
         --replace-fail '/usr/share/icons/hicolor' '/run/current-system/sw/share/icons/hicolor'
 
       substituteInPlace settings-gui/i18n.py \
-        --replace-fail 'localedir = "/usr/share/locale"' 'localedir = "'$out'/share/locale"'
+        --replace-fail 'localedir = "/usr/share/locale"' 'localedir = "$out/share/locale"'
 
       substituteInPlace settings-gui/ui/pages/dict_editor.py \
-        --replace-fail '"/usr/share/fcitx5/lotus/vietnamese.cm.dict"' '"'$out'/share/fcitx5/lotus/vietnamese.cm.dict"'
+        --replace-fail '"/usr/share/fcitx5/lotus/vietnamese.cm.dict"' '"$out/share/fcitx5/lotus/vietnamese.cm.dict"'
     '';
 
     postInstall = ''
@@ -103,7 +104,6 @@ let
   });
 
   cfg = config.services.fcitx5-lotus;
-  config = { };
 in
 {
   options.services.fcitx5-lotus = {
