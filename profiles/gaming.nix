@@ -1,7 +1,7 @@
 { lib, ... }:
 
 {
-  # AMD gaming stack: Mesa/RADV plus 32-bit graphics for Steam/Proton.
+  # Mesa/RADV plus 32-bit graphics for Steam/Proton on supported GPUs.
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
