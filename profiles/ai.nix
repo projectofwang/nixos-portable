@@ -14,7 +14,9 @@
     };
   };
 
-  # The IDE profile owns the editor itself; this profile only turns on the
-  # optional local-AI integration when both profiles are selected.
-  home-manager.users.${username}.my.ai.enable = true;
+  # Add AI client integration only to editors that are already enabled by
+  # another profile; selecting AI alone never installs an editor.
+  home-manager.users.${username}.imports = [
+    ../modules/home-manager/ai-integration.nix
+  ];
 }
