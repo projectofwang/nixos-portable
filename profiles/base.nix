@@ -1,7 +1,6 @@
 { ... }:
 
 {
-  # Base profile intentionally contains no desktop, GUI, or application stack.
   imports = [
     ../modules/nixos/core/nix.nix
     ../modules/nixos/core/system.nix
