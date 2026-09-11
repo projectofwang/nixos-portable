@@ -7,7 +7,6 @@
 
 let
   hostSystem = pkgs.stdenv.hostPlatform.system;
-  umbrielPortal = inputs.xdg-desktop-portal-umbriel.packages.${hostSystem}.default;
   noctaliaPackage = inputs.noctalia.packages.${hostSystem}.default;
 in
 {
@@ -25,13 +24,10 @@ in
   };
 
   # Noctalia's screen-recorder plugin uses gpu-screen-recorder.
-  # Umbriel's portal backend provides the ScreenCast and Screenshot interfaces
-  # required by portal-based capture and screen sharing.
+  # Umbriel's portal module supplies the compositor-specific portal backend.
   environment.systemPackages = [
     pkgs.gpu-screen-recorder
-    pkgs.xdg-desktop-portal
     pkgs.xdg-desktop-portal-gtk
-    umbrielPortal
   ];
 
   # Audio capture/recording and PipeWire-based desktop capture plumbing.
@@ -47,24 +43,12 @@ in
   # and power-profiles-daemon.
   services.power-profiles-daemon.enable = true;
 
-  # Install the Umbriel portal backend and select it specifically for the
-  # ScreenCast/Screenshot interfaces. Keep GTK as the general-purpose portal
-  # backend for file chooser, OpenURI, and other desktop portals.
+  # Umbriel's NixOS module registers its own portal backend. GTK remains the
+  # general-purpose backend for file chooser, OpenURI, and similar interfaces.
   xdg.portal = {
     enable = true;
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gtk
-      umbrielPortal
-    ];
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
     config.common.default = [ "gtk" ];
-    config.Umbriel = {
-      default = [
-        "umbriel"
-        "gtk"
-      ];
-      "org.freedesktop.impl.portal.ScreenCast" = [ "umbriel" ];
-      "org.freedesktop.impl.portal.Screenshot" = [ "umbriel" ];
-    };
   };
 
   # Noctalia discovers the official source itself, but plugins are disabled
