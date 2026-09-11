@@ -27,13 +27,11 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - name: Format Nix files for inspection
-        run: |
-          nix fmt -- $(git ls-files '*.nix')
-          git diff -- '*.nix'
+      - name: Check formatting
+        run: nix fmt -- --check $(git ls-files '*.nix')
 
-      - name: Check flake
-        run: nix flake check --no-write-lock-file
+      - name: Check CI system
+        run: nix build .#checks.x86_64-linux.ci --no-link --no-write-lock-file
 
       - name: Show flake outputs
         run: nix flake show --no-write-lock-file
