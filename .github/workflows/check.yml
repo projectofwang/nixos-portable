@@ -28,12 +28,6 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - name: Inspect nixfmt output
-        run: |
-          nix fmt -- $(git ls-files '*.nix')
-          git diff -- lib/default.nix lib/mk-host.nix
-          git checkout -- lib/default.nix lib/mk-host.nix
-
       - name: Check formatting
         run: nix fmt -- --check $(git ls-files '*.nix')
 
