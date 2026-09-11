@@ -78,9 +78,13 @@ Change only the values required by the target machine. Keep state versions at th
 
 ### 4. Validate
 
+The production host intentionally contains machine-specific hardware. CI therefore evaluates the generic `ci` host instead of evaluating the production host before hardware has been generated.
+
 ```bash
 nix --no-write-lock-file fmt -- --check $(git ls-files '*.nix')
-nix flake check --no-write-lock-file
+nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
+nix build .#checks.x86_64-linux.ci --no-link --dry-run --no-write-lock-file
+nix flake show --no-write-lock-file
 ```
 
 ### 5. Build before switching
