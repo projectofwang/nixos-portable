@@ -9,6 +9,8 @@
       extraConfig = ''
         return {
           default_prog = { "${pkgs.zellij}/bin/zellij" },
+          window_background_opacity = 0.88,
+          text_background_opacity = 1.0,
         }
       '';
     };
