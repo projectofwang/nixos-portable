@@ -1,6 +1,6 @@
 # nixos-portable
 
-`nixos-portable` là cấu hình NixOS dạng flake, dùng một host template chung, tách machine identity khỏi phần cấu hình dùng lại, và ghép hệ thống bằng các profile tùy chọn. Home Manager quản lý cấu hình người dùng; mỗi profile chỉ thêm phần chức năng thuộc trách nhiệm của nó.
+`nixos-portable` là một NixOS flake dùng một host builder chung, tách cấu hình theo machine khỏi implementation dùng lại, và ghép hệ thống bằng các profile tùy chọn. Machine hardware nằm trong `hosts/machine`; NixOS modules chứa implementation hệ thống; Home Manager modules chứa user environment.
 
 ## Kiến trúc
 
@@ -12,80 +12,101 @@ flake.nix
 │   │   ├── hardware-configuration.nix
 │   │   ├── boot.nix
 │   │   ├── networking.nix
-│   │   └── default.nix
+│   │   ├── gpu.nix
+│   │   └── gpu/
+│   │       └── rx580-2048sp.nix
 │   └── ci/default.nix
 ├── lib/
 │   ├── default.nix
 │   ├── mk-host.nix
 │   ├── profiles.nix
 │   └── home-manager.nix
-├── profiles/
 ├── modules/
 │   ├── nixos/
+│   │   ├── core/
+│   │   ├── browser/
+│   │   └── desktop/
 │   └── home-manager/
+├── profiles/
 ├── home/default.nix
+├── flake.nix
 └── .github/workflows/check.yml
 ```
 
-Luồng cấu hình:
+Luồng tạo host:
 
 ```text
 hosts/machine/identity.nix
-        │
-        ▼
-lib/mk-host.nix
-        │
-        ├── host module
-        ├── Home Manager
-        └── selected profiles
+          │
+          ▼
+     lib/mk-host.nix
+          │
+    ┌─────┼─────┐
+    ▼     ▼     ▼
+ machine  HM  profiles
+ hardware       │
+    │           ▼
+    └────── modules
                 │
                 ▼
-        modules/nixos + modules/home-manager
+           NixOS system
 ```
 
-`identity.nix` là nơi chọn machine identity và profile. `mk-host.nix` biến dữ liệu đó thành `nixosSystem`. Profile chỉ là composition layer; module chứa implementation.
+`identity.nix` chọn machine identity và profiles. `gpu.nix` chọn cấu hình GPU của machine. `mk-host.nix` compose mọi lớp thành `nixosSystem`. Profile chọn chức năng; module triển khai chức năng.
 
-Machine mới chủ yếu cần thay:
+## Machine portability
+
+Machine mới không cần sửa implementation chung. Thông thường chỉ thay:
 
 1. `hosts/machine/hardware-configuration.nix`
-2. `hosts/machine/identity.nix`
-3. `hosts/machine/boot.nix` nếu bootloader khác
-4. `hosts/machine/networking.nix` nếu networking khác
+2. `hosts/machine/gpu.nix` để chọn GPU file tương ứng
+3. `hosts/machine/identity.nix` nếu hostname, username, system hoặc profiles thay đổi
+4. `boot.nix` hoặc `networking.nix` nếu machine có yêu cầu riêng
 
-## Cấu trúc thư mục
+Ví dụ machine hiện tại dùng RX 580 2048SP:
+
+```text
+hosts/machine/gpu.nix
+        │
+        ▼
+hosts/machine/gpu/rx580-2048sp.nix
+```
+
+Khi đổi sang GPU khác, thay import trong `gpu.nix`, ví dụ:
+
+```nix
+imports = [ ./gpu/nvidia-rtx-3060.nix ];
+```
+
+GPU là hardware capability của machine, không phải responsibility của profile `gaming` hay `browser`. Vì vậy các profile chỉ sử dụng graphics capability đã được machine cung cấp.
+
+NixOS hiện tự động load `amdgpu` cho AMD GPU; file RX 580 hiện bật graphics userspace và 32-bit graphics cho machine. Đây là phần machine-specific, còn profile vẫn giữ độc lập với model GPU.
+
+## Root files
 
 ### `flake.nix`
 
-Điểm vào của toàn bộ flake.
+Composition root của flake.
 
-- `description`: tên và mục đích flake.
-- `inputs.nixpkgs`: nguồn NixOS.
-- `inputs.home-manager`: Home Manager dùng cùng `nixpkgs`.
-- `inputs.fcitx5-lotus`: module và package nhập tiếng Việt.
-- `inputs.noctalia`: Noctalia.
-- `inputs.noctalia-greeter`: greeter.
-- `inputs.xdg-desktop-portal-umbriel`: portal backend cho Umbriel.
-- `inputs.umbriel`: compositor.
-- `inputs.helium`: module/package cho Helium Browser.
-- `framework = import ./lib`: nạp host builder.
-- `machine = import ./hosts/machine/identity.nix`: đọc machine identity.
-- `production`: tạo host thật từ machine identity.
-- `ciMachine`: tạo machine giả lập để CI có thể evaluate/build plan mà không cần hardware thật.
-- `nixosConfigurations`: xuất production host và `ci`.
-- `checks.x86_64-linux.ci`: build target dùng cho CI.
-- `formatter`: dùng `nixfmt` cho hệ thống tương ứng.
+- khai báo inputs.
+- nạp framework từ `lib`.
+- đọc machine identity.
+- tạo production host và CI host.
+- export `nixosConfigurations`.
+- export CI check.
+- chọn formatter.
 
 Ví dụ:
 
 ```bash
-sudo nixos-rebuild build --flake .#nixos
+nixos-rebuild build --flake .#nixos
 ```
 
 ### `flake.lock`
 
-Khóa revision của các flake input. Không sửa thủ công; cập nhật bằng lệnh Nix.
+Khóa revision của mọi flake input.
 
-Ví dụ:
+Ví dụ cập nhật một input:
 
 ```bash
 nix flake lock --update-input nixpkgs
@@ -93,26 +114,26 @@ nix flake lock --update-input nixpkgs
 
 ### `home/default.nix`
 
-Thiết lập các giá trị Home Manager cơ bản từ machine identity:
+Thiết lập Home Manager state cơ bản:
 
-- `home.username`: username.
-- `home.homeDirectory`: `/home/<username>`.
-- `home.stateVersion`: phiên bản state của Home Manager.
+- username.
+- home directory.
+- Home Manager state version.
 
-Ví dụ với username `alice` tạo `/home/alice`.
+Ví dụ `username = "alice"` tạo home `/home/alice`.
 
-### `hosts/machine/`
+## `hosts/`
 
-Đây là phần machine-specific.
+Chứa machine definitions.
 
-#### `hosts/machine/identity.nix`
+### `hosts/machine/identity.nix`
 
-Nơi khai báo:
+Machine metadata và profile selection.
 
 ```nix
 {
   hostname = "nixos";
-  username = "alice";
+  username = "chicoarun";
   system = "x86_64-linux";
   timeZone = "Asia/Ho_Chi_Minh";
   nixosStateVersion = "26.05";
@@ -121,21 +142,9 @@ Nơi khai báo:
 }
 ```
 
-Ý nghĩa:
+### `hosts/machine/hardware-configuration.nix`
 
-- `hostname`: hostname hệ thống.
-- `username`: user chính.
-- `system`: target platform.
-- `timeZone`: timezone.
-- `nixosStateVersion`: state version của NixOS.
-- `homeStateVersion`: state version của Home Manager.
-- `profiles`: danh sách profile được ghép vào host.
-
-Đây là file chính cần sửa khi chuyển cấu hình sang machine khác.
-
-#### `hosts/machine/hardware-configuration.nix`
-
-Placeholder cho hardware configuration của machine thật. Phải thay bằng file được tạo trên machine đích.
+Hardware configuration được tạo cho machine thật.
 
 Ví dụ:
 
@@ -143,122 +152,111 @@ Ví dụ:
 sudo nixos-generate-config --show-hardware-config > hosts/machine/hardware-configuration.nix
 ```
 
-#### `hosts/machine/boot.nix`
+File này là phần cần thay khi chuyển sang hardware khác.
 
-Thiết lập systemd-boot và cho phép NixOS cập nhật EFI variables.
+### `hosts/machine/boot.nix`
 
-Ví dụ cấu hình hiện tại dùng:
+Bootloader configuration của machine.
+
+Hiện dùng systemd-boot và EFI variables.
+
+### `hosts/machine/networking.nix`
+
+Machine networking:
+
+- NetworkManager.
+- DNSCrypt local resolver.
+- DNS fallback.
+- firewall.
+
+### `hosts/machine/gpu.nix`
+
+GPU selector của machine. File này chỉ chọn implementation trong `hosts/machine/gpu/`.
+
+Ví dụ:
 
 ```nix
-boot.loader.systemd-boot.enable = true;
-boot.loader.efi.canTouchEfiVariables = true;
+imports = [ ./gpu/rx580-2048sp.nix ];
 ```
 
-#### `hosts/machine/networking.nix`
+Khi đổi GPU, đây là file selector cần thay đổi thay vì sửa profiles.
 
-Thiết lập NetworkManager, DNS và firewall.
+### `hosts/machine/gpu/rx580-2048sp.nix`
 
-- DNS ưu tiên local `dnscrypt-proxy`.
-- `1.1.1.1` là fallback.
-- `systemd-resolved` bị tắt.
-- NetworkManager quản lý network.
-- firewall được bật.
+Hardware graphics layer cho RX 580 2048SP.
 
-Ví dụ DNS local:
-
-```text
-127.0.0.1:53
-[::1]:53
+```nix
+hardware.graphics = {
+  enable = true;
+  enable32Bit = true;
+};
 ```
 
-#### `hosts/machine/default.nix`
+`hardware.graphics` cung cấp Mesa/OpenGL/Vulkan userspace cần cho desktop, browser, game và ứng dụng GPU. NixOS documentation xác nhận AMD graphics hoạt động với `hardware.graphics.enable = true`; AMD kernel driver `amdgpu` được kernel tự động detect. citeturn0search0turn0search2
 
-Gộp ba module machine-specific:
+### `hosts/machine/default.nix`
+
+Compose machine-specific files:
 
 ```text
 hardware-configuration.nix
 boot.nix
 networking.nix
+gpu.nix
 ```
 
 ### `hosts/ci/default.nix`
 
-Host NixOS tối giản dành cho CI. Nó bật container mode và cung cấp root filesystem `tmpfs` để NixOS có thể evaluate mà không cần hardware configuration thật.
+Minimal NixOS host dành cho CI. Nó không phụ thuộc hardware thật và được dùng để evaluate/build-plan cấu hình trong GitHub Actions.
 
-### `lib/`
+## `lib/`
 
-Lớp framework nội bộ dùng để tạo host.
+Framework nội bộ để tạo host.
 
-#### `lib/default.nix`
+### `lib/default.nix`
 
-Nạp `profiles.nix` và `mk-host.nix`, sau đó export `profiles` và `mkHost`.
+Export `profiles` và `mkHost`.
 
-Ví dụ:
+### `lib/profiles.nix`
 
-```nix
-framework.mkHost { ... }
-```
-
-#### `lib/profiles.nix`
-
-Đọc các file `profiles/*.nix`, lấy tên profile từ filename và kiểm tra profile được chọn có tồn tại.
+Tự discover `profiles/*.nix` và validate profile name.
 
 Ví dụ:
 
 ```text
-profiles/terminal.nix → "terminal"
+profiles/terminal.nix → terminal
 ```
 
-Nếu machine chọn profile không tồn tại, evaluation dừng với lỗi liệt kê profile hợp lệ.
+Nếu profile không tồn tại, evaluation fail.
 
-#### `lib/home-manager.nix`
+### `lib/home-manager.nix`
 
-Tạo cấu hình Home Manager dùng chung:
+Tạo Home Manager configuration dùng chung cho host.
 
-- `useGlobalPkgs = true`: dùng package set của hệ thống.
-- `useUserPackages = true`: package user được quản lý bởi Home Manager.
-- `backupFileExtension`: extension cho file backup.
-- `extraSpecialArgs`: truyền input và state version vào module.
-- `users.<username>`: nạp `modules/home-manager` và `home/default.nix`.
+Nó nối system package set, user packages, state versions và user module tree.
 
-#### `lib/mk-host.nix`
+### `lib/mk-host.nix`
 
-Hàm `mkHost` là composition root.
+Composition root của từng host.
 
-Nó:
+Thực hiện:
 
-1. validate profile.
+1. validate profiles.
 2. tạo Home Manager.
-3. gọi `lib.nixosSystem`.
+3. tạo `nixosSystem`.
 4. truyền machine values qua `specialArgs`.
 5. import host module.
 6. import Home Manager.
-7. import từng profile.
-8. đặt `system.stateVersion`.
+7. import selected profiles.
+8. đặt NixOS state version.
 
-Ví dụ:
+## `modules/nixos/`
 
-```nix
-mkHost {
-  machine = machine;
-  hostModule = ./hosts/machine;
-}
-```
+Implementation cấp system.
 
-### `modules/nixos/`
+### `modules/nixos/core/nix.nix`
 
-Nơi chứa implementation cấp hệ thống.
-
-#### `modules/nixos/core/nix.nix`
-
-Thiết lập Nix:
-
-- tắt channel cũ.
-- bật `nix-command` và `flakes`.
-- chỉ `root` là trusted user.
-- bật automatic store optimisation.
-- garbage collection hàng tuần.
-- xóa generation/store item cũ hơn 30 ngày.
+Cấu hình Nix daemon, flakes, `nix-command`, store optimisation và garbage collection.
 
 Ví dụ:
 
@@ -266,100 +264,72 @@ Ví dụ:
 nix flake show
 ```
 
-#### `modules/nixos/core/system.nix`
+### `modules/nixos/core/system.nix`
 
-Đặt hostname và timezone từ machine identity bằng `lib.mkDefault`.
+Map machine identity vào hostname và timezone.
 
-Ví dụ:
+### `modules/nixos/core/users.nix`
 
-```text
-hostname = nixos
-timezone = Asia/Ho_Chi_Minh
-```
+Tạo user chính, Zsh và các group hệ thống cần thiết.
 
-#### `modules/nixos/core/users.nix`
+### `modules/nixos/core/security.nix`
 
-Tạo normal user, shell zsh và các group cơ bản.
+Cấu hình sudo và policy mặc định cho system security.
 
-- `wheel`: sudo.
-- `networkmanager`: quản lý network.
-- `programs.zsh.enable`: bật zsh ở cấp NixOS.
-- password không được hard-code vào cấu hình.
+### `modules/nixos/core/tools.nix`
 
-#### `modules/nixos/core/security.nix`
+Cài system-level tools thuộc base system, hiện gồm Git.
 
-Bật sudo và để polkit ở `false` mặc định để module desktop có thể override khi cần.
+### `modules/nixos/browser/default.nix`
 
-#### `modules/nixos/core/tools.nix`
+Browser/Wayland integration.
 
-Cài `git` ở cấp system.
+- `MOZ_ENABLE_WAYLAND`.
+- `NIXOS_OZONE_WL`.
+- `libva-utils`.
+- `vulkan-tools`.
 
-#### `modules/nixos/graphics.nix`
+Graphics hardware không được khai báo ở đây; nó thuộc machine GPU layer.
 
-Module graphics dùng chung cho các profile cần acceleration.
+### `modules/nixos/desktop/default.nix`
 
-Bật:
-
-```nix
-hardware.graphics.enable = true;
-hardware.graphics.enable32Bit = true;
-```
-
-Ví dụ profile browser và gaming cùng import module này thay vì khai báo trùng.
-
-#### `modules/nixos/browser/default.nix`
-
-Shared browser/Wayland layer.
-
-- import graphics.
-- bật `MOZ_ENABLE_WAYLAND`.
-- bật `NIXOS_OZONE_WL`.
-- cài `libva-utils` và `vulkan-tools`.
-
-Browser cụ thể được chọn bởi profile `browser-firefox` hoặc `browser-helium`.
-
-#### `modules/nixos/desktop/default.nix`
-
-Cấp system cho desktop stack:
+System desktop stack:
 
 - Umbriel.
 - Noctalia.
 - Noctalia Greeter.
 - PipeWire.
 - RTKit.
-- XDG desktop portal GTK.
+- XDG desktop portal.
 - `gpu-screen-recorder`.
 - Krusader.
-- Home Manager desktop module.
+- Home Manager desktop import.
 
-Noctalia screen recorder được bật từ Home Manager bằng plugin chính thức.
+## `modules/home-manager/`
 
-### `modules/home-manager/`
+User-level implementation.
 
-Nơi quản lý user environment và ứng dụng user-level.
+### `modules/home-manager/default.nix`
 
-#### `modules/home-manager/default.nix`
+Baseline Home Manager; chỉ nạp shell environment.
 
-Chỉ import `shell.nix`. Đây là baseline Home Manager.
+### `modules/home-manager/shell.nix`
 
-#### `modules/home-manager/shell.nix`
+Shell và CLI environment:
 
-Cấu hình shell và CLI environment:
-
-- Bash.
-- Zsh.
+- Bash/Zsh.
 - Starship.
-- direnv + nix-direnv.
+- direnv/nix-direnv.
 - zoxide.
 - Atuin.
 - fzf.
 - bat.
 - eza.
+- fd.
+- ripgrep.
 - fzf-tab.
-- `fd`.
-- `ripgrep`.
 
-Ví dụ alias:
+Ví dụ:
 
 ```text
 ls   → eza
@@ -368,9 +338,9 @@ find → fd
 cd   → z
 ```
 
-#### `modules/home-manager/terminal.nix`
+### `modules/home-manager/terminal.nix`
 
-Cấu hình terminal GUI và multiplexer:
+Terminal environment:
 
 - WezTerm.
 - Zellij.
@@ -381,18 +351,18 @@ Cấu hình terminal GUI và multiplexer:
 - tree.
 - yazi.
 
-WezTerm mở Zellij làm chương trình mặc định. Zellij dùng Neovim làm scrollback editor.
+Neovim không được sở hữu ở đây.
 
-#### `modules/home-manager/lazyvim.nix`
+### `modules/home-manager/lazyvim.nix`
 
-Ownership duy nhất của terminal Neovim/LazyVim.
+Ownership duy nhất của Neovim/LazyVim.
 
-- bật Neovim.
-- đặt làm default editor.
-- bật `vi`/`vim` alias.
-- cài language server và formatter cần thiết.
-- bootstrap LazyVim từ nixpkgs.
-- dùng `linkFarm` để cung cấp plugin path ổn định cho Lazy.
+- Neovim.
+- `vi`/`vim` aliases.
+- default editor.
+- LazyVim bootstrap.
+- language servers.
+- formatters.
 
 Ví dụ:
 
@@ -400,80 +370,66 @@ Ví dụ:
 nvim
 ```
 
-#### `modules/home-manager/ide.nix`
+### `modules/home-manager/ide.nix`
 
-Ownership của GUI IDE Zed.
+Ownership của Zed.
 
-- bật Zed.
-- khóa mutable user settings.
-- cài extension Nix/TOML/Rust.
+- Zed package.
+- editor settings.
+- Nix/TOML/Rust extensions.
 - format on save.
-- terminal làm việc tại project directory.
+- project terminal.
 
-#### `modules/home-manager/ai-integration.nix`
+### `modules/home-manager/ai-integration.nix`
 
-Lớp integration, không phải AI server.
+Editor integration cho local AI.
 
-- nếu Zed đã bật: cấu hình provider `llama.cpp` tại `127.0.0.1:8080`.
-- nếu Neovim đã bật: thêm CodeCompanion với OpenAI-compatible endpoint.
-- AI profile không tự cài Zed hay Neovim.
+- Zed dùng native `llama.cpp` provider.
+- Neovim dùng CodeCompanion với OpenAI-compatible endpoint.
+- Không tự cài editor.
 
-Ví dụ model:
+Backend:
 
 ```text
+127.0.0.1:8080
 qwen3.5-4b
 ```
 
-#### `modules/home-manager/desktop/default.nix`
+### `modules/home-manager/desktop/default.nix`
 
-Bật Noctalia và declaratively enable plugin:
+Noctalia Home Manager configuration và official screen-recorder plugin.
 
-```text
-noctalia/screen_recorder
-```
+### `modules/home-manager/umbriel.nix`
 
-#### `modules/home-manager/umbriel.nix`
+Bật Umbriel user configuration.
 
-Bật Umbriel trong Home Manager và lấy cấu hình từ `umbriel/config.toml`.
+### `modules/home-manager/umbriel/config.toml`
 
-#### `modules/home-manager/umbriel/config.toml`
+Runtime configuration cho compositor:
 
-Cấu hình runtime cho Umbriel:
-
-- autostart Noctalia.
-- XWayland.
-- appearance/blur/shadow.
-- keyboard/touchpad/mouse.
-- workspace switching.
-- window focus và window management.
+- appearance.
+- input.
+- workspaces.
+- window management.
 - terminal/file manager launch.
-- Noctalia launcher/clipboard/wallpaper/settings.
-- volume controls.
+- Noctalia IPC.
+- audio.
 - screenshots.
-
-Ví dụ:
-
-```text
-Mod+Return → WezTerm
-Mod+E      → Krusader
-Mod+Space  → Noctalia launcher
-Mod+Q      → đóng window
-```
 
 ## Profiles
 
-Profile là đơn vị lựa chọn chức năng cho từng machine. Profile không nên chứa chức năng không liên quan đến tên của nó.
+Profile là composition layer. Profile chọn chức năng; implementation nằm trong modules.
 
 | Profile | Nội dung |
 |---|---|
-| `base` | Nix, system identity, user, security, git |
-| `desktop` | Umbriel, Noctalia, greeter, PipeWire, portal, desktop dependencies |
-| `terminal` | WezTerm, Zellij và CLI terminal stack |
+| `base` | Nix, system identity, user, security, Git |
+| `desktop` | Umbriel, Noctalia, greeter, PipeWire, portal |
+| `terminal` | WezTerm, Zellij, terminal CLI stack |
 | `terminal-ide` | `terminal` + LazyVim/Neovim |
-| `browser-firefox` | browser shared layer + Firefox |
-| `browser-helium` | browser shared layer + Helium |
-| `gaming` | graphics + GameMode + Steam |
-| `ai` | llama.cpp server + editor integrations nếu editor đã bật |
+| `browser-firefox` | Browser layer + Firefox |
+| `browser-helium` | Browser layer + Helium |
+| `gaming` | GameMode + Steam |
+| `ai` | llama.cpp server + editor integrations |
 | `ide` | Zed |
 | `media` | mpv, mpvpaper, VLC, Stremio |
 | `downloads` | qBittorrent GUI |
@@ -483,142 +439,41 @@ Profile là đơn vị lựa chọn chức năng cho từng machine. Profile kh�
 | `umbriel` | Umbriel user configuration |
 | `vietnamese-input` | Fcitx5 + Lotus Vietnamese input |
 
-Ví dụ machine dùng terminal + Zed + AI:
+GPU không phải profile. GPU được chọn trong `hosts/machine/gpu.nix` vì nó là machine hardware capability.
+
+Ví dụ:
 
 ```nix
 profiles = [
   "base"
+  "desktop"
   "terminal"
-  "ide"
+  "terminal-ide"
+  "gaming"
   "ai"
 ];
 ```
 
-Ví dụ terminal IDE không cần Zed:
+## Validation
 
-```nix
-profiles = [
-  "base"
-  "terminal-ide"
-];
-```
-
-`ai` có thể đi cùng `ide`, `terminal-ide`, cả hai, hoặc không editor nào. Khi không có editor, AI profile chỉ cung cấp server.
-
-## Luật ownership
-
-```text
-base
- └── core system
-
-terminal
- └── WezTerm + Zellij + CLI
-
-terminal-ide
- └── terminal
- └── LazyVim / Neovim
-
-ide
- └── Zed
-
-ai
- └── llama.cpp
-      ├── Zed integration nếu Zed tồn tại
-      └── CodeCompanion nếu Neovim tồn tại
-
-desktop
- └── Umbriel + Noctalia + desktop plumbing
-```
-
-Các nguyên tắc chính:
-
-- Không cài GUI/IDE/AI vào `base`.
-- Không cấu hình Neovim trong `terminal.nix`.
-- Không để `ai` tự chọn editor.
-- Không khai báo graphics lặp lại giữa browser và gaming.
-- Machine-specific values nằm ở `hosts/machine`.
-- Profile selection nằm ở `hosts/machine/identity.nix`.
-- `flake.lock` là lockfile, không phải nơi cấu hình chức năng.
-
-## Cài đặt trên machine mới
-
-### 1. Clone
-
-```bash
-git clone https://github.com/projectofwang/nixos-portable.git
-cd nixos-portable
-```
-
-### 2. Tạo hardware configuration
-
-```bash
-sudo nixos-generate-config --show-hardware-config > hosts/machine/hardware-configuration.nix
-```
-
-### 3. Sửa machine identity
-
-```text
-hosts/machine/identity.nix
-```
-
-Thay `hostname`, `username`, `system` và chọn `profiles` cần dùng.
-
-### 4. Kiểm tra
+Local validation:
 
 ```bash
 nix fmt -- --check $(git ls-files '*.nix')
-nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
-nix build .#checks.x86_64-linux.ci --no-link --dry-run --no-write-lock-file
-nix flake show --no-write-lock-file
+nix flake check
+nix flake show
 ```
 
-### 5. Build
+Production build:
 
 ```bash
-sudo nixos-rebuild build --flake .#<hostname>
+nixos-rebuild build --flake .#nixos
 ```
 
-### 6. Switch
-
-Chỉ switch sau khi build thành công:
+Production switch:
 
 ```bash
-sudo nixos-rebuild switch --flake .#<hostname>
+sudo nixos-rebuild switch --flake .#nixos
 ```
 
-## CI
-
-Workflow nằm tại `.github/workflows/check.yml`.
-
-CI thực hiện:
-
-1. checkout repository.
-2. cài Nix với flakes.
-3. kiểm tra formatting Nix.
-4. evaluate CI system.
-5. kiểm tra build plan của CI target.
-6. hiển thị flake outputs.
-
-Production host không được evaluate trên GitHub runner vì hardware configuration là machine-specific. CI dùng `nixosConfigurations.ci` thay thế.
-
-## Cách đọc một module Nix
-
-Các pattern chính trong repository:
-
-| Cấu trúc | Tác dụng | Ví dụ |
-|---|---|---|
-| `{ pkgs, ... }:` | nhận package set từ NixOS/Home Manager | `{ pkgs, ... }:` |
-| `{ username, ... }:` | nhận machine username | `users.users.${username}` |
-| `imports = [ ... ];` | ghép module khác | `imports = [ ./shell.nix ];` |
-| `lib.mkDefault` | đặt default nhưng cho module khác override | `security.polkit.enable = lib.mkDefault false;` |
-| `lib.mkIf` | chỉ áp dụng cấu hình khi điều kiện đúng | `lib.mkIf config.programs.neovim.enable` |
-| `lib.mkMerge` | hợp nhất nhiều nhánh module | AI integrations |
-| `${name}` | interpolation | `/home/${username}` |
-| `with pkgs; [ ... ]` | lấy package trực tiếp từ `pkgs` | `[ git ripgrep fd ]` |
-| `home-manager.users.<user>` | cấu hình Home Manager từ NixOS | `home-manager.users.${username}.imports` |
-| `nixpkgs.config.allowUnfreePackages` | mở unfree package có scope | Steam, Stremio |
-| `system.stateVersion` | giữ semantics state của NixOS | `26.05` |
-
-## Trạng thái kiểm tra
-
-Commit hiện tại đã được CI kiểm tra với toàn bộ các bước formatting, evaluation, build-plan và flake output thành công.
+CI không evaluate production hardware configuration; CI dùng host `ci` để kiểm tra evaluation và build plan trên runner không có hardware của machine thật.
