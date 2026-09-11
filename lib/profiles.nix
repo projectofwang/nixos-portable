@@ -1,3 +1,4 @@
+# Discover profile files automatically; for example, `profiles/terminal.nix` becomes the selectable profile `terminal`.
 { lib }:
 
 let
@@ -9,8 +10,10 @@ let
   );
 in
 {
+  # Expose the discovered profile names for validation and diagnostics.
   inherit available;
 
+  # Reject typos before NixOS composition; for example, `terminal-idee` fails with the available profile list.
   validate =
     selected:
     let

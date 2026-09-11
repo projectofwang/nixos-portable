@@ -1,3 +1,4 @@
+# Augment enabled editors with one local AI backend; for example, Zed and Neovim both connect to llama.cpp on `127.0.0.1:8080`.
 {
   config,
   lib,
@@ -7,8 +8,10 @@
 
 {
   config = lib.mkMerge [
+    # Configure Zed only when its owning profile is enabled.
     (lib.mkIf config.programs.zed-editor.enable {
       programs.zed-editor.userSettings = {
+        # Use Zed's native llama.cpp provider instead of wrapping it in a generic OpenAI provider.
         language_models = {
           "llama.cpp" = {
             api_url = "http://127.0.0.1:8080";
@@ -26,9 +29,12 @@
         };
       };
     })
+
+    # Configure CodeCompanion only when Neovim is already enabled by the editor profile.
     (lib.mkIf config.programs.neovim.enable {
       programs.neovim.plugins = [
         {
+          # Install the plugin without making AI integration own Neovim itself.
           plugin = pkgs.vimPlugins.codecompanion-nvim;
           type = "lua";
           config = ''

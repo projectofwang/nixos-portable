@@ -1,6 +1,8 @@
+# Run the local llama.cpp service and connect optional editor integrations; for example, the service exposes an OpenAI-compatible API on port 8080.
 { username, pkgs, ... }:
 
 {
+  # Use the Vulkan backend because GPU acceleration is provided by the machine graphics layer.
   services.llama-cpp = {
     enable = true;
     package = pkgs.llama-cpp-vulkan;
@@ -18,6 +20,7 @@
     };
   };
 
+  # Add editor integrations only; for example, Zed and Neovim can consume the same local model without owning the server.
   home-manager.users.${username}.imports = [
     ../modules/home-manager/ai-integration.nix
   ];

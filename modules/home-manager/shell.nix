@@ -1,16 +1,21 @@
+# Configure the shared interactive shell; for example, every host gets Zsh, Starship, direnv, and modern CLI replacements.
 { pkgs, ... }:
 
 {
+  # Add user-local executables to PATH; for example, npm global binaries become available without system installation.
   home.sessionPath = [ "$HOME/.npm-global/bin" ];
 
   programs = {
+    # Keep Bash available for scripts and fallback shells.
     bash.enable = true;
 
+    # Load Nix development environments automatically; for example, entering a flake directory activates its dev shell.
     direnv = {
       enable = true;
       nix-direnv.enable = true;
     };
 
+    # Render a compact, repository-aware prompt; for example, Git state appears beside the current directory.
     starship = {
       enable = true;
       enableZshIntegration = true;
@@ -60,11 +65,13 @@
       };
     };
 
+    # Enable fast directory jumping; for example, `cd project` resolves through zoxide history.
     zoxide = {
       enable = true;
       enableZshIntegration = true;
     };
 
+    # Provide searchable shell history without synchronizing it remotely.
     atuin = {
       enable = true;
       enableZshIntegration = true;
@@ -78,6 +85,7 @@
       };
     };
 
+    # Use fd as the default fzf source; for example, Ctrl-T searches tracked and hidden files while excluding `.git`.
     fzf = {
       enable = true;
       enableZshIntegration = true;
@@ -98,6 +106,7 @@
       ];
     };
 
+    # Replace cat with bat and keep readable source defaults; for example, line numbers and change markers are shown automatically.
     bat = {
       enable = true;
       config = {
@@ -106,6 +115,7 @@
       };
     };
 
+    # Replace common directory commands with eza; for example, `ls` becomes a Git-aware listing with directory grouping.
     eza = {
       enable = true;
       enableZshIntegration = true;
@@ -117,6 +127,7 @@
       ];
     };
 
+    # Own the interactive Zsh environment and shell aliases; for example, `find` maps to fd and `cd` maps to zoxide.
     zsh = {
       enable = true;
       enableCompletion = true;
@@ -133,6 +144,7 @@
         cd = "z";
       };
 
+      # Keep useful history while avoiding destructive or noisy command patterns.
       history = {
         size = 10000;
         ignoreAllDups = true;
@@ -144,6 +156,7 @@
         ];
       };
 
+      # Pin fzf-tab for reproducible completion behavior; for example, completion menus can preview directories through eza.
       plugins = [
         {
           name = "fzf-tab";
@@ -156,6 +169,7 @@
         }
       ];
 
+      # Add completion previews and environment-aware fzf commands during Zsh initialization.
       initContent = ''
         zstyle ':completion:*' menu no
         zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
@@ -172,6 +186,7 @@
     };
   };
 
+  # Keep low-level search tools user-scoped; for example, `fd` and `ripgrep` back the shell workflows above.
   home.packages = with pkgs; [
     fd
     ripgrep
