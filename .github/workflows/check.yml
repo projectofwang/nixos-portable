@@ -32,7 +32,7 @@ jobs:
         run: nix fmt -- --check $(git ls-files '*.nix')
 
       - name: Evaluate production system
-        run: nix eval .#nixosConfigurations.production.config.system.build.toplevel.drvPath --no-write-lock-file
+        run: nix eval .#nixosConfigurations.nixos.config.system.build.toplevel.drvPath --no-write-lock-file
 
       - name: Evaluate CI system
         run: nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
