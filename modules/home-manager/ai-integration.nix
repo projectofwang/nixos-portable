@@ -1,4 +1,3 @@
-# Augment enabled editors with one local AI backend; for example, Zed and Neovim both connect to llama.cpp on `127.0.0.1:8080`.
 {
   config,
   lib,
@@ -18,8 +17,8 @@
             auto_discover = false;
             available_models = [
               {
-                name = "qwen3.5-4b";
-                display_name = "Qwen 3.5 4B (llama.cpp)";
+                name = "qwen3.5-35b-a3b-q4_k_m";
+                display_name = "Qwen 3.5 35B-A3B Q4_K_M (llama.cpp)";
                 max_tokens = 65536;
                 supports_tools = true;
                 supports_images = true;
@@ -49,7 +48,7 @@
                       },
                       schema = {
                         model = {
-                          default = "qwen3.5-4b",
+                          default = "qwen3.5-35b-a3b-q4_k_m",
                         },
                       },
                     })
