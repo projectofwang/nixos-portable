@@ -1,7 +1,85 @@
 {
   "nodes": {
+    "fcitx5-lotus": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "snowfall-lib": "snowfall-lib"
+      },
+      "locked": {
+        "lastModified": 1789039765,
+        "narHash": "sha256-dtq7TOuoJF1Qcx7YxmXcjMUv9er1PNgnydWku810HOo=",
+        "owner": "projectofwang",
+        "repo": "fcitx5-lotus",
+        "rev": "3e5b1bf7d10a9316818f7097c4599a01e4e6148c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "projectofwang",
+        "repo": "fcitx5-lotus",
+        "type": "github"
+      }
+    },
+    "flake-compat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1650374568,
+        "narHash": "sha256-Z+s0J8/r907g149rllvwhb4pKi8Wam5ij0st8PwAh+E=",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "rev": "b4a34015c698c7793d592d66adbab377907a2be8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1694529238,
+        "narHash": "sha256-zsNZZGTGnMOf9YpHKJqMSsa0dXbfmxeoJ7xHlrt+xmY=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "ff7b65b44d01cf9ba6a71320833626af21126384",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils-plus": {
+      "inputs": {
+        "flake-utils": "flake-utils"
+      },
+      "locked": {
+        "lastModified": 1715533576,
+        "narHash": "sha256-fT4ppWeCJ0uR300EH3i7kmgRZnAVxrH+XtK09jQWihk=",
+        "owner": "gytis-ivaskevicius",
+        "repo": "flake-utils-plus",
+        "rev": "3542fe9126dc492e53ddd252bb0260fe035f2c0f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "gytis-ivaskevicius",
+        "repo": "flake-utils-plus",
+        "rev": "3542fe9126dc492e53ddd252bb0260fe035f2c0f",
+        "type": "github"
+      }
+    },
     "helium": {
-      "inputs": { "nixpkgs": [ "nixpkgs" ] },
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
         "lastModified": 1788957903,
         "narHash": "sha256-1wRe69M+6vk6pBQvRaVShiBlOcELHqNkgJ+XHIpmt1g=",
@@ -10,10 +88,18 @@
         "rev": "4fec073f7e3b1ecd8ae572dadfe18bbc795584d8",
         "type": "github"
       },
-      "original": { "owner": "oxcl", "repo": "nix-flake-helium-browser", "type": "github" }
+      "original": {
+        "owner": "oxcl",
+        "repo": "nix-flake-helium-browser",
+        "type": "github"
+      }
     },
     "home-manager": {
-      "inputs": { "nixpkgs": [ "nixpkgs" ] },
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
         "lastModified": 1786719456,
         "narHash": "sha256-B74DLQs/VjlqyhnnX3tguWwghqJHWSJX30TKZuAljIg=",
@@ -22,7 +108,11 @@
         "rev": "83b7606dcf44abe3a94b86e8bb2b3355d22e8797",
         "type": "github"
       },
-      "original": { "owner": "nix-community", "repo": "home-manager", "type": "github" }
+      "original": {
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
     },
     "nixpkgs": {
       "locked": {
@@ -33,61 +123,56 @@
         "rev": "0e251e24a4f24e036a084b6b4b2d2491af4167f4",
         "type": "github"
       },
-      "original": { "owner": "NixOS", "ref": "nixos-unstable", "repo": "nixpkgs", "type": "github" }
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
     },
     "noctalia": {
-      "inputs": { "nixpkgs": [ "nixpkgs" ] },
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1788886125,
-        "narHash": "sha256-5rgQFUGr8GXYyyuy8ynrN39WfZzSiO/wqGWjELBOkEY=",
-        "owner": "ChicoOneForAll",
+        "lastModified": 1789095131,
+        "narHash": "sha256-M8qBxWxDVF8cWzwa0nNKUu3ONn9Q6fF5XSIXEeB4JLk=",
+        "owner": "projectofwang",
         "repo": "noctalia",
-        "rev": "d6607b4eafbb92f6d494ebed3e296d4b741c0b58",
+        "rev": "32c7ae5aa7fada3313bc90842e2e630fc8e14dc6",
         "type": "github"
       },
-      "original": { "owner": "ChicoOneForAll", "repo": "noctalia", "type": "github" }
+      "original": {
+        "owner": "projectofwang",
+        "repo": "noctalia",
+        "type": "github"
+      }
     },
     "noctalia-greeter": {
-      "inputs": { "nixpkgs": [ "nixpkgs" ] },
-      "locked": {
-        "lastModified": 1788702995,
-        "narHash": "sha256-/+62D/xOeWw1hXS5Q4O8CbjL06aeOted36Xl12PX1KU=",
-        "owner": "ChicoOneForAll",
-        "repo": "noctalia-greeter",
-        "rev": "eebac5bf6488ac038c5582a89fb369dc146849d9",
-        "type": "github"
-      },
-      "original": { "owner": "ChicoOneForAll", "repo": "noctalia-greeter", "type": "github" }
-    },
-    "umbriel": {
       "inputs": {
-        "nixpkgs": [ "nixpkgs" ],
-        "xdg-desktop-portal-umbriel": [ "xdg-desktop-portal-umbriel" ]
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
-        "lastModified": 1788961004,
-        "narHash": "sha256-NnJzuHk3aaf4LdvpPOQ73zwZK8fNSEv/9CgSSahQRro=",
-        "owner": "ChicoOneForAll",
-        "repo": "umbriel",
-        "rev": "9929e70c92f1ab0ac65307192d0e0f4e4f782a0a",
+        "lastModified": 1789067198,
+        "narHash": "sha256-4UeVdTny7Ir2G/NRVOcp966U6iOL8qgHLLyPr/u3Uvs=",
+        "owner": "projectofwang",
+        "repo": "noctalia-greeter",
+        "rev": "dde61d85499c01ce0a9f9b8abfbc399da324dcd4",
         "type": "github"
       },
-      "original": { "owner": "ChicoOneForAll", "repo": "umbriel", "type": "github" }
-    },
-    "xdg-desktop-portal-umbriel": {
-      "inputs": { "nixpkgs": [ "nixpkgs" ] },
-      "locked": {
-        "lastModified": 1788800127,
-        "narHash": "sha256-x2D1TiCn0rTwbA8darNxthxOWOCoZLwefptsUM7587I=",
-        "owner": "ChicoOneForAll",
-        "repo": "xdg-desktop-portal-umbriel",
-        "rev": "d7a1bc386c2a6dfaecaa953165f9f373735c9ee0",
+      "original": {
+        "owner": "projectofwang",
+        "repo": "noctalia-greeter",
         "type": "github"
-      },
-      "original": { "owner": "ChicoOneForAll", "repo": "xdg-desktop-portal-umbriel", "type": "github" }
+      }
     },
     "root": {
       "inputs": {
+        "fcitx5-lotus": "fcitx5-lotus",
         "helium": "helium",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
@@ -95,6 +180,87 @@
         "noctalia-greeter": "noctalia-greeter",
         "umbriel": "umbriel",
         "xdg-desktop-portal-umbriel": "xdg-desktop-portal-umbriel"
+      }
+    },
+    "snowfall-lib": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "flake-utils-plus": "flake-utils-plus",
+        "nixpkgs": [
+          "fcitx5-lotus",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1765361626,
+        "narHash": "sha256-kX0Dp/kYSRbQ+yd9e3lmmUWdNbipufvKfL2IzbrSpnY=",
+        "owner": "snowfallorg",
+        "repo": "lib",
+        "rev": "c566ad8b7352c30ec3763435de7c8f1c46ebb357",
+        "type": "github"
+      },
+      "original": {
+        "owner": "snowfallorg",
+        "repo": "lib",
+        "type": "github"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "umbriel": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "xdg-desktop-portal-umbriel": [
+          "xdg-desktop-portal-umbriel"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789099290,
+        "narHash": "sha256-jYhOCp0tFm8k+hG26dwfhLWKY9A2rnMuZOxyPVEsv08=",
+        "owner": "projectofwang",
+        "repo": "umbriel",
+        "rev": "f11b153d35d03b893f6ab32005bb9925bbd7a7cc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "projectofwang",
+        "repo": "umbriel",
+        "type": "github"
+      }
+    },
+    "xdg-desktop-portal-umbriel": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788800127,
+        "narHash": "sha256-x2D1TiCn0rTwbA8darNxthxOWOCoZLwefptsUM7587I=",
+        "owner": "projectofwang",
+        "repo": "xdg-desktop-portal-umbriel",
+        "rev": "d7a1bc386c2a6dfaecaa953165f9f373735c9ee0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "projectofwang",
+        "repo": "xdg-desktop-portal-umbriel",
+        "type": "github"
       }
     }
   },
