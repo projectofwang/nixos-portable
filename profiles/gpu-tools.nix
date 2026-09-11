@@ -1,9 +1,10 @@
-# Provide optional GPU diagnostics without coupling them to the machine hardware module; example: `vulkaninfo --summary` inspects the active Vulkan stack.
+# Provide optional GPU diagnostics without coupling them to machine hardware; for example, this profile supplies Vulkan and VA-API inspection tools.
 { pkgs, ... }:
 
 {
-  # Install GPU inspection tools for interactive troubleshooting; example: `vulkaninfo --summary` reports the Vulkan device and driver.
-  environment.systemPackages = [
-    pkgs.vulkan-tools
+  # Install GPU inspection tools for interactive troubleshooting; example: `vulkaninfo --summary` and `vainfo` report active graphics/video drivers.
+  environment.systemPackages = with pkgs; [
+    libva-utils
+    vulkan-tools
   ];
 }
