@@ -116,6 +116,7 @@
         "ai"
         "ide"
         "umbriel"
+        "vietnamese-input"
       ];
 
       ciMachine = {
