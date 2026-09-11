@@ -64,6 +64,8 @@ Set the machine-specific values:
 }
 ```
 
+Profiles are the feature boundary: add or remove a profile here instead of editing shared modules for machine-specific software choices. For example, `ai` enables the local Ollama service and AI integration for the IDE when `ide` is also selected; `ide` by itself does not enable or require Ollama.
+
 `vietnamese-input` enables Fcitx5 with the [Fcitx5 Lotus](https://github.com/LotusInputMethod/fcitx5-lotus) Vietnamese input method. The package is built reproducibly from the upstream Lotus release and includes its required udev/systemd integration.
 
 Change only the values required by the target machine. Keep state versions at the versions originally selected for that machine.
@@ -77,6 +79,14 @@ nix flake check --no-write-lock-file
 
 ### 5. Build before switching
 
+Use the hostname configured in `hosts/machine/identity.nix`:
+
 ```bash
-sudo nixos-rebuild build --flake .#nixos
+sudo nixos-rebuild build --flake .#<hostname>
+```
+
+Then switch only after the build succeeds:
+
+```bash
+sudo nixos-rebuild switch --flake .#<hostname>
 ```
