@@ -1,7 +1,3 @@
-# Umbriel configuration for nixos-portable.
-# Home Manager installs this file as ~/.config/umbriel/config.toml.
-# Edit this file in the repository, then rebuild NixOS.
-
 [general]
 autostart = ["noctalia"]
 xwayland = true
@@ -75,7 +71,6 @@ hide_timeout_ms = 0
 follows_mouse = false
 
 [keybinds]
-# Workspaces: Mod+1..9 switches directly to workspace 1..9.
 "Mod+1" = "workspace-switch:1"
 "Mod+2" = "workspace-switch:2"
 "Mod+3" = "workspace-switch:3"
@@ -85,8 +80,6 @@ follows_mouse = false
 "Mod+7" = "workspace-switch:7"
 "Mod+8" = "workspace-switch:8"
 "Mod+9" = "workspace-switch:9"
-
-# Move the focused window to another workspace.
 "Mod+Shift+1" = "window-move-to-workspace:1"
 "Mod+Shift+2" = "window-move-to-workspace:2"
 "Mod+Shift+3" = "window-move-to-workspace:3"
@@ -96,33 +89,21 @@ follows_mouse = false
 "Mod+Shift+7" = "window-move-to-workspace:7"
 "Mod+Shift+8" = "window-move-to-workspace:8"
 "Mod+Shift+9" = "window-move-to-workspace:9"
-
-# Window focus.
 "Mod+Up" = "window-focus-up"
 "Mod+Down" = "window-focus-down"
 "Mod+Left" = "window-focus-left"
 "Mod+Right" = "window-focus-right"
-
-# Window management.
 "Mod+F" = "window-toggle-maximize"
 "Mod+Q" = "window-close"
 "Mod+O" = "overview-toggle"
-
-# Terminal and file manager.
 "Mod+Return" = "spawn:wezterm"
 "Mod+E" = "spawn:krusader"
-
-# Noctalia launcher, clipboard, wallpaper, and settings.
 "Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
 "Mod+V" = "spawn:noctalia msg panel-toggle clipboard"
 "Mod+W" = "spawn:noctalia msg panel-toggle wallpaper"
 "Mod+Comma" = "spawn:noctalia msg settings-toggle"
-
-# PipeWire volume controls; no extra mixer package required.
 "XF86AudioRaiseVolume" = "spawn:wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
 "XF86AudioLowerVolume" = "spawn:wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
 "Mod+XF86AudioMute" = "spawn:wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-
-# Fullscreen and region screenshots.
 "Ctrl+Shift+1" = "spawn:noctalia msg screenshot-fullscreen"
 "Ctrl+Shift+2" = "spawn:noctalia msg screenshot-region"
