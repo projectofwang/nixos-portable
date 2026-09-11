@@ -1,4 +1,4 @@
-# Identify the physical machine and select its optional capabilities; for example, moving to another GPU changes this machine layer.
+# Identify the physical machine; for example, optional software is selected outside this machine identity.
 {
   hostname = "nixos";
   username = "chicoarun";
@@ -7,17 +7,8 @@
   nixosStateVersion = "26.05";
   homeStateVersion = "26.05";
 
-  # Keep the production feature set in one place; for example, remove `gaming` to build without Steam.
+  # Keep the machine profile set minimal; for example, optional features are not enabled by the hardware identity.
   profiles = [
     "base"
-    "desktop"
-    "terminal"
-    "terminal-ide"
-    "gaming"
-    "gpu-tools"
-    "ai"
-    "ide"
-    "umbriel"
-    "vietnamese-input"
   ];
 }
