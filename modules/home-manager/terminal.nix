@@ -1,8 +1,6 @@
 { pkgs, ... }:
 
 {
-  # Terminal stack:
-  # Umbriel -> WezTerm -> Zellij -> Zsh / Neovim / CLI tools
   programs = {
     wezterm = {
       enable = true;
@@ -25,16 +23,8 @@
         scrollback_editor = "nvim";
       };
     };
-
-    neovim = {
-      enable = true;
-      defaultEditor = true;
-      viAlias = true;
-      vimAlias = true;
-    };
   };
 
-  # Tools not already provided by the shell module.
   home.packages = with pkgs; [
     btop
     cava
