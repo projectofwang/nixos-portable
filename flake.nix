@@ -120,12 +120,16 @@
         machine = productionMachine;
       };
 
-      apps.${productionMachine.system}.nixos-portable = {
-        type = "app";
-        program = "${import ./lib/cli.nix {
-          pkgs = nixpkgs.legacyPackages.${productionMachine.system};
-          flake = ".";
-        }}/bin/nixos-portable";
-      };
+      apps = lib.genAttrs framework.architectures.supported (
+        system: {
+          nixos-portable = {
+            type = "app";
+            program = "${import ./lib/cli.nix {
+              pkgs = nixpkgs.legacyPackages.${system};
+              flake = ".";
+            }}/bin/nixos-portable";
+          };
+        }
+      );
     };
 }
