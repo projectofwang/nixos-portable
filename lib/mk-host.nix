@@ -24,9 +24,14 @@ let
       home = import ./home-manager.nix { inherit inputs; };
       targetSystem = architectures.validate system;
       declaredArchitectures = machine.architectures or [ machine.system ];
+      incompatibleProfiles = lib.filter (
+        profile: !(builtins.elem targetSystem (profiles.architecturesFor profile))
+      ) selectedProfiles;
     in
     assert lib.assertMsg (builtins.elem targetSystem declaredArchitectures)
       "Host '${machine.hostname}' does not declare architecture '${targetSystem}'";
+    assert lib.assertMsg (incompatibleProfiles == [ ])
+      "Host '${machine.hostname}' selects profile(s) incompatible with architecture '${targetSystem}': ${lib.concatStringsSep ", " incompatibleProfiles}";
     lib.nixosSystem {
       system = targetSystem;
 
