@@ -39,6 +39,11 @@ jobs:
       - name: Validate flake structure
         run: nix flake show --no-write-lock-file
 
+      - name: Validate nixos-portable CLI
+        run: |
+          nix run .#nixos-portable -- --help
+          nix run .#nixos-portable -- check
+
       - name: Export CI matrix
         id: matrix
         run: echo "matrix=$(nix eval .#ciMatrix --json --no-write-lock-file)" >> "$GITHUB_OUTPUT"
