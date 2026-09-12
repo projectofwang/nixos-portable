@@ -35,10 +35,14 @@ assert succeeds (architectures.validate "aarch64-linux")
   "aarch64-linux must be a supported architecture";
 assert fails (architectures.validate "riscv64-linux")
   "unsupported architectures must be rejected";
+assert lib.all (profile: builtins.elem profile profiles.available) expectedProfiles
+  "all expected profiles must be auto-discovered";
 assert succeeds (profiles.validate expectedProfiles)
   "all expected profiles must validate";
 assert fails (profiles.validate [ "does-not-exist" ])
   "unknown profiles must be rejected";
+assert lib.all (role: builtins.elem role roles.available) expectedRoles
+  "all expected roles must be auto-discovered";
 assert succeeds (roles.validate expectedRoles)
   "all expected roles must validate";
 assert fails (roles.validate [ "does-not-exist" ])
