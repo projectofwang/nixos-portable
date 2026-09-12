@@ -1,9 +1,13 @@
-# Provide a development shell with Nix tooling; for example, `nix develop` gives nixfmt, alejandra, nil, and statix.
+# Provide a development shell with formatting, diagnostics, and the repository CLI.
 { inputs, machine, ... }:
 
 let
   pkgs = import inputs.nixpkgs {
     system = machine.system;
+  };
+  nixos-portable = import ./cli.nix {
+    inherit pkgs;
+    flake = ".";
   };
 in
 pkgs.mkShell {
@@ -12,5 +16,6 @@ pkgs.mkShell {
     nil
     nixfmt-rfc-style
     statix
+    nixos-portable
   ];
 }
