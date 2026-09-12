@@ -4,6 +4,7 @@
 pkgs.writeShellApplication {
   name = "nixos-portable";
   runtimeInputs = [
+    pkgs.git
     pkgs.nixos-rebuild
   ];
   text = ''
