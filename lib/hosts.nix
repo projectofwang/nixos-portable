@@ -19,15 +19,39 @@ let
     "profiles"
   ];
 
+  stringFields = [
+    "hostname"
+    "username"
+    "system"
+    "timeZone"
+    "nixosStateVersion"
+    "homeStateVersion"
+  ];
+
   definitions = lib.genAttrs hostNames (
     name:
     let
       machine = import (hostsDir + "/${name}/identity.nix");
       missingFields = lib.filter (field: !(builtins.hasAttr field machine)) requiredFields;
+      invalidStringFields = lib.filter (
+        field: builtins.hasAttr field machine && !builtins.isString machine.${field}
+      ) stringFields;
+      invalidListFields = lib.filter (
+        field: builtins.hasAttr field machine && !builtins.isList machine.${field}
+      ) [ "roles" "profiles" ];
+      emptyFields = lib.filter (
+        field: builtins.hasAttr field machine && builtins.isString machine.${field} && machine.${field} == ""
+      ) [ "hostname" "username" ];
       hostModule = hostsDir + "/${name}";
     in
     assert lib.assertMsg (missingFields == [ ])
       "Host '${name}' is missing required identity field(s): ${lib.concatStringsSep ", " missingFields}";
+    assert lib.assertMsg (invalidStringFields == [ ])
+      "Host '${name}' has non-string identity field(s): ${lib.concatStringsSep ", " invalidStringFields}";
+    assert lib.assertMsg (invalidListFields == [ ])
+      "Host '${name}' has non-list identity field(s): ${lib.concatStringsSep ", " invalidListFields}";
+    assert lib.assertMsg (emptyFields == [ ])
+      "Host '${name}' has empty identity field(s): ${lib.concatStringsSep ", " emptyFields}";
     assert lib.assertMsg (builtins.pathExists (
       hostModule + "/default.nix"
     )) "Host '${name}' must provide hosts/${name}/default.nix";
