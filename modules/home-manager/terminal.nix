@@ -1,10 +1,9 @@
-# Configure terminal applications only; for example, WezTerm starts directly into Zellij while CLI tools remain user-scoped.
 { pkgs, ... }:
 
 {
-  # Keep terminal applications declarative and separate from the shell implementation.
+  # Configure the terminal applications owned by this profile.
   programs = {
-    # Start each terminal window with Zellij as the default program.
+    # Start WezTerm directly with Zellij.
     wezterm = {
       enable = true;
       extraConfig = ''
@@ -16,7 +15,7 @@
       '';
     };
 
-    # Provide terminal multiplexing and make Neovim the scrollback editor when the IDE profile is enabled.
+    # Enable Zellij and use Neovim as its scrollback editor.
     zellij = {
       enable = true;
       enableZshIntegration = true;
@@ -30,7 +29,7 @@
     };
   };
 
-  # Install terminal utilities without owning the Neovim package itself; for example, `btop` and `yazi` remain optional with this profile.
+  # Install terminal utilities without owning the Neovim configuration.
   home.packages = with pkgs; [
     btop
     cava

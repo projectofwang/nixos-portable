@@ -1,4 +1,3 @@
-# Discover reusable role definitions from `roles/*.nix` and expand them into profile names.
 { lib, profiles }:
 
 let
@@ -31,6 +30,7 @@ let
     lib.unique (lib.concatMap (role: roleDefinitions.${role}) validated);
 in
 {
+  # Export discovered roles and the functions used to validate and expand them.
   available = roleNames;
   inherit roleDefinitions validate expand;
 }

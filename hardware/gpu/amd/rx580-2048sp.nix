@@ -1,7 +1,7 @@
-# Reusable graphics module for AMD Polaris-class GPUs such as the RX 580 2048SP.
 { ... }:
 
 {
+  # Enable graphics acceleration and 32-bit userspace support for this AMD GPU.
   hardware.graphics = {
     enable = true;
     enable32Bit = true;

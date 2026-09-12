@@ -1,4 +1,3 @@
-# Own the complete Neovim/LazyVim stack here; for example, the `terminal-ide` profile imports only this editor module.
 {
   lib,
   pkgs,
@@ -6,14 +5,14 @@
 }:
 
 {
-  # Enable Neovim as the default editor and expose both traditional command aliases.
+  # Provide the complete Neovim and LazyVim user environment.
   programs.neovim = {
     enable = true;
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;
 
-    # Keep language tooling and the C compiler next to the editor; for example, GCC lets nvim-treesitter build its parsers.
+    # Keep the compiler and language tooling available to the editor.
     extraPackages = with pkgs; [
       gcc
       lua-language-server
@@ -22,10 +21,10 @@
       nixfmt
     ];
 
-    # Install the LazyVim bootstrap plugin from nixpkgs.
+    # Use the packaged LazyVim bootstrap plugin.
     plugins = with pkgs.vimPlugins; [ lazy-nvim ];
 
-    # Point LazyVim at immutable nixpkgs plugin paths instead of downloading plugins at runtime.
+    # Resolve LazyVim plugins from immutable nixpkgs paths instead of downloading them at runtime.
     initLua =
       let
         plugins = with pkgs.vimPlugins; [

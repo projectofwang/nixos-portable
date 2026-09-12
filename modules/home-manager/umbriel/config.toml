@@ -1,4 +1,4 @@
-# Start the desktop panel and expose compositor behavior; for example, Noctalia starts automatically with XWayland enabled.
+# Start the desktop panel and enable the compositor features used by the session.
 [general]
 autostart = ["noctalia"]
 xwayland = true
@@ -6,18 +6,18 @@ show_cheatsheet = true
 focus_on_activate = false
 honor_restored_maximize = false
 
-# Reserve the environment section for compositor-exported variables.
+# Keep compositor environment exports available for future settings.
 [environment]
 
-# Reserve event hooks for future compositor event handlers.
+# Keep compositor event hooks available for future handlers.
 [events]
 
-# Keep workspace behavior deterministic; for example, switching does not automatically jump between non-adjacent workspaces.
+# Keep workspace switching deterministic.
 [workspaces]
 back_and_forth = false
 empty_above = false
 
-# Define window decoration and opacity defaults; for example, focused windows use a 2px border and 10px corners.
+# Set window decoration and opacity defaults.
 [appearance]
 prefer_no_csd = true
 border_width = 2
@@ -25,7 +25,7 @@ outer_border_width = 0
 corner_radius = 10
 drag_opacity = 0.75
 
-# Tune blur for the compositor surfaces; for example, three optimized passes use a small radius and low noise.
+# Configure compositor blur.
 [appearance.blur]
 enabled = true
 optimized = true
@@ -36,19 +36,19 @@ brightness = 0.9
 contrast = 0.9
 saturation = 1.1
 
-# Tune window shadows; for example, shadows are soft with a 2px offset.
+# Configure window shadows.
 [appearance.shadow]
 enabled = true
 softness = 10
 offset_x = 2
 offset_y = 2
 
-# Define pointer interaction defaults; for example, middle-click pastes the primary selection.
+# Set pointer interaction defaults.
 [input]
 middle_click_paste = true
 window_drag_toggle = "none"
 
-# Define keyboard layout and repeat behavior; for example, the compositor leaves the layout unset so the system controls it.
+# Keep keyboard layout under system control and define repeat behavior.
 [input.keyboard]
 layout = ""
 variant = ""
@@ -58,20 +58,20 @@ repeat_delay = 600
 numlock_toggle = true
 track_layout = "global"
 
-# Enable touchpad tapping; for example, a tap performs a normal click.
+# Enable touchpad tapping.
 [input.touchpad]
 tap = true
 
-# Keep mouse movement and wheel defaults explicit; for example, wheel steps are fixed at 60.
+# Set mouse sensitivity and wheel behavior explicitly.
 [input.mouse]
 sensitivity = 0.0
 scroll_wheel_step = 60
 
-# Keep tablet input enabled for supported devices.
+# Keep tablet input enabled.
 [input.tablet]
 enabled = true
 
-# Define cursor presentation; for example, a 24px hardware cursor stays visible while typing.
+# Define cursor presentation and visibility behavior.
 [input.cursor]
 theme = ""
 size = 24
@@ -80,11 +80,11 @@ follows_focus = false
 hide_when_typing = false
 hide_timeout_ms = 0
 
-# Keep focus mouse-driven only through explicit keybinds; for example, moving the pointer does not change focus.
+# Keep pointer movement from changing focus automatically.
 [input.focus]
 follows_mouse = false
 
-# Bind workspace, window, application, audio, and screenshot actions; for example, Mod+Return launches WezTerm.
+# Bind workspace, window, application, audio, and screenshot actions.
 [keybinds]
 "Mod+1" = "workspace-switch:1"
 "Mod+2" = "workspace-switch:2"

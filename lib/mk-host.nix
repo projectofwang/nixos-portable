@@ -1,4 +1,3 @@
-# Compose NixOS hosts from identity, host modules, roles, profiles, and Home Manager.
 {
   inputs,
   lib,
@@ -35,7 +34,7 @@ let
     lib.nixosSystem {
       system = targetSystem;
 
-      # Expose only stable, module-relevant identity values instead of the entire machine record.
+      # Pass only identity values consumed by NixOS and Home Manager modules.
       specialArgs = {
         inherit inputs;
         hostname = machine.hostname;
@@ -63,11 +62,10 @@ let
     };
 in
 {
-  # Build the complete host definition used by normal NixOS operations.
+  # Build the normal host composition used by NixOS operations.
   mkHost = args: build args;
 
-  # Build an isolated host/profile composition for CI so each matrix entry tests only the
-  # common baseline plus its selected profile rather than rebuilding every role profile.
+  # Build one isolated host/profile composition for each CI matrix entry.
   mkProfileHost =
     args@{
       profile,

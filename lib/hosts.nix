@@ -1,4 +1,3 @@
-# Discover host definitions from `hosts/*/identity.nix` and validate their framework contract.
 {
   lib,
   architectures,
@@ -128,10 +127,10 @@ assert lib.assertMsg (aliasCollisions == [ ])
 assert lib.assertMsg (builtins.elem "machine" hostNames)
   "The production host 'machine' must exist under hosts/machine/";
 {
-  # Keep host discovery deterministic and make the available host names inspectable.
+  # Export discovered host names for framework composition and CI generation.
   available = hostNames;
 
-  # The production host is explicit rather than inferred from an arbitrary definition.
+  # Keep the production host explicit instead of inferring it from discovery order.
   default = "machine";
 
   inherit definitions;

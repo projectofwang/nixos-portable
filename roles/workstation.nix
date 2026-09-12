@@ -1,6 +1,6 @@
-# Define the workstation role as the complete reusable workstation profile set.
 { profiles }:
 
 {
+  # Expand the workstation role to every currently available profile.
   profiles = profiles.available;
 }

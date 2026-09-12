@@ -1,4 +1,3 @@
-# Discover profile files automatically and define their architecture compatibility.
 { lib }:
 
 let
@@ -9,9 +8,7 @@ let
     )
   );
 
-  # Most profiles are architecture-neutral. Profiles that consume software with a
-  # narrower platform contract are explicitly limited here instead of making the
-  # whole CI matrix fail on unsupported targets.
+  # Override the default architecture set only for profiles with narrower support.
   architectureOverrides = {
     gaming = [ "x86_64-linux" ];
     helium = [ "x86_64-linux" ];
@@ -35,9 +32,9 @@ let
     selected;
 in
 {
-  # Expose the discovered profile names for validation and diagnostics.
+  # Export the discovered profiles and their architecture compatibility rules.
   inherit available architecturesFor;
 
-  # Reject typos before NixOS composition; for example, `terminal-idee` fails with the available profile list.
+  # Validate profile selections before host composition starts.
   inherit validate;
 }

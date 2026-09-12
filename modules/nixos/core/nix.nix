@@ -1,11 +1,10 @@
-# Configure the Nix daemon baseline; for example, this enables `nix flake` and automatic store maintenance.
 { ... }:
 
 {
-  # Disable the legacy nix-channel mechanism because this repository is flake-based.
+  # Disable the legacy channel workflow for this flake-based system.
   nix.channel.enable = false;
 
-  # Enable modern Nix commands and flakes while keeping trust limited to root.
+  # Enable flakes and the modern Nix command interface.
   nix.settings = {
     experimental-features = [
       "nix-command"
@@ -14,10 +13,10 @@
     trusted-users = [ "root" ];
   };
 
-  # Deduplicate store paths automatically; for example, identical dependencies share one store object.
+  # Deduplicate identical store paths automatically.
   nix.optimise.automatic = true;
 
-  # Reclaim old generations weekly; for example, paths older than 30 days are eligible for collection.
+  # Run weekly garbage collection and remove generations older than 30 days.
   nix.gc = {
     automatic = true;
     dates = "weekly";

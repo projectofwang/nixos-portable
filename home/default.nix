@@ -1,4 +1,3 @@
-# Define the Home Manager identity; for example, `username = "alice"` maps to `/home/alice`.
 {
   lib,
   username,
@@ -7,10 +6,10 @@
 }:
 
 {
-  # Set the user's account name and home path from machine identity.
+  # Derive the Home Manager account and home path from host identity.
   home.username = username;
   home.homeDirectory = "/home/${username}";
 
-  # Keep Home Manager state compatibility explicit; for example, a migration can change this deliberately.
+  # Keep the Home Manager compatibility version explicit and overridable.
   home.stateVersion = lib.mkDefault homeStateVersion;
 }

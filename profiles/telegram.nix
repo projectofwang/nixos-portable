@@ -1,7 +1,6 @@
-# Install Telegram Desktop only when requested; for example, selecting `telegram` adds the native client.
 { username, pkgs, ... }:
 
 {
-  # Keep Telegram Desktop user-scoped through Home Manager.
+  # Install Telegram Desktop for the selected Home Manager user.
   home-manager.users.${username}.home.packages = [ pkgs.telegram-desktop ];
 }

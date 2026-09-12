@@ -21,6 +21,7 @@ let
     "hermes-agent"
     "keepassxc"
     "media"
+    "opencode"
     "signal"
     "telegram"
     "terminal"

@@ -1,11 +1,10 @@
-# Keep the CI host hardware-independent; for example, the GitHub runner can evaluate a tmpfs-backed NixOS container.
 { ... }:
 
 {
-  # Avoid depending on physical disks, firmware, or GPU devices in CI.
+  # Keep the CI host independent of physical disks, firmware, and GPUs.
   boot.isContainer = true;
 
-  # Use an in-memory root filesystem so the CI system has no machine-specific storage assumptions.
+  # Use a tmpfs root so CI has no machine-specific storage dependency.
   fileSystems."/" = {
     device = "none";
     fsType = "tmpfs";

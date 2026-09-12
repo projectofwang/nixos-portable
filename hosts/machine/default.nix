@@ -1,15 +1,15 @@
-# Compose only physical-machine concerns; for example, a new machine can replace these imports without changing profiles.
 { ... }:
 
 {
+  # Keep physical-machine modules isolated from reusable profiles.
   imports = [
-    # Generated hardware facts belong here; example: filesystem and device declarations from nixos-generate-config.
+    # Keep hardware facts generated for this machine with the host.
     ./hardware-configuration.nix
-    # Boot policy is machine-specific; example: systemd-boot and EFI variable access.
+    # Keep bootloader settings specific to the physical machine.
     ./boot.nix
-    # Network policy is machine-specific; example: NetworkManager and local DNS resolver.
+    # Keep local network policy specific to the physical machine.
     ./networking.nix
-    # GPU capability is selected separately; example: `gpu/rx580-2048sp.nix` for the current card.
+    # Select the reusable GPU implementation for this machine.
     ./gpu.nix
   ];
 }
