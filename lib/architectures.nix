@@ -10,7 +10,8 @@ in
 {
   inherit supported;
 
-  validate = system:
+  validate =
+    system:
     assert lib.assertMsg (builtins.elem system supported)
       "Unsupported system '${system}'. Supported systems: ${lib.concatStringsSep ", " supported}";
     system;

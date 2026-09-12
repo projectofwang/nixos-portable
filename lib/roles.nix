@@ -5,17 +5,17 @@ let
   rolesDir = ../roles;
   entries = builtins.readDir rolesDir;
   roleNames = map (name: lib.removeSuffix ".nix" name) (
-    lib.filter (
-      name:
-      entries.${name} == "regular" && lib.hasSuffix ".nix" name
-    ) (builtins.attrNames entries)
+    lib.filter (name: entries.${name} == "regular" && lib.hasSuffix ".nix" name) (
+      builtins.attrNames entries
+    )
   );
 
   roleDefinitions = lib.genAttrs roleNames (
     name: (import (rolesDir + "/${name}.nix") { inherit profiles; }).profiles
   );
 
-  validate = selected:
+  validate =
+    selected:
     let
       unknown = lib.filter (role: !(builtins.elem role roleNames)) selected;
     in
@@ -23,7 +23,8 @@ let
       "Unknown role(s): ${lib.concatStringsSep ", " unknown}. Available roles: ${lib.concatStringsSep ", " roleNames}";
     selected;
 
-  expand = selected:
+  expand =
+    selected:
     let
       validated = validate selected;
     in

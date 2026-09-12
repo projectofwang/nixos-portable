@@ -17,7 +17,9 @@ let
     }:
     let
       roleProfiles = roles.expand (machine.roles or [ ]);
-      selectedProfiles = profiles.validate (lib.unique (roleProfiles ++ machine.profiles ++ extraProfiles));
+      selectedProfiles = profiles.validate (
+        lib.unique (roleProfiles ++ machine.profiles ++ extraProfiles)
+      );
       home = import ./home-manager.nix { inherit inputs; };
       system = architectures.validate machine.system;
     in

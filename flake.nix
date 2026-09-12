@@ -55,13 +55,11 @@
       framework = import ./lib { inherit inputs lib home-manager; };
 
       hostConfigurations = lib.mapAttrs' (
-        name: definition:
-        lib.nameValuePair name (framework.mkHost definition)
+        name: definition: lib.nameValuePair name (framework.mkHost definition)
       ) framework.hosts.definitions;
 
       hostnameAliases = lib.mapAttrs' (
-        _name: definition:
-        lib.nameValuePair definition.machine.hostname (framework.mkHost definition)
+        _name: definition: lib.nameValuePair definition.machine.hostname (framework.mkHost definition)
       ) framework.hosts.definitions;
 
       allConfigurations = hostConfigurations // hostnameAliases;
@@ -73,17 +71,14 @@
         let
           definition = framework.hosts.definitions.${hostName};
           selectedProfiles = lib.unique (
-            definition.machine.profiles
-            ++ framework.roles.expand (definition.machine.roles or [ ])
+            definition.machine.profiles ++ framework.roles.expand (definition.machine.roles or [ ])
           );
         in
-        map (
-          profile: {
-            host = hostName;
-            architecture = definition.machine.system;
-            inherit profile;
-          }
-        ) selectedProfiles
+        map (profile: {
+          host = hostName;
+          architecture = definition.machine.system;
+          inherit profile;
+        }) selectedProfiles
       ) framework.hosts.available;
 
       matrixChecks = lib.foldl' (
@@ -95,7 +90,8 @@
             inherit (item) profile;
           };
         in
-        checks // {
+        checks
+        // {
           "${item.architecture}"."${item.host}-${item.profile}" = configuration.config.system.build.toplevel;
         }
       ) { } ciMatrix;
@@ -120,16 +116,16 @@
         machine = productionMachine;
       };
 
-      apps = lib.genAttrs framework.architectures.supported (
-        system: {
-          nixos-portable = {
-            type = "app";
-            program = "${import ./lib/cli.nix {
+      apps = lib.genAttrs framework.architectures.supported (system: {
+        nixos-portable = {
+          type = "app";
+          program = "${
+            import ./lib/cli.nix {
               pkgs = nixpkgs.legacyPackages.${system};
               flake = ".";
-            }}/bin/nixos-portable";
-          };
-        }
-      );
+            }
+          }/bin/nixos-portable";
+        };
+      });
     };
 }

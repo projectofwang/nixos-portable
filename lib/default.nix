@@ -23,6 +23,11 @@ let
   };
 in
 {
-  inherit profiles roles architectures hosts;
+  inherit
+    profiles
+    roles
+    architectures
+    hosts
+    ;
   inherit (host) mkHost mkProfileHost;
 }
