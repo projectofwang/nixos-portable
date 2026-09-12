@@ -7,7 +7,6 @@ let
   };
   nixos-portable = import ./cli.nix {
     inherit pkgs;
-    flake = ".";
   };
 in
 pkgs.mkShell {
