@@ -38,7 +38,13 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, ... }:
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      home-manager,
+      ...
+    }:
     let
       lib = nixpkgs.lib;
       framework = import ./lib {
@@ -70,14 +76,16 @@
         in
         lib.concatMap (
           architecture:
-          map (profile: {
-            host = hostName;
-            inherit architecture profile;
-          }) (
-            lib.filter (
-              profile: builtins.elem architecture (framework.profiles.architecturesFor profile)
-            ) selectedProfiles
-          )
+          map
+            (profile: {
+              host = hostName;
+              inherit architecture profile;
+            })
+            (
+              lib.filter (
+                profile: builtins.elem architecture (framework.profiles.architecturesFor profile)
+              ) selectedProfiles
+            )
         ) architectures
       ) framework.hosts.available;
 
@@ -104,7 +112,8 @@
       checks = lib.recursiveUpdate matrixChecks {
         ${ciSystem} = {
           ci = ci.config.system.build.toplevel;
-          framework-tests = assert frameworkTests;
+          framework-tests =
+            assert frameworkTests;
             nixpkgs.legacyPackages.${ciSystem}.runCommand "nixos-portable-framework-tests" { } "touch $out";
         };
       };
