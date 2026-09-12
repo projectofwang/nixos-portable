@@ -105,14 +105,15 @@
         ci = ci;
       };
 
-      # The complete matrix is exposed as data so CI can generate its job matrix without duplicating host metadata.
       inherit ciMatrix;
 
       checks = matrixChecks // {
         x86_64-linux.ci = ci.config.system.build.toplevel;
       };
 
-      formatter.${productionMachine.system} = nixpkgs.legacyPackages.${productionMachine.system}.nixfmt;
+      formatter = lib.genAttrs framework.architectures.supported (
+        system: nixpkgs.legacyPackages.${system}.nixfmt
+      );
 
       devShells.${productionMachine.system}.default = import ./lib/devshell.nix {
         inherit inputs;
