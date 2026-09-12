@@ -28,6 +28,7 @@ pkgs.writeShellApplication {
 
     case "$command" in
       check)
+        nix fmt -- --check $(git ls-files '*.nix')
         nix flake check --no-write-lock-file "${flake}"
         ;;
       build)
