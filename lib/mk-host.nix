@@ -42,9 +42,6 @@
           # Pin NixOS state compatibility; example: migrations deliberately update this value.
           system.stateVersion = machine.nixosStateVersion;
 
-          # VS Code is distributed under an unfree license; permit only that package instead of enabling all unfree software.
-          nixpkgs.config.allowUnfreePredicate = pkg: lib.elem (lib.getName pkg) [ "vscode" ];
-
           # Attach the shared Home Manager configuration to the same host identity.
           home-manager = home.mkHome {
             username = machine.username;
