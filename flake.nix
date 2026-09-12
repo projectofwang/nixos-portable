@@ -33,7 +33,7 @@
       inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
     };
     helium = {
-      url = "github:projectofwang/helium";
+      url = "github:oxcl/nix-flake-helium-browser";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
