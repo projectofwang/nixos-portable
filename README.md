@@ -38,22 +38,48 @@ Machine-specific hardware stays under `hosts/machine/`. Optional software stays 
 
 Production machine identity intentionally selects only `base` and the explicitly enabled optional profiles. Add profiles when building a specific machine configuration.
 
-## GPU
+## Usage
 
-```text
-hosts/machine/gpu.nix
-        │
-        ▼
-hosts/machine/gpu/<gpu>.nix
-        │
-        ├── graphics / Mesa / Vulkan
-        ├── video acceleration when required
-        └── compute runtime when required
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/projectofwang/nixos-portable.git
+cd nixos-portable
 ```
 
-The current RX 580 2048SP uses the standard Mesa graphics stack. ROCm is not enabled because Polaris is not a supported current Radeon target.
+### 2. Check the available flake outputs
 
-`gpu-tools` owns diagnostic applications such as `vulkaninfo` and `vainfo`; the GPU hardware module only owns hardware capability.
+```bash
+nix flake show
+```
+
+### 3. Build the NixOS configuration
+
+```bash
+nixos-rebuild build --flake .#nixos
+```
+
+Replace `nixos` with the desired host defined by the flake when using another machine configuration.
+
+### 4. Apply the configuration
+
+```bash
+sudo nixos-rebuild switch --flake .#nixos
+```
+
+### 5. Update flake inputs
+
+```bash
+nix flake update
+```
+
+Review the resulting `flake.lock` changes before committing them.
+
+### Profiles
+
+Profiles are enabled through the host configuration. Optional software should be added as a profile rather than directly to machine hardware definitions.
+
+For example, the `hermes-agent` profile installs Hermes Agent as a Home Manager package without adding provider, model, or API configuration.
 
 ## Validation
 
