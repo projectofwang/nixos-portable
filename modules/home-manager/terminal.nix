@@ -25,6 +25,7 @@
         mouse_mode = true;
         copy_on_select = true;
         scrollback_editor = "nvim";
+        show_startup_tips = false;
       };
     };
   };
