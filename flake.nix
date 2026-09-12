@@ -1,58 +1,49 @@
-# Define the repository inputs; for example, `nixpkgs` pins the NixOS package set.
 {
-  description = "Portable NixOS configuration framework for multiple machines";
+  description = "Portable NixOS configuration framework";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     hermes-agent = {
-      url = "github:NousResearch/hermes-agent/v2026.9.7";
+      url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
     };
-
     fcitx5-lotus = {
       url = "github:projectofwang/fcitx5-lotus";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     noctalia = {
       url = "github:projectofwang/noctalia";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     noctalia-greeter = {
       url = "github:projectofwang/noctalia-greeter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     xdg-desktop-portal-umbriel = {
       url = "github:projectofwang/xdg-desktop-portal-umbriel";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     umbriel = {
       url = "github:projectofwang/umbriel";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
     };
-
     helium = {
-      url = "github:oxcl/nix-flake-helium-browser";
+      url = "github:projectofwang/helium";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs =
-    inputs@{ nixpkgs, home-manager, ... }:
+  outputs = inputs@{ self, nixpkgs, home-manager, ... }:
     let
       lib = nixpkgs.lib;
-      framework = import ./lib { inherit inputs lib home-manager; };
+      framework = import ./lib {
+        inherit inputs lib home-manager;
+      };
 
       hostConfigurations = lib.mapAttrs' (
         name: definition: lib.nameValuePair name (framework.mkHost definition)
@@ -108,7 +99,6 @@
         system:
         import ./lib/cli.nix {
           pkgs = nixpkgs.legacyPackages.${system};
-          flake = ".";
         }
       );
     in
