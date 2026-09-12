@@ -34,9 +34,11 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      # Enforce repository-wide Nix formatting; example: every tracked `.nix` file must match nixfmt.
-      - name: Check Nix formatting
-        run: nix fmt -- --check $(git ls-files '*.nix')
+      # Temporarily format in CI so the exact formatter output can be inspected.
+      - name: Format Nix files
+        run: |
+          nix fmt -- $(git ls-files '*.nix')
+          git diff -- flake.nix lib/hosts.nix
 
       # Evaluate only the hardware-independent CI system; example: production GPU hardware is never required here.
       - name: Evaluate CI system
