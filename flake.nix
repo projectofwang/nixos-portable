@@ -41,7 +41,8 @@
 
     umbriel = {
       url = "github:projectofwang/umbriel";
-      inputs.nixpkgs.follows = "xdg-desktop-portal-umbriel";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
     };
 
     helium = {
