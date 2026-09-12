@@ -2,11 +2,9 @@
 {
   description = "Portable NixOS configuration framework for multiple machines";
 
-  # Keep all external dependencies in one place; for example, Home Manager follows this flake's nixpkgs.
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Reuse the same nixpkgs revision for Home Manager to avoid package-set drift.
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -18,7 +16,6 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    # Pin the Vietnamese input method and desktop dependencies as flake inputs.
     fcitx5-lotus = {
       url = "github:projectofwang/fcitx5-lotus";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -51,7 +48,6 @@
     };
   };
 
-  # Discover every host from hosts/*/identity.nix and build the same framework for each one.
   outputs =
     inputs@{ nixpkgs, home-manager, ... }:
     let
@@ -59,32 +55,76 @@
       framework = import ./lib { inherit inputs lib home-manager; };
 
       hostConfigurations = lib.mapAttrs' (
+        name: definition:
+        lib.nameValuePair name (framework.mkHost definition)
+      ) framework.hosts.definitions;
+
+      hostnameAliases = lib.mapAttrs' (
         _name: definition:
         lib.nameValuePair definition.machine.hostname (framework.mkHost definition)
       ) framework.hosts.definitions;
 
-      ciHostname = framework.hosts.definitions.ci.machine.hostname;
-      ci = hostConfigurations.${ciHostname};
-
+      allConfigurations = hostConfigurations // hostnameAliases;
+      ci = hostConfigurations.ci;
       productionMachine = framework.hosts.definitions.${framework.hosts.default}.machine;
+
+      ciMatrix = lib.concatMap (
+        hostName:
+        let
+          definition = framework.hosts.definitions.${hostName};
+          selectedProfiles = lib.unique (
+            definition.machine.profiles
+            ++ framework.roles.expand (definition.machine.roles or [ ])
+          );
+        in
+        map (
+          profile: {
+            host = hostName;
+            architecture = definition.machine.system;
+            inherit profile;
+          }
+        ) selectedProfiles
+      ) framework.hosts.available;
+
+      matrixChecks = lib.foldl' (
+        checks: item:
+        let
+          definition = framework.hosts.definitions.${item.host};
+          configuration = framework.mkProfileHost {
+            inherit (definition) machine hostModule;
+            inherit (item) profile;
+          };
+        in
+        checks // {
+          "${item.architecture}"."${item.host}-${item.profile}" = configuration.config.system.build.toplevel;
+        }
+      ) { } ciMatrix;
     in
     {
-      # Every discovered host becomes a first-class flake target.
-      nixosConfigurations = hostConfigurations // {
-        # Preserve the existing CI target so workflows and local commands remain compatible.
+      nixosConfigurations = allConfigurations // {
         ci = ci;
       };
 
-      # Keep CI explicit while host discovery remains generic for production and future machines.
-      checks.x86_64-linux.ci = ci.config.system.build.toplevel;
+      # The complete matrix is exposed as data so CI can generate its job matrix without duplicating host metadata.
+      inherit ciMatrix;
 
-      # Use nixfmt for the machine's native system; for example, `nix fmt` formats all tracked Nix files.
+      checks = matrixChecks // {
+        x86_64-linux.ci = ci.config.system.build.toplevel;
+      };
+
       formatter.${productionMachine.system} = nixpkgs.legacyPackages.${productionMachine.system}.nixfmt;
 
-      # Provide a development shell with Nix tooling; for example, `nix develop` gives nixfmt, alejandra, nil, and statix.
       devShells.${productionMachine.system}.default = import ./lib/devshell.nix {
         inherit inputs;
         machine = productionMachine;
+      };
+
+      apps.${productionMachine.system}.nixos-portable = {
+        type = "app";
+        program = "${import ./lib/cli.nix {
+          pkgs = nixpkgs.legacyPackages.${productionMachine.system};
+          flake = ".";
+        }}/bin/nixos-portable";
       };
     };
 }
