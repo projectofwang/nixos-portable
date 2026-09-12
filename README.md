@@ -35,15 +35,17 @@ When moving this configuration to another computer, do not copy the existing mac
 | `firefox` | Firefox + browser integration |
 | `helium` | Helium + browser integration |
 | `gaming` | Steam, GameMode, MangoHud |
-| `gpu-tools` | Vulkan and VA-API diagnostics |
 | `hermes-agent` | Hermes Agent CLI installation |
-| `media` | Media applications |
+| `helium` | Helium browser + integration |
+| `keepassxc` | KeePassXC password manager |
+| `media` | Media applications (mpv, VLC, Stremio) |
 | `downloads` | qBittorrent |
-| `thunderbird` | Thunderbird |
-| `bitwarden` | Bitwarden Desktop |
-| `keepassxc` | KeePassXC |
-| `umbriel` | Umbriel user configuration |
-| `vietnamese-input` | Fcitx5 + Lotus |
+| `signal` | Signal Desktop |
+| `telegram` | Telegram Desktop |
+| `thunderbird` | Thunderbird mail client |
+| `umbriel` | Umbriel compositor user config |
+| `vesktop` | Vesktop (Discord) |
+| `vietnamese-input` | Fcitx5 + Lotus input method |
 
 Profiles are selected in `hosts/machine/identity.nix`. Only select profiles that should exist on that machine. Profiles are not a replacement for hardware configuration.
 

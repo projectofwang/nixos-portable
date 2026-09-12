@@ -113,5 +113,8 @@
 
       # Use nixfmt for the machine's native system; for example, `nix fmt` formats all tracked Nix files.
       formatter.${machine.system} = nixpkgs.legacyPackages.${machine.system}.nixfmt;
+
+      # Provide a development shell with Nix tooling; for example, `nix develop` gives nixfmt, alejandra, nil, and statix.
+      devShells.${machine.system}.default = import ./lib/devshell.nix { inherit inputs machine; };
     };
 }
