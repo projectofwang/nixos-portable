@@ -1,51 +1,72 @@
-# Validate every push and pull request; for example, a PR is checked without requiring access to the production machine.
+# Validate every push and pull request; for example, the matrix checks every discovered host/profile/architecture combination.
 name: Check
 
-# Run checks for main pushes and proposed pull requests.
 on:
   push:
     branches: [main]
   pull_request:
 
-# Grant only read access because the workflow never writes repository state.
 permissions:
   contents: read
 
-# Cancel obsolete PR checks while keeping main-branch checks independent.
 concurrency:
   group: check-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  check:
-    # Use a standard GitHub-hosted Linux runner rather than assuming production hardware.
+  framework:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
 
     steps:
-      # Fetch the exact repository revision being checked.
       - name: Check out repository
         uses: actions/checkout@v6
 
-      # Install Nix with flakes and modern commands enabled.
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      # Enforce repository-wide Nix formatting; example: every tracked `.nix` file must match nixfmt.
       - name: Check Nix formatting
-        run: nix fmt -- --check $(git ls-files '*.nix')
+        run: nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
 
-      # Evaluate only the hardware-independent CI system; example: production GPU hardware is never required here.
+      - name: Evaluate framework tests
+        run: nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file
+
       - name: Evaluate CI system
         run: nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
 
-      # Verify the CI build graph without downloading or building the complete system.
-      - name: Check CI build plan
-        run: nix build .#checks.x86_64-linux.ci --no-link --dry-run --no-write-lock-file
-
-      # Confirm the flake exposes the expected outputs and remains structurally valid.
-      - name: Show flake outputs
+      - name: Validate flake structure
         run: nix flake show --no-write-lock-file
+
+      - name: Validate nixos-portable CLI
+        run: nix run --no-write-lock-file .#nixos-portable -- --help
+
+      - name: Export CI matrix
+        id: matrix
+        run: echo "matrix=$(nix eval .#ciMatrix --json --no-write-lock-file)" >> "$GITHUB_OUTPUT"
+
+  matrix:
+    needs: framework
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.framework.outputs.matrix) }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Check host/profile/architecture build plan
+        run: nix build ".#checks.${{ matrix.architecture }}.${{ matrix.host }}-${{ matrix.profile }}" --no-link --dry-run --no-write-lock-file

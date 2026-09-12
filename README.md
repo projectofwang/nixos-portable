@@ -1,187 +1,143 @@
 # nixos-portable
 
-Portable NixOS configuration built from machine hardware, machine identity, reusable modules, and optional profiles.
+Portable NixOS configuration framework built around explicit host identity, reusable roles and profiles, hardware separation, architecture-aware evaluation, and a small repository CLI.
 
-## Architecture
+## Layout
 
 ```text
-flake.nix
-├── hosts/
-│   ├── machine/          # Physical-machine identity, hardware, boot, network, GPU
-│   └── ci/               # Hardware-independent CI host
-├── lib/                  # Host and profile composition
-├── modules/              # Reusable NixOS and Home Manager modules
-├── profiles/             # Optional user-facing features
-└── home/                 # Shared Home Manager configuration
+.
+├── flake.nix
+├── flake.lock
+├── hardware/                    # Reusable hardware implementations
+├── home/                        # Shared Home Manager modules
+├── hosts/                       # Discovered host definitions
+│   ├── ci/
+│   └── machine/
+├── lib/                         # Framework implementation
+├── modules/                     # Reusable NixOS/Home Manager modules
+├── profiles/                    # Auto-discovered capability profiles
+└── roles/                       # Named profile bundles
 ```
 
-The important boundary is:
+## Hosts
 
-- `hosts/machine/` describes the physical computer and its machine-specific state.
-- `profiles/` describes optional software and user-facing features.
-- `modules/` contains reusable implementation details.
-- `identity.nix` is the source of the production hostname, username, architecture, state versions, and enabled profiles.
-
-When moving this configuration to another computer, do not copy the existing machine-specific files blindly. Regenerate hardware data and review every file under `hosts/machine/`.
-
-## Profiles
-
-| Profile | Purpose |
-|---|---|
-| `base` | Nix, system identity, user, security, Git |
-| `desktop` | Umbriel, Noctalia, greeter, PipeWire, portals |
-| `terminal` | WezTerm, Zellij, terminal tools |
-| `terminal-ide` | Terminal + LazyVim/Neovim |
-| `firefox` | Firefox + browser integration |
-| `helium` | Helium + browser integration |
-| `gaming` | Steam, GameMode, MangoHud |
-| `hermes-agent` | Hermes Agent CLI installation |
-| `helium` | Helium browser + integration |
-| `keepassxc` | KeePassXC password manager |
-| `media` | Media applications (mpv, VLC, Stremio) |
-| `downloads` | qBittorrent |
-| `signal` | Signal Desktop |
-| `telegram` | Telegram Desktop |
-| `thunderbird` | Thunderbird mail client |
-| `umbriel` | Umbriel compositor user config |
-| `vesktop` | Vesktop (Discord) |
-| `vietnamese-input` | Fcitx5 + Lotus input method |
-
-Profiles are selected in `hosts/machine/identity.nix`. Only select profiles that should exist on that machine. Profiles are not a replacement for hardware configuration.
-
-## Usage
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/projectofwang/nixos-portable.git
-cd nixos-portable
-```
-
-### 2. Inspect the host before changing anything
-
-The production host is assembled from `hosts/machine/` and the profile list in `hosts/machine/identity.nix`.
-
-```bash
-ls hosts/machine
-cat hosts/machine/identity.nix
-cat hosts/machine/hardware-configuration.nix
-cat hosts/machine/boot.nix
-cat hosts/machine/networking.nix
-cat hosts/machine/gpu.nix
-```
-
-For a new computer, treat all files under `hosts/machine/` as candidates for review. In particular, filesystem UUIDs, swap, CPU/kernel modules, bootloader settings, network/DNS policy, and GPU selection may differ from the old machine.
-
-### 3. Generate hardware configuration for the new machine
-
-On the new NixOS installation, generate the hardware facts from the actual machine:
-
-```bash
-sudo nixos-generate-config --show-hardware-config > hosts/machine/hardware-configuration.nix
-```
-
-Then review the generated file manually. Pay attention to:
-
-- `fileSystems."/"` and its filesystem UUID
-- `fileSystems."/boot"` and its EFI partition UUID
-- additional mounts such as `/mnt/windows`
-- `swapDevices`
-- `boot.initrd.availableKernelModules`
-- `boot.kernelModules`
-- `nixpkgs.hostPlatform`
-- CPU-specific settings
-
-Do not retain filesystem UUIDs or device-specific entries from the previous computer unless they are intentionally the same.
-
-### 4. Update machine identity
-
-Edit `hosts/machine/identity.nix` for the new computer:
+Hosts are discovered from `hosts/*/identity.nix`. Each identity declares the host contract:
 
 ```nix
 {
-  hostname = "your-hostname";
-  username = "your-user";
+  hostname = "nixos";
+  username = "chicoarun";
   system = "x86_64-linux";
   timeZone = "Asia/Ho_Chi_Minh";
   nixosStateVersion = "26.05";
   homeStateVersion = "26.05";
-
-  profiles = [
-    "base"
-    # Add only the profiles required by this machine.
-  ];
+  roles = [ "workstation" ];
+  profiles = [ ];
 }
 ```
 
-The `hostname`, `username`, and `system` values must match the new machine. Keep the state-version values unless you are deliberately performing a NixOS/Home Manager state-version migration.
+The framework validates required fields, field types, non-empty identity values, role/profile names, supported architectures, duplicate architectures, host module presence, hostname uniqueness, and hostname alias collisions.
 
-The hostname is also used by the flake output, so after changing it the rebuild target becomes `.#<hostname>`.
+`system` is the host's primary/default target. `architectures` declares the complete set of supported evaluation targets for that host and must include `system`. Every declared target is validated against the framework's supported architecture set.
 
-### 5. Review the remaining machine-specific files
+Machine-specific implementation belongs in `hosts/<name>/default.nix` and its imported modules. Hardware facts generated by `nixos-generate-config` remain host-owned.
 
-`hardware-configuration.nix` is not the only file that can depend on the physical machine.
+## Roles and profiles
 
-#### `hosts/machine/boot.nix`
+Profiles are discovered automatically from `profiles/*.nix` and validated before composition. Roles expand to profiles without requiring hosts to duplicate long profile lists.
 
-Review the bootloader and firmware assumptions. The current configuration uses systemd-boot and EFI variables; change it if the new machine uses a different boot setup.
+The current roles are:
 
-#### `hosts/machine/networking.nix`
+| Role | Purpose |
+|---|---|
+| `workstation` | Full workstation profile set |
+| `ci` | Full architecture-aware profile surface on the hardware-independent CI host |
 
-Review NetworkManager, DNS, firewall, and any resolver-specific configuration. The current file contains machine/network policy and should not be assumed portable without review.
+A host may combine roles with explicit profiles. Duplicate profiles are removed during composition.
 
-#### `hosts/machine/gpu.nix`
+Profiles declare architecture compatibility centrally. Architecture-neutral profiles are evaluated on both supported Linux targets; profiles backed by software with a narrower platform contract are restricted to their supported targets rather than causing the entire cross-architecture matrix to fail.
 
-Select the GPU implementation that actually exists in the new computer. The current machine imports `gpu/rx580-2048sp.nix`; replace that import when the GPU changes.
+## Reusable hardware
 
-### 6. Check the resulting flake target
+Reusable hardware implementations live outside individual hosts:
 
-```bash
-nix flake show
+```text
+hardware/
+└── gpu/
+    └── amd/
+        └── rx580-2048sp.nix
 ```
 
-The production configuration is generated from `hosts/machine/identity.nix`, so the target follows the configured hostname:
+The physical machine selects the implementation from `hosts/machine/gpu.nix`. This keeps device-specific logic out of shared profiles and makes the implementation reusable by another compatible host.
 
-```bash
-nixos-rebuild build --flake .#<hostname>
+## Architectures
+
+The framework currently supports:
+
+- `x86_64-linux`
+- `aarch64-linux`
+
+The target architecture is validated centrally. A normal host defaults to its `system`; a hardware-independent host can declare multiple `architectures` for cross-architecture CI evaluation. Formatters, packages, and the CLI are exposed for every supported architecture.
+
+## CI matrix
+
+The flake exposes `ciMatrix` as structured data and generates build checks for every discovered compatible combination of:
+
+```text
+host × declared architecture × compatible profile
 ```
 
-For the current machine, this is:
+GitHub Actions consumes that matrix dynamically, so adding a host, profile, or supported architecture target does not require manually editing the workflow matrix.
+
+The `ci` host explicitly targets both supported Linux architectures because it has no physical hardware dependencies. Physical hosts keep only the architectures they can actually boot and support. Architecture-specific profiles are excluded from incompatible matrix cells by the same compatibility metadata enforced by host composition.
+
+The framework also exposes a dedicated `framework-tests` check covering architecture validation, automatic profile/role discovery, invalid selection rejection, and host discovery invariants.
+
+## CLI
+
+Run the framework command through the flake app:
 
 ```bash
-nixos-rebuild build --flake .#nixos
+nix run .#nixos-portable -- check
+nix run .#nixos-portable -- build machine
+nix run .#nixos-portable -- switch machine
+nix run .#nixos-portable -- deploy machine root@server
 ```
 
-### 7. Apply the configuration
-
-After reviewing the build result:
+The CLI is also exposed as a package:
 
 ```bash
-sudo nixos-rebuild switch --flake .#<hostname>
+nix build .#nixos-portable
+./result/bin/nixos-portable --help
 ```
 
-### 8. Update flake inputs
+The CLI resolves the repository root automatically, so it can also be invoked from a subdirectory inside the repository. It refuses to run if the resolved root does not contain `flake.nix`.
+
+Commands:
+
+| Command | Action |
+|---|---|
+| `check` | Format check + `nix flake check` without changing the lockfile |
+| `build <host>` | Build the selected host |
+| `switch <host>` | Activate the selected host locally |
+| `deploy <host> <target>` | Activate the selected host on a remote target |
+
+The CLI uses the host directory name as its primary target. Hostname aliases remain available through the flake for compatibility.
+
+## Adding a machine
+
+Create a directory with at least:
+
+```text
+hosts/
+└── laptop/
+    ├── default.nix
+    ├── identity.nix
+    └── hardware-configuration.nix
+```
+
+Generate hardware facts on the actual target machine:
 
 ```bash
-nix flake update
+sudo nixos-generate-config --show-hardware-config > hosts/laptop/hardware-configuration.nix
 ```
-
-Review the resulting `flake.lock` changes before committing them.
-
-## Profiles
-
-Profiles are enabled through the host identity. Optional software should be added as a profile rather than directly to machine hardware definitions.
-
-The `hermes-agent` profile installs Hermes Agent as a Home Manager package without adding provider, model, or API configuration. AI provider configuration remains the user's responsibility.
-
-## Validation
-
-Before committing a machine migration or configuration change:
-
-```bash
-nix fmt -- --check $(git ls-files '*.nix')
-nix flake show
-nixos-rebuild build --flake .#<hostname>
-```
-
-CI evaluates the hardware-independent `ci` host and checks formatting, evaluation, build planning, and flake outputs. The CI host does not replace the need to validate the real machine's generated hardware configuration.

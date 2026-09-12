@@ -1,120 +1,153 @@
-# Define the repository inputs; for example, `nixpkgs` pins the NixOS package set.
 {
-  description = "Portable NixOS configuration with Home Manager and optional feature profiles";
+  description = "Portable NixOS configuration framework";
 
-  # Keep all external dependencies in one place; for example, Home Manager follows this flake's nixpkgs.
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
-    # Reuse the same nixpkgs revision for Home Manager to avoid package-set drift.
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     hermes-agent = {
-      url = "github:NousResearch/hermes-agent/v2026.9.7";
+      url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
     };
-
-    # Pin the Vietnamese input method and desktop dependencies as flake inputs.
     fcitx5-lotus = {
       url = "github:projectofwang/fcitx5-lotus";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     noctalia = {
       url = "github:projectofwang/noctalia";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     noctalia-greeter = {
       url = "github:projectofwang/noctalia-greeter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     xdg-desktop-portal-umbriel = {
       url = "github:projectofwang/xdg-desktop-portal-umbriel";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     umbriel = {
       url = "github:projectofwang/umbriel";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
     };
-
     helium = {
       url = "github:oxcl/nix-flake-helium-browser";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  # Compose production and CI systems; for example, `.#nixos` targets the machine identity.
   outputs =
-    inputs@{ nixpkgs, home-manager, ... }:
+    inputs@{
+      self,
+      nixpkgs,
+      home-manager,
+      ...
+    }:
     let
       lib = nixpkgs.lib;
-      framework = import ./lib { inherit inputs lib home-manager; };
-
-      # Production reads all machine-specific identity from one file.
-      machine = import ./hosts/machine/identity.nix;
-      production = framework.mkHost {
-        inherit machine;
-        hostModule = ./hosts/machine;
+      framework = import ./lib {
+        inherit inputs lib home-manager;
       };
 
-      # CI uses a hardware-independent machine definition so GitHub runners can evaluate it safely.
-      ciMachine = {
-        hostname = "nixos-portable-ci";
-        username = "ci";
-        system = "x86_64-linux";
-        timeZone = "UTC";
-        nixosStateVersion = "26.05";
-        homeStateVersion = "26.05";
-        profiles = [
-          "base"
-          "desktop"
-          "terminal"
-          "terminal-ide"
-          "firefox"
-          "helium"
-          "gaming"
-          "ai"
-          "hermes-agent"
-          "media"
-          "downloads"
-          "thunderbird"
-          "bitwarden"
-          "keepassxc"
-          "umbriel"
-          "vietnamese-input"
-          "vesktop"
-          "telegram"
-          "signal"
-        ];
+      hostConfigurations = lib.mapAttrs' (
+        name: definition: lib.nameValuePair name (framework.mkHost definition)
+      ) framework.hosts.definitions;
+
+      hostnameAliases = lib.mapAttrs' (
+        _name: definition: lib.nameValuePair definition.machine.hostname (framework.mkHost definition)
+      ) framework.hosts.definitions;
+
+      allConfigurations = hostConfigurations // hostnameAliases;
+      ci = hostConfigurations.ci;
+      ciDefinition = framework.hosts.definitions.ci;
+      ciSystem = ciDefinition.machine.system;
+      productionMachine = framework.hosts.definitions.${framework.hosts.default}.machine;
+
+      ciMatrix = lib.concatMap (
+        hostName:
+        let
+          definition = framework.hosts.definitions.${hostName};
+          selectedProfiles = lib.unique (
+            definition.machine.profiles ++ framework.roles.expand (definition.machine.roles or [ ])
+          );
+          architectures = definition.machine.architectures or [ definition.machine.system ];
+        in
+        lib.concatMap (
+          architecture:
+          map
+            (profile: {
+              host = hostName;
+              inherit architecture profile;
+            })
+            (
+              lib.filter (
+                profile: builtins.elem architecture (framework.profiles.architecturesFor profile)
+              ) selectedProfiles
+            )
+        ) architectures
+      ) framework.hosts.available;
+
+      matrixChecks = lib.foldl' (
+        checks: item:
+        let
+          definition = framework.hosts.definitions.${item.host};
+          configuration = framework.mkProfileHost {
+            inherit (definition) machine hostModule;
+            inherit (item) profile;
+            system = item.architecture;
+          };
+        in
+        lib.recursiveUpdate checks (
+          lib.setAttrByPath [
+            item.architecture
+            "${item.host}-${item.profile}"
+          ] configuration.config.system.build.toplevel
+        )
+      ) { } ciMatrix;
+
+      frameworkTests = import ./tests/framework.nix { inherit lib; };
+
+      checks = lib.recursiveUpdate matrixChecks {
+        ${ciSystem} = {
+          ci = ci.config.system.build.toplevel;
+          framework-tests =
+            assert frameworkTests;
+            nixpkgs.legacyPackages.${ciSystem}.runCommand "nixos-portable-framework-tests" { } "touch $out";
+        };
       };
 
-      ci = framework.mkHost {
-        machine = ciMachine;
-        hostModule = ./hosts/ci;
-      };
+      cliPackages = lib.genAttrs framework.architectures.supported (
+        system:
+        import ./lib/cli.nix {
+          pkgs = nixpkgs.legacyPackages.${system};
+        }
+      );
     in
     {
-      # Export named systems; for example, `nixos-rebuild build --flake .#nixos` selects production.
-      nixosConfigurations = {
-        ${machine.hostname} = production;
-        ci = ci;
+      nixosConfigurations = allConfigurations;
+
+      inherit ciMatrix checks;
+
+      formatter = lib.genAttrs framework.architectures.supported (
+        system: nixpkgs.legacyPackages.${system}.nixfmt
+      );
+
+      packages = lib.mapAttrs (_system: cli: {
+        nixos-portable = cli;
+      }) cliPackages;
+
+      devShells.${productionMachine.system}.default = import ./lib/devshell.nix {
+        inherit inputs;
+        machine = productionMachine;
       };
 
-      # Expose a dry-run CI build target without requiring production hardware.
-      checks.x86_64-linux.ci = ci.config.system.build.toplevel;
-
-      # Use nixfmt for the machine's native system; for example, `nix fmt` formats all tracked Nix files.
-      formatter.${machine.system} = nixpkgs.legacyPackages.${machine.system}.nixfmt;
-
-      # Provide a development shell with Nix tooling; for example, `nix develop` gives nixfmt, alejandra, nil, and statix.
-      devShells.${machine.system}.default = import ./lib/devshell.nix { inherit inputs machine; };
+      apps = lib.mapAttrs (_system: cli: {
+        nixos-portable = {
+          type = "app";
+          program = "${cli}/bin/nixos-portable";
+        };
+      }) cliPackages;
     };
 }
