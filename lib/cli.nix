@@ -1,5 +1,5 @@
 # Provide a small command-line facade over the flake; for example, every operation accepts the discovered host name.
-{ pkgs, flake }:
+{ pkgs }:
 
 pkgs.writeShellApplication {
   name = "nixos-portable";
