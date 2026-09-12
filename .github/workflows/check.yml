@@ -33,6 +33,9 @@ jobs:
       - name: Check Nix formatting
         run: nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
 
+      - name: Evaluate framework tests
+        run: nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file
+
       - name: Evaluate CI system
         run: nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
 
