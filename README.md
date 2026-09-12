@@ -74,7 +74,7 @@ Example identity:
   timeZone = "Asia/Ho_Chi_Minh";
   nixosStateVersion = "26.05";
   homeStateVersion = "26.05";
-  roles = [ "workstation" ];
+  roles = [ "completed" ];
   profiles = [ ];
 }
 ```
@@ -98,7 +98,7 @@ Current roles:
 
 | Role | Profiles |
 |---|---|
-| `workstation` | all discovered profiles |
+| `completed` | all discovered profiles |
 | `ci` | all discovered profiles on the hardware-independent CI host |
 
 Current profiles:
@@ -126,7 +126,7 @@ Profiles are discovered automatically from `profiles/*.nix`. Architecture compat
 
 ### Select profiles directly
 
-For a host that should not use the full workstation role:
+For a host that should not use the full completed role:
 
 ```nix
 roles = [ ];
@@ -141,7 +141,7 @@ profiles = [
 
 ## Hermes Agent and OpenCode
 
-The workstation role currently includes both `hermes-agent` and `opencode`.
+The completed role currently includes both `hermes-agent` and `opencode`.
 
 Verify them after switching:
 
