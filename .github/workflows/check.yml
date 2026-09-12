@@ -1,4 +1,4 @@
-# Validate every push and pull request; for example, the matrix checks every discovered host/profile combination.
+# Validate every push and pull request; for example, the matrix checks every discovered host/profile/architecture combination.
 name: Check
 
 on:
@@ -31,7 +31,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Check Nix formatting
-        run: nix fmt -- --check $(git ls-files '*.nix')
+        run: nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
 
       - name: Evaluate CI system
         run: nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
@@ -40,7 +40,7 @@ jobs:
         run: nix flake show --no-write-lock-file
 
       - name: Validate nixos-portable CLI
-        run: nix run .#nixos-portable -- --help
+        run: nix run --no-write-lock-file .#nixos-portable -- --help
 
       - name: Export CI matrix
         id: matrix
@@ -65,5 +65,5 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - name: Check host/profile build plan
+      - name: Check host/profile/architecture build plan
         run: nix build ".#checks.${{ matrix.architecture }}.${{ matrix.host }}-${{ matrix.profile }}" --no-link --dry-run --no-write-lock-file
