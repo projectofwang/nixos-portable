@@ -18,14 +18,8 @@ let
     }:
     let
       roleProfiles = roles.expand (machine.roles or [ ]);
-      baseProfiles =
-        if profileOnly then
-          [ "base" ]
-        else
-          roleProfiles ++ machine.profiles;
-      selectedProfiles = profiles.validate (
-        lib.unique (baseProfiles ++ extraProfiles)
-      );
+      baseProfiles = if profileOnly then [ "base" ] else roleProfiles ++ machine.profiles;
+      selectedProfiles = profiles.validate (lib.unique (baseProfiles ++ extraProfiles));
       home = import ./home-manager.nix { inherit inputs; };
       system = architectures.validate machine.system;
     in
