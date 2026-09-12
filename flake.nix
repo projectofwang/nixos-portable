@@ -12,6 +12,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent/v2026.9.7";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     # Pin the Vietnamese input method and desktop dependencies as flake inputs.
     fcitx5-lotus = {
       url = "github:projectofwang/fcitx5-lotus";
@@ -76,7 +82,7 @@
           "helium"
           "gaming"
           "ai"
-          "ide"
+          "hermes-agent"
           "media"
           "downloads"
           "thunderbird"
