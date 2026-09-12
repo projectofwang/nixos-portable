@@ -137,6 +137,8 @@ nix build .#nixos-portable
 ./result/bin/nixos-portable --help
 ```
 
+The CLI resolves the repository root automatically, so it can also be invoked from a subdirectory inside the repository.
+
 Commands:
 
 | Command | Action |
