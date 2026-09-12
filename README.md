@@ -107,7 +107,7 @@ The framework currently supports:
 - `x86_64-linux`
 - `aarch64-linux`
 
-The target architecture comes from each host identity and is validated before `nixosSystem` composition. Formatters and the CLI are exposed for every supported architecture.
+The target architecture comes from each host identity and is validated before `nixosSystem` composition. Formatters, packages, and the CLI are exposed for every supported architecture.
 
 ## CI matrix
 
@@ -128,6 +128,13 @@ nix run .#nixos-portable -- check
 nix run .#nixos-portable -- build machine
 nix run .#nixos-portable -- switch machine
 nix run .#nixos-portable -- deploy machine root@server
+```
+
+The CLI is also exposed as a package:
+
+```bash
+nix build .#nixos-portable
+./result/bin/nixos-portable --help
 ```
 
 Commands:
