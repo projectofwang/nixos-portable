@@ -41,8 +41,7 @@
 
     umbriel = {
       url = "github:projectofwang/umbriel";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
+      inputs.nixpkgs.follows = "xdg-desktop-portal-umbriel";
     };
 
     helium = {
@@ -59,13 +58,14 @@
       framework = import ./lib { inherit inputs lib home-manager; };
 
       hostConfigurations = lib.mapAttrs' (
-        _name: definition: lib.nameValuePair definition.machine.hostname (framework.mkHost definition)
+        _name: definition:
+        lib.nameValuePair definition.machine.hostname (framework.mkHost definition)
       ) framework.hosts.definitions;
 
       ciHostname = framework.hosts.definitions.ci.machine.hostname;
       ci = hostConfigurations.${ciHostname};
 
-      productionMachine = framework.hosts.definitions.machine.machine;
+      productionMachine = framework.hosts.definitions.${framework.hosts.default}.machine;
     in
     {
       # Every discovered host becomes a first-class flake target.
