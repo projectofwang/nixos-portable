@@ -9,7 +9,7 @@ let
   profiles = import ./profiles.nix { inherit lib; };
   roles = import ./roles.nix { inherit lib profiles; };
   architectures = import ./architectures.nix { inherit lib; };
-  hosts = import ./hosts.nix { inherit lib; };
+  hosts = import ./hosts.nix { inherit lib architectures; };
 
   host = import ./mk-host.nix {
     inherit
