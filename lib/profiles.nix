@@ -17,7 +17,12 @@ let
     helium = [ "x86_64-linux" ];
   };
 
-  architecturesFor = profile: architectureOverrides.${profile} or [ "x86_64-linux" "aarch64-linux" ];
+  architecturesFor =
+    profile:
+    architectureOverrides.${profile} or [
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
 
   validate =
     selected:
@@ -26,8 +31,7 @@ let
     in
     assert lib.assertMsg (unknown == [ ])
       "Unknown profile(s): ${lib.concatStringsSep ", " unknown}. Available profiles: ${lib.concatStringsSep ", " available}";
-    assert lib.assertMsg (lib.all builtins.isString selected)
-      "Profile selections must be strings";
+    assert lib.assertMsg (lib.all builtins.isString selected) "Profile selections must be strings";
     selected;
 in
 {
