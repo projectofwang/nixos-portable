@@ -1,82 +1,42 @@
 # nixos-portable
 
-Portable NixOS configuration framework for applying one configuration model across multiple machines, roles, profiles, hardware definitions, and Linux architectures.
+Portable NixOS configuration framework built around explicit host identity, reusable roles and profiles, hardware separation, architecture-aware evaluation, and a small repository CLI.
 
-## Architecture
+## Layout
 
 ```text
-flake.nix
-├── hosts/
-│   ├── machine/                 # Host identity + machine-specific composition
-│   └── ci/                      # Hardware-independent CI host
+.
+├── flake.nix
+├── flake.lock
 ├── hardware/                    # Reusable hardware implementations
-│   └── gpu/amd/
-├── roles/                       # Reusable role definitions
-├── profiles/                    # Reusable feature modules
-├── modules/                     # Low-level NixOS/Home Manager modules
-├── home/                        # Shared Home Manager configuration
-└── lib/
-    ├── hosts.nix                # Host discovery + identity validation
-    ├── profiles.nix             # Profile discovery + validation
-    ├── roles.nix                # Role composition
-    ├── architectures.nix        # Supported system targets
-    ├── mk-host.nix              # Host composition + matrix targets
-    └── cli.nix                  # nixos-portable CLI
-```
-
-The framework keeps these concerns separate:
-
-- **Host** — identity, selected roles/profiles, state versions, architecture targets, and the machine-specific module entry point.
-- **Profile** — reusable software or behavior such as desktop, terminal, browser, gaming, or messaging features.
-- **Hardware** — reusable hardware implementations such as GPU support. A host only selects the hardware it actually has.
-- **Role** — a reusable collection of profiles. For example, `workstation` and `ci` currently cover the complete profile surface.
-- **Architecture** — target system such as `x86_64-linux` or `aarch64-linux`.
-
-## Roadmap
-
-The repository implements the framework in six phases:
-
-```text
-Phase 1  Host / Profile / Hardware separation
-Phase 2  Roles + reusable hardware modules
-Phase 3  Automatic host discovery
-Phase 4  Multi-architecture support
-Phase 5  CI matrix: host × architecture × profile
-Phase 6  CLI/API abstraction
-           nixos-portable check
-           nixos-portable build
-           nixos-portable switch
-           nixos-portable deploy
+├── home/                        # Shared Home Manager modules
+├── hosts/                       # Discovered host definitions
+│   ├── ci/
+│   └── machine/
+├── lib/                         # Framework implementation
+├── modules/                     # Reusable NixOS/Home Manager modules
+├── profiles/                    # Auto-discovered capability profiles
+└── roles/                       # Named profile bundles
 ```
 
 ## Hosts
 
-Every directory under `hosts/` containing `identity.nix` is automatically discovered. The host directory name is the stable framework identifier; the `hostname` field is also exported as a compatibility alias.
-
-A host identity contains metadata only:
+Hosts are discovered from `hosts/*/identity.nix`. Each identity declares the host contract:
 
 ```nix
 {
-  hostname = "laptop";
-  username = "your-user";
+  hostname = "nixos";
+  username = "chicoarun";
   system = "x86_64-linux";
-  # Optional. Defaults to [ system ]. Use this for hardware-independent
-  # hosts that should participate in more than one architecture matrix.
-  architectures = [
-    "x86_64-linux"
-    "aarch64-linux"
-  ];
   timeZone = "Asia/Ho_Chi_Minh";
   nixosStateVersion = "26.05";
   homeStateVersion = "26.05";
-
-  roles = [
-    "workstation"
-  ];
-
+  roles = [ "workstation" ];
   profiles = [ ];
 }
 ```
+
+The framework validates required fields, field types, non-empty identity values, role/profile names, supported architectures, duplicate architectures, host module presence, hostname uniqueness, and hostname alias collisions.
 
 `system` is the host's primary/default target. `architectures` declares the complete set of supported evaluation targets for that host and must include `system`. Every declared target is validated against the framework's supported architecture set.
 
@@ -91,9 +51,11 @@ The current roles are:
 | Role | Purpose |
 |---|---|
 | `workstation` | Full workstation profile set |
-| `ci` | Full profile surface on the hardware-independent CI host |
+| `ci` | Full architecture-aware profile surface on the hardware-independent CI host |
 
 A host may combine roles with explicit profiles. Duplicate profiles are removed during composition.
+
+Profiles declare architecture compatibility centrally. Architecture-neutral profiles are evaluated on both supported Linux targets; profiles backed by software with a narrower platform contract are restricted to their supported targets rather than causing the entire cross-architecture matrix to fail.
 
 ## Reusable hardware
 
@@ -119,15 +81,17 @@ The target architecture is validated centrally. A normal host defaults to its `s
 
 ## CI matrix
 
-The flake exposes `ciMatrix` as structured data and generates build checks for every discovered combination of:
+The flake exposes `ciMatrix` as structured data and generates build checks for every discovered compatible combination of:
 
 ```text
-host × declared architecture × profile
+host × declared architecture × compatible profile
 ```
 
 GitHub Actions consumes that matrix dynamically, so adding a host, profile, or supported architecture target does not require manually editing the workflow matrix.
 
-The `ci` host explicitly targets both supported Linux architectures because it has no physical hardware dependencies. Physical hosts keep only the architectures they can actually boot and support.
+The `ci` host explicitly targets both supported Linux architectures because it has no physical hardware dependencies. Physical hosts keep only the architectures they can actually boot and support. Architecture-specific profiles are excluded from incompatible matrix cells by the same compatibility metadata enforced by host composition.
+
+The framework also exposes a dedicated `framework-tests` check covering architecture validation, automatic profile/role discovery, invalid selection rejection, and host discovery invariants.
 
 ## CLI
 
@@ -176,34 +140,4 @@ Generate hardware facts on the actual target machine:
 
 ```bash
 sudo nixos-generate-config --show-hardware-config > hosts/laptop/hardware-configuration.nix
-```
-
-Review filesystem UUIDs, swap, kernel modules, CPU settings, mounts, and any other device assumptions before committing the generated file.
-
-No `flake.nix` host entry is required. Discovery handles it automatically.
-
-## Development
-
-Enter the development shell:
-
-```bash
-nix develop
-```
-
-Validate formatting without changing the lockfile:
-
-```bash
-nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
-```
-
-Inspect outputs without changing the lockfile:
-
-```bash
-nix flake show --no-write-lock-file
-```
-
-Update inputs deliberately and review the resulting lockfile:
-
-```bash
-nix flake update
 ```
