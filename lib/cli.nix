@@ -44,7 +44,7 @@ pkgs.writeShellApplication {
       flake_dir="$PWD"
     fi
 
-    flake_ref="${flake_dir}"
+    flake_ref="''${flake_dir}"
 
     require_args() {
       local expected="$1"
@@ -64,18 +64,18 @@ pkgs.writeShellApplication {
       build)
         require_args 1
         host="$1"
-        nixos-rebuild build --flake "${flake_ref}#$host"
+        nixos-rebuild build --flake "''${flake_ref}#$host"
         ;;
       switch)
         require_args 1
         host="$1"
-        nixos-rebuild switch --flake "${flake_ref}#$host"
+        nixos-rebuild switch --flake "''${flake_ref}#$host"
         ;;
       deploy)
         require_args 2
         host="$1"
         target="$2"
-        nixos-rebuild switch --flake "${flake_ref}#$host" --target-host "$target"
+        nixos-rebuild switch --flake "''${flake_ref}#$host" --target-host "$target"
         ;;
       -h|--help|help)
         require_args 0
