@@ -60,7 +60,7 @@
 
       hostConfigurations = lib.mapAttrs' (
         _name: definition:
-        lib.nameValuePair definition.machine.hostname (framework.mkHost definition)
+          lib.nameValuePair definition.machine.hostname (framework.mkHost definition)
       ) framework.hosts.definitions;
 
       ciHostname = framework.hosts.definitions.ci.machine.hostname;
