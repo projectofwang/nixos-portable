@@ -54,8 +54,9 @@ pkgs.writeShellApplication {
 
     require_args() {
       local expected="$1"
+      shift
       local actual="$#"
-      (( actual == expected + 1 )) || die "expected $expected argument(s), got $((actual - 1))"
+      (( actual == expected )) || die "expected $expected argument(s), got $actual"
     }
 
     case "$command" in
@@ -68,23 +69,23 @@ pkgs.writeShellApplication {
         nix flake check --no-write-lock-file "$flake_ref"
         ;;
       build)
-        require_args 1
+        require_args 1 "$@"
         host="$1"
         nixos-rebuild build --flake "''${flake_ref}#$host"
         ;;
       switch)
-        require_args 1
+        require_args 1 "$@"
         host="$1"
         nixos-rebuild switch --flake "''${flake_ref}#$host"
         ;;
       deploy)
-        require_args 2
+        require_args 2 "$@"
         host="$1"
         target="$2"
         nixos-rebuild switch --flake "''${flake_ref}#$host" --target-host "$target"
         ;;
       -h|--help|help)
-        require_args 0
+        require_args 0 "$@"
         usage
         ;;
       *)
