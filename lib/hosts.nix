@@ -7,7 +7,8 @@ let
   directories = lib.filterAttrs (_: type: type == "directory") entries;
   names = builtins.attrNames directories;
   hostNames = lib.filter (
-    name: builtins.pathExists (hostsDir + "/${name}/identity.nix")
+    name:
+    builtins.pathExists (hostsDir + "/${name}/identity.nix")
   ) names;
 in
 {
