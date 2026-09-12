@@ -46,6 +46,7 @@ pkgs.writeShellApplication {
     fi
 
     flake_ref="''${flake_dir}"
+    cd "$flake_dir"
 
     require_args() {
       local expected="$1"
@@ -56,7 +57,7 @@ pkgs.writeShellApplication {
     case "$command" in
       check)
         require_args 0
-        mapfile -t nix_files < <(git -C "$flake_dir" ls-files '*.nix')
+        mapfile -t nix_files < <(git ls-files '*.nix')
         if (( ''${#nix_files[@]} > 0 )); then
           nix fmt -- --check "''${nix_files[@]}"
         fi
