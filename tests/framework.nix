@@ -30,7 +30,7 @@ let
 
   expectedRoles = [
     "ci"
-    "workstation"
+    "completed"
   ];
 in
 assert lib.assertMsg (succeeds (
