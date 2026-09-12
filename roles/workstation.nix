@@ -2,6 +2,5 @@
 { profiles }:
 
 {
-  inherit (profiles) available;
   profiles = profiles.available;
 }
