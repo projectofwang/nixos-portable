@@ -1,13 +1,12 @@
-# Install media applications only when requested; for example, `media` provides mpv, mpvpaper, VLC, and Stremio.
 { username, pkgs, ... }:
 
 {
-  # Scope the Stremio package's unfree requirement to this optional profile.
+  # Allow only the unfree media package required by this profile.
   nixpkgs.config.allowUnfreePackages = [
     "stremio-linux-shell"
   ];
 
-  # Install media applications into the user's Home Manager environment.
+  # Install the media applications into the selected user's environment.
   home-manager.users.${username}.home.packages = with pkgs; [
     mpv
     mpvpaper

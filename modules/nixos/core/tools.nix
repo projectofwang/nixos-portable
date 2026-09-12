@@ -1,8 +1,7 @@
-# Install common command-line and diagnostic tools; for example, Git, wget, iperf3, vulkaninfo, and vainfo are available on every host.
 { pkgs, ... }:
 
 {
-  # Keep universally useful tools in the base layer; feature-specific applications remain in profiles.
+  # Keep diagnostic and version-control tools available on every host.
   environment.systemPackages = with pkgs; [
     git
     wget

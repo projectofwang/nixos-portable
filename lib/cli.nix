@@ -1,7 +1,7 @@
-# Provide a small command-line facade over the flake; for example, every operation accepts the discovered host name.
 { pkgs }:
 
 pkgs.writeShellApplication {
+  # Keep all repository operations behind one flake-aware command.
   name = "nixos-portable";
   runtimeInputs = [
     pkgs.git

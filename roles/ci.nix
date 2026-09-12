@@ -1,6 +1,6 @@
-# Define the CI role as the complete reusable profile surface on a hardware-independent host.
 { profiles }:
 
 {
+  # Expand the CI role to the full discovered profile surface.
   profiles = profiles.available;
 }

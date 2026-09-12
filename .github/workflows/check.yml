@@ -1,4 +1,3 @@
-# Validate every push and pull request; for example, the matrix checks every discovered host/profile/architecture combination.
 name: Check
 
 on:

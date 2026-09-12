@@ -1,12 +1,11 @@
-# Add Firefox and the shared browser integration; for example, Firefox uses the native Wayland environment from the browser module.
 { ... }:
 
 {
-  # Reuse browser-specific system integration.
+  # Reuse the shared browser integration for Firefox.
   imports = [
     ../modules/nixos/browser
   ];
 
-  # Enable Firefox for this profile.
+  # Enable Firefox for hosts using this profile.
   programs.firefox.enable = true;
 }

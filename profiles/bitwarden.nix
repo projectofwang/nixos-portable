@@ -1,7 +1,6 @@
-# Install Bitwarden Desktop only when requested; for example, it remains independent from browser profiles.
 { username, pkgs, ... }:
 
 {
-  # Keep the password manager user-scoped through Home Manager.
+  # Keep Bitwarden scoped to the selected Home Manager user.
   home-manager.users.${username}.home.packages = [ pkgs.bitwarden-desktop ];
 }

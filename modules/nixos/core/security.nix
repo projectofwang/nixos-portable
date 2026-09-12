@@ -1,9 +1,9 @@
-# Keep privileged system interfaces explicit; for example, sudo is enabled while polkit remains disabled unless a desktop component requires it.
 { lib, ... }:
 
 {
-  # Avoid enabling polkit globally unless a module explicitly needs it.
+  # Keep polkit disabled unless a desktop component explicitly enables it.
   security.polkit.enable = lib.mkDefault false;
-  # Provide sudo for administrative commands and keep its enablement explicit.
+
+  # Require authentication for sudo access through the wheel group.
   security.sudo.enable = true;
 }

@@ -1,4 +1,3 @@
-# Assemble the desktop system layer; for example, this module is imported only by the `desktop` profile.
 {
   inputs,
   username,
@@ -7,7 +6,7 @@
 }:
 
 {
-  # Import desktop system modules supplied by the Umbriel and Noctalia inputs.
+  # Load the desktop modules provided by the compositor and session inputs.
   imports = [
     inputs.umbriel.nixosModules.default
     inputs.noctalia.nixosModules.default
@@ -17,23 +16,23 @@
   # Enable the system-side Umbriel compositor integration.
   programs.umbriel.enable = true;
 
-  # Enable Noctalia and its recommended supporting services for the desktop session.
+  # Enable Noctalia and its supporting services.
   programs.noctalia = {
     enable = true;
     recommendedServices.enable = true;
   };
 
-  # Install desktop utilities that are intentionally system-wide; for example, GPU Screen Recorder and Krusader are launched by the desktop.
+  # Install desktop utilities that are shared by all desktop sessions.
   environment.systemPackages = [
     pkgs.flatpak
     pkgs.gpu-screen-recorder
     pkgs.krusader
   ];
 
-  # Enable Flatpak's system service so graphical Flatpak applications can be installed with `flatpak install flathub org.mozilla.firefox`.
+  # Enable the system Flatpak service.
   services.flatpak.enable = true;
 
-  # Provide PipeWire audio with real-time scheduling and 32-bit ALSA compatibility.
+  # Provide PipeWire audio with real-time scheduling and 32-bit ALSA support.
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -42,14 +41,14 @@
     pulse.enable = true;
   };
 
-  # Use the GTK portal as the default desktop portal; for example, file dialogs and browser sandbox APIs can use it.
+  # Use GTK as the default desktop portal implementation.
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
     config.common.default = [ "gtk" ];
   };
 
-  # Start the graphical session through the Noctalia greeter with the machine's default user.
+  # Start the graphical session with the configured default user.
   programs.noctalia-greeter = {
     enable = true;
     settings = {
@@ -58,7 +57,7 @@
     };
   };
 
-  # Add user-level desktop configuration without mixing it into the system module.
+  # Load the matching user-level desktop configuration.
   home-manager.users.${username}.imports = [
     ../../home-manager/desktop
   ];

@@ -1,4 +1,3 @@
-# Map machine identity into system defaults; for example, the production hostname and timezone come from `identity.nix`.
 {
   lib,
   hostname,
@@ -7,8 +6,9 @@
 }:
 
 {
-  # Set the host name without overriding a more specific machine module.
+  # Use host identity as the default hostname.
   networking.hostName = lib.mkDefault hostname;
-  # Set the system timezone from machine identity; example: `Asia/Ho_Chi_Minh` for the current host.
+
+  # Use host identity as the default system timezone.
   time.timeZone = lib.mkDefault timeZone;
 }

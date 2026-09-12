@@ -1,4 +1,3 @@
-# Provide a development shell with the repository's authoritative formatter, linter, diagnostics, and CLI.
 { inputs, machine, ... }:
 
 let
@@ -10,6 +9,7 @@ let
   };
 in
 pkgs.mkShell {
+  # Keep development tooling aligned with the repository checks and CLI.
   packages = with pkgs; [
     nil
     nixfmt

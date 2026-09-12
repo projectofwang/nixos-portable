@@ -1,7 +1,6 @@
-# Install Signal Desktop only when requested; for example, selecting `signal` adds the native client.
 { username, pkgs, ... }:
 
 {
-  # Keep Signal Desktop user-scoped through Home Manager.
+  # Install Signal Desktop for the selected Home Manager user.
   home-manager.users.${username}.home.packages = [ pkgs.signal-desktop ];
 }

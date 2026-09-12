@@ -1,8 +1,7 @@
-# Keep the Home Manager baseline small; for example, every user gets the shell environment while IDE and desktop features stay opt-in.
 { ... }:
 
 {
-  # Import only the shared shell layer at the baseline.
+  # Keep the baseline Home Manager import limited to the shared shell layer.
   imports = [
     ./shell.nix
   ];

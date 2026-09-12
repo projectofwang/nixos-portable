@@ -1,13 +1,12 @@
-# Enable Noctalia's user-side screen recorder plugin; for example, the plugin exposes its own IPC service to the desktop.
 { inputs, ... }:
 
 {
-  # Import the Noctalia Home Manager module from the pinned flake input.
+  # Load the Noctalia Home Manager module from the pinned input.
   imports = [
     inputs.noctalia.homeModules.default
   ];
 
-  # Keep the screen recorder declarative and available only with the desktop profile.
+  # Enable the screen recorder plugin only for desktop users.
   programs.noctalia = {
     enable = true;
     settings = {

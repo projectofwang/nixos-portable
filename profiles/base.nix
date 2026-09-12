@@ -1,17 +1,17 @@
-# Compose the reusable system baseline; for example, `base` provides Nix, identity, users, security, and Git.
 { ... }:
 
 {
+  # Load the modules that define the shared system baseline.
   imports = [
-    # Enable the Nix daemon and flake tooling.
+    # Configure Nix and flake support.
     ../modules/nixos/core/nix.nix
-    # Map machine identity into hostname and timezone.
+    # Apply hostname, timezone, and system identity settings.
     ../modules/nixos/core/system.nix
-    # Create the primary user and shell.
+    # Create the primary user and login shell.
     ../modules/nixos/core/users.nix
-    # Apply the system security baseline.
+    # Apply the default security policy.
     ../modules/nixos/core/security.nix
-    # Install minimal system-wide tools such as Git.
+    # Install the base command-line toolset.
     ../modules/nixos/core/tools.nix
   ];
 }

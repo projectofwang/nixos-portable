@@ -1,13 +1,12 @@
-# Extend the terminal profile with LazyVim; for example, selecting `terminal-ide` automatically includes `terminal` first.
 { username, ... }:
 
 {
-  # Reuse the terminal profile rather than duplicating its package set.
+  # Reuse the terminal profile before adding the IDE layer.
   imports = [
     ./terminal.nix
   ];
 
-  # Add the complete Neovim/LazyVim implementation for this user.
+  # Load the shared LazyVim Home Manager configuration.
   home-manager.users.${username}.imports = [
     ../modules/home-manager/lazyvim.nix
   ];
