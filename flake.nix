@@ -128,7 +128,10 @@
     {
       nixosConfigurations = allConfigurations;
 
-      inherit ciMatrix checks;
+      checks = checks;
+      lib = {
+        inherit ciMatrix;
+      };
 
       formatter = lib.genAttrs framework.architectures.supported (
         system: nixpkgs.legacyPackages.${system}.nixfmt
@@ -147,6 +150,9 @@
         nixos-portable = {
           type = "app";
           program = "${cli}/bin/nixos-portable";
+          meta = {
+            description = "nixos-portable command-line interface";
+          };
         };
       }) cliPackages;
     };
