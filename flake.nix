@@ -97,15 +97,15 @@
           ] configuration.config.system.build.toplevel
         )
       ) { } ciMatrix;
+
+      checks = lib.recursiveUpdate matrixChecks {
+        ${ci.system}.ci = ci.config.system.build.toplevel;
+      };
     in
     {
       nixosConfigurations = allConfigurations;
 
-      inherit ciMatrix;
-
-      checks = matrixChecks // {
-        x86_64-linux.ci = ci.config.system.build.toplevel;
-      };
+      inherit ciMatrix checks;
 
       formatter = lib.genAttrs framework.architectures.supported (
         system: nixpkgs.legacyPackages.${system}.nixfmt
