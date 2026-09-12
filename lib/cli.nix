@@ -45,7 +45,11 @@ pkgs.writeShellApplication {
       flake_dir="$PWD"
     fi
 
-    flake_ref="''${flake_dir}"
+    if [[ ! -f "$flake_dir/flake.nix" ]]; then
+      die "could not find flake.nix at '$flake_dir'"
+    fi
+
+    flake_ref="$flake_dir"
     cd "$flake_dir"
 
     require_args() {
@@ -59,7 +63,7 @@ pkgs.writeShellApplication {
         require_args 0
         mapfile -t nix_files < <(git ls-files '*.nix')
         if (( ''${#nix_files[@]} > 0 )); then
-          nix fmt -- --check "''${nix_files[@]}"
+          nix fmt --no-write-lock-file -- --check "''${nix_files[@]}"
         fi
         nix flake check --no-write-lock-file "$flake_ref"
         ;;
