@@ -1,5 +1,10 @@
 # Define the Home Manager identity; for example, `username = "alice"` maps to `/home/alice`.
-{ lib, username, homeStateVersion ? "26.05", ... }:
+{
+  lib,
+  username,
+  homeStateVersion ? "26.05",
+  ...
+}:
 
 {
   # Set the user's account name and home path from machine identity.
