@@ -1,4 +1,4 @@
-# Build the reusable host framework; for example, `mkHost` consumes validated profiles and host definitions.
+# Build the reusable host framework; for example, `mkHost` consumes validated identity, roles, profiles, and architectures.
 {
   inputs,
   lib,
@@ -6,24 +6,23 @@
 }:
 
 let
-  # Discover and validate profile names before host composition.
   profiles = import ./profiles.nix { inherit lib; };
-
-  # Discover every host directory that contains an identity definition.
+  roles = import ./roles.nix { inherit lib profiles; };
+  architectures = import ./architectures.nix { inherit lib; };
   hosts = import ./hosts.nix { inherit lib; };
 
-  # Construct a NixOS system from machine identity, modules, and selected profiles.
   host = import ./mk-host.nix {
     inherit
       inputs
       lib
       home-manager
       profiles
+      roles
+      architectures
       ;
   };
 in
 {
-  # Export registries and the host builder to the flake composition root.
-  inherit profiles hosts;
-  inherit (host) mkHost;
+  inherit profiles roles architectures hosts;
+  inherit (host) mkHost mkProfileHost;
 }
