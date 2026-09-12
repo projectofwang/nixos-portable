@@ -46,7 +46,7 @@ jobs:
 
       - name: Export CI matrix
         id: matrix
-        run: echo "matrix=$(nix eval .#ciMatrix --json --no-write-lock-file)" >> "$GITHUB_OUTPUT"
+        run: echo "matrix=$(nix eval .#lib.ciMatrix --json --no-write-lock-file)" >> "$GITHUB_OUTPUT"
 
   matrix:
     needs: framework
