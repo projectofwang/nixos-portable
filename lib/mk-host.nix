@@ -15,16 +15,20 @@ let
       hostModule,
       extraProfiles ? [ ],
       profileOnly ? false,
+      system ? machine.system,
     }:
     let
       roleProfiles = roles.expand (machine.roles or [ ]);
       baseProfiles = if profileOnly then [ "base" ] else roleProfiles ++ machine.profiles;
       selectedProfiles = profiles.validate (lib.unique (baseProfiles ++ extraProfiles));
       home = import ./home-manager.nix { inherit inputs; };
-      system = architectures.validate machine.system;
+      targetSystem = architectures.validate system;
+      declaredArchitectures = machine.architectures or [ machine.system ];
     in
+    assert lib.assertMsg (builtins.elem targetSystem declaredArchitectures)
+      "Host '${machine.hostname}' does not declare architecture '${targetSystem}'";
     lib.nixosSystem {
-      inherit system;
+      system = targetSystem;
 
       # Expose only stable, module-relevant identity values instead of the entire machine record.
       specialArgs = {
