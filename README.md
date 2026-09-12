@@ -27,8 +27,8 @@ Machine-specific hardware stays under `hosts/machine/`. Optional software stays 
 | `helium` | Helium + browser integration |
 | `gaming` | Steam, GameMode, MangoHud |
 | `gpu-tools` | Vulkan and VA-API diagnostics |
-| `ai` | llama.cpp + editor integrations |
-| `ide` | Zed |
+| `ai` | llama.cpp + Neovim integrations |
+| `hermes-agent` | Hermes Agent CLI installation |
 | `media` | Media applications |
 | `downloads` | qBittorrent |
 | `thunderbird` | Thunderbird |
@@ -37,7 +37,32 @@ Machine-specific hardware stays under `hosts/machine/`. Optional software stays 
 | `umbriel` | Umbriel user configuration |
 | `vietnamese-input` | Fcitx5 + Lotus |
 
-Production machine identity intentionally selects only `base`. Add optional profiles when building a specific machine configuration.
+Production machine identity intentionally selects only `base` and the explicitly enabled optional profiles. Add profiles when building a specific machine configuration.
+
+## Hermes Agent
+
+[Hermes Agent](https://github.com/NousResearch/hermes-agent) is installed as a standalone Home Manager package through the `hermes-agent` profile.
+
+The profile intentionally provides **installation only**. It does not configure:
+
+- providers or API keys
+- models
+- agent behavior
+- gateway/services
+- secrets
+
+After rebuilding the system with the profile enabled, configure Hermes Agent yourself according to your preferred provider and model setup.
+
+## AI
+
+```text
+llama.cpp : 127.0.0.1:8080
+       └── Neovim CodeCompanion OpenAI-compatible adapter
+```
+
+The `ai` profile selects the Vulkan llama.cpp backend while the machine GPU layer provides the underlying graphics capability.
+
+Hermes Agent is managed separately by the `hermes-agent` profile and is not coupled to the llama.cpp configuration.
 
 ## GPU
 
@@ -55,16 +80,6 @@ hosts/machine/gpu/<gpu>.nix
 The current RX 580 2048SP uses the standard Mesa graphics stack. ROCm is not enabled because Polaris is not a supported current Radeon target.
 
 `gpu-tools` owns diagnostic applications such as `vulkaninfo` and `vainfo`; the GPU hardware module only owns hardware capability.
-
-## AI
-
-```text
-llama.cpp : 127.0.0.1:8080
-       ├── Zed native llama.cpp provider
-       └── Neovim CodeCompanion OpenAI-compatible adapter
-```
-
-The `ai` profile selects the Vulkan llama.cpp backend while the machine GPU layer provides the underlying graphics capability.
 
 ## Validation
 
