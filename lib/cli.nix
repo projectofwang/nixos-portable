@@ -19,41 +19,70 @@ pkgs.writeShellApplication {
       nixos-portable deploy <host> <target>
 
     Examples:
+      nixos-portable check
       nixos-portable build machine
       nixos-portable switch machine
       nixos-portable deploy machine root@server
     EOF
     }
 
-    command="''${1:-}"
+    die() {
+      printf 'error: %s\n' "$1" >&2
+      usage >&2
+      exit 2
+    }
+
+    if [[ -z "''${1:-}" ]]; then
+      die "missing command"
+    fi
+
+    command="$1"
+    shift
+
+    flake_dir="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+    if [[ -z "$flake_dir" ]]; then
+      flake_dir="$PWD"
+    fi
+
+    flake_ref="${flake_dir}"
+
+    require_args() {
+      local expected="$1"
+      local actual="$#"
+      (( actual == expected + 1 )) || die "expected $expected argument(s), got $((actual - 1))"
+    }
 
     case "$command" in
       check)
-        nix fmt -- --check $(git ls-files '*.nix')
-        nix flake check --no-write-lock-file "${flake}"
+        require_args 0
+        mapfile -t nix_files < <(git -C "$flake_dir" ls-files '*.nix')
+        if (( ''${#nix_files[@]} > 0 )); then
+          nix fmt -- --check "''${nix_files[@]}"
+        fi
+        nix flake check --no-write-lock-file "$flake_ref"
         ;;
       build)
-        host="''${2:-}"
-        [[ -n "$host" ]] || { usage; exit 2; }
-        nixos-rebuild build --flake "${flake}#$host"
+        require_args 1
+        host="$1"
+        nixos-rebuild build --flake "${flake_ref}#$host"
         ;;
       switch)
-        host="''${2:-}"
-        [[ -n "$host" ]] || { usage; exit 2; }
-        nixos-rebuild switch --flake "${flake}#$host"
+        require_args 1
+        host="$1"
+        nixos-rebuild switch --flake "${flake_ref}#$host"
         ;;
       deploy)
-        host="''${2:-}"
-        target="''${3:-}"
-        [[ -n "$host" && -n "$target" ]] || { usage; exit 2; }
-        nixos-rebuild switch --flake "${flake}#$host" --target-host "$target"
+        require_args 2
+        host="$1"
+        target="$2"
+        nixos-rebuild switch --flake "${flake_ref}#$host" --target-host "$target"
         ;;
       -h|--help|help)
+        require_args 0
         usage
         ;;
       *)
-        usage
-        exit 2
+        die "unknown command: $command"
         ;;
     esac
   '';
