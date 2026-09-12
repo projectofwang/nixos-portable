@@ -90,7 +90,10 @@
             inherit (item) profile;
           };
         in
-        lib.setAttrByPath [ item.architecture "${item.host}-${item.profile}" ] configuration.config.system.build.toplevel checks
+        lib.setAttrByPath [
+          item.architecture
+          "${item.host}-${item.profile}"
+        ] configuration.config.system.build.toplevel checks
       ) { } ciMatrix;
     in
     {
