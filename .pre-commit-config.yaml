@@ -16,7 +16,10 @@ repos:
     hooks:
       - id: nixfmt
 
-  - repo: https://github.com/oppiliappan/statix
-    rev: 0.5.8
+  - repo: local
     hooks:
       - id: statix
+        name: statix
+        entry: statix check
+        language: system
+        types: [nix]
