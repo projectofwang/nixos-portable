@@ -17,7 +17,7 @@
     "firefox"
     "gaming"
     "helium"
-    "ide"
+    "hermes-agent"
     "keepassxc"
     "media"
     "signal"
