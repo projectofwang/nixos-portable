@@ -1,29 +1,32 @@
-# Compose one NixOS host from machine identity and selected profiles; for example, `mkHost` is used for both production and CI.
+# Compose NixOS hosts from identity, host modules, roles, profiles, and Home Manager.
 {
   inputs,
   lib,
   home-manager,
   profiles,
+  roles,
+  architectures,
 }:
 
-{
-  mkHost =
+let
+  build =
     {
       machine,
       hostModule,
+      extraProfiles ? [ ],
     }:
     let
-      # Validate profile names before converting them into module paths.
-      selectedProfiles = profiles.validate machine.profiles;
+      roleProfiles = roles.expand (machine.roles or [ ]);
+      selectedProfiles = profiles.validate (lib.unique (roleProfiles ++ machine.profiles ++ extraProfiles));
       home = import ./home-manager.nix { inherit inputs; };
+      system = architectures.validate machine.system;
     in
     lib.nixosSystem {
-      # Build for the machine architecture; for example, production currently targets x86_64-linux.
-      inherit (machine) system;
+      inherit system;
 
-      # Pass machine metadata explicitly so modules do not read files directly.
+      # Expose only stable, module-relevant identity values instead of the entire machine record.
       specialArgs = {
-        inherit inputs machine;
+        inherit inputs;
         hostname = machine.hostname;
         username = machine.username;
         timeZone = machine.timeZone;
@@ -31,7 +34,6 @@
         homeStateVersion = machine.homeStateVersion;
       };
 
-      # Layer machine hardware, Home Manager, and optional profiles into one system.
       modules = [
         hostModule
         home-manager.nixosModules.home-manager
@@ -39,10 +41,8 @@
       ++ map (profile: ../profiles/${profile}.nix) selectedProfiles
       ++ [
         {
-          # Pin NixOS state compatibility; example: migrations deliberately update this value.
           system.stateVersion = machine.nixosStateVersion;
 
-          # Attach the shared Home Manager configuration to the same host identity.
           home-manager = home.mkHome {
             username = machine.username;
             homeStateVersion = machine.homeStateVersion;
@@ -50,4 +50,16 @@
         }
       ];
     };
+in
+{
+  # Build the complete host definition used by normal NixOS operations.
+  mkHost = args: build args;
+
+  # Build a host with one additional profile so CI can test host × architecture × profile combinations.
+  mkProfileHost =
+    args@{
+      profile,
+      ...
+    }:
+    build (builtins.removeAttrs args [ "profile" ] // { extraProfiles = [ profile ]; });
 }
