@@ -1,3 +1,4 @@
+# Define the hardware-independent CI host and let its role exercise the full profile surface.
 {
   hostname = "nixos-portable-ci";
   username = "ci";
@@ -6,25 +7,9 @@
   nixosStateVersion = "26.05";
   homeStateVersion = "26.05";
 
-  profiles = [
-    "ai"
-    "base"
-    "bitwarden"
-    "desktop"
-    "downloads"
-    "firefox"
-    "gaming"
-    "helium"
-    "hermes-agent"
-    "keepassxc"
-    "media"
-    "signal"
-    "telegram"
-    "terminal"
-    "terminal-ide"
-    "thunderbird"
-    "umbriel"
-    "vesktop"
-    "vietnamese-input"
+  roles = [
+    "ci"
   ];
+
+  profiles = [ ];
 }
