@@ -64,6 +64,8 @@
 
       allConfigurations = hostConfigurations // hostnameAliases;
       ci = hostConfigurations.ci;
+      ciDefinition = framework.hosts.definitions.ci;
+      ciSystem = ciDefinition.machine.system;
       productionMachine = framework.hosts.definitions.${framework.hosts.default}.machine;
 
       ciMatrix = lib.concatMap (
@@ -99,7 +101,7 @@
       ) { } ciMatrix;
 
       checks = lib.recursiveUpdate matrixChecks {
-        ${ci.system}.ci = ci.config.system.build.toplevel;
+        ${ciSystem}.ci = ci.config.system.build.toplevel;
       };
     in
     {
