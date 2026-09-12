@@ -69,8 +69,11 @@
       productionMachine = framework.hosts.definitions.machine.machine;
     in
     {
-      # Every host becomes a first-class flake target. Adding a host only requires a new hosts/<name>/ directory.
-      nixosConfigurations = hostConfigurations;
+      # Every discovered host becomes a first-class flake target.
+      nixosConfigurations = hostConfigurations // {
+        # Preserve the existing CI target so workflows and local commands remain compatible.
+        ci = ci;
+      };
 
       # Keep CI explicit while host discovery remains generic for production and future machines.
       checks.x86_64-linux.ci = ci.config.system.build.toplevel;
