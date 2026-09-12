@@ -1,23 +1,26 @@
-# Compose reusable feature groups from profiles; for example, `workstation` enables the complete desktop profile set.
+# Discover reusable role definitions from `roles/*.nix` and expand them into profile names.
 { lib, profiles }:
 
 let
-  roleDefinitions = {
-    # Keep the workstation role declarative so a host can select a role without copying profile lists.
-    workstation = profiles.available;
+  rolesDir = ../roles;
+  entries = builtins.readDir rolesDir;
+  roleNames = map (name: lib.removeSuffix ".nix" name) (
+    lib.filter (
+      name:
+      entries.${name} == "regular" && lib.hasSuffix ".nix" name
+    ) (builtins.attrNames entries)
+  );
 
-    # CI exercises the same complete profile surface without depending on physical hardware.
-    ci = profiles.available;
-  };
-
-  available = builtins.attrNames roleDefinitions;
+  roleDefinitions = lib.genAttrs roleNames (
+    name: (import (rolesDir + "/${name}.nix") { inherit profiles; }).profiles
+  );
 
   validate = selected:
     let
-      unknown = lib.filter (role: !(builtins.elem role available)) selected;
+      unknown = lib.filter (role: !(builtins.elem role roleNames)) selected;
     in
     assert lib.assertMsg (unknown == [ ])
-      "Unknown role(s): ${lib.concatStringsSep ", " unknown}. Available roles: ${lib.concatStringsSep ", " available}";
+      "Unknown role(s): ${lib.concatStringsSep ", " unknown}. Available roles: ${lib.concatStringsSep ", " roleNames}";
     selected;
 
   expand = selected:
@@ -27,5 +30,6 @@ let
     lib.unique (lib.concatMap (role: roleDefinitions.${role}) validated);
 in
 {
-  inherit available roleDefinitions validate expand;
+  available = roleNames;
+  inherit roleDefinitions validate expand;
 }
