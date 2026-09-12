@@ -32,32 +32,36 @@ let
     "workstation"
   ];
 in
-assert (succeeds (
-  architectures.validate "x86_64-linux"
-)) "x86_64-linux must be a supported architecture";
-assert (succeeds (
-  architectures.validate "aarch64-linux"
-)) "aarch64-linux must be a supported architecture";
-assert (fails (
-  architectures.validate "riscv64-linux"
-)) "unsupported architectures must be rejected";
-assert lib.all (
+assert lib.assertMsg (succeeds (architectures.validate "x86_64-linux"))
+  "x86_64-linux must be a supported architecture";
+assert lib.assertMsg (succeeds (architectures.validate "aarch64-linux"))
+  "aarch64-linux must be a supported architecture";
+assert lib.assertMsg (fails (architectures.validate "riscv64-linux"))
+  "unsupported architectures must be rejected";
+assert lib.assertMsg (lib.all (
   profile: builtins.elem profile profiles.available
-) expectedProfiles "all expected profiles must be auto-discovered";
-assert (succeeds (profiles.validate expectedProfiles)) "all expected profiles must validate";
-assert (fails (profiles.validate [ "does-not-exist" ])) "unknown profiles must be rejected";
-assert lib.all (
+) expectedProfiles) "all expected profiles must be auto-discovered";
+assert lib.assertMsg (succeeds (profiles.validate expectedProfiles))
+  "all expected profiles must validate";
+assert lib.assertMsg (fails (profiles.validate [ "does-not-exist" ]))
+  "unknown profiles must be rejected";
+assert lib.assertMsg (lib.all (
   role: builtins.elem role roles.available
-) expectedRoles "all expected roles must be auto-discovered";
-assert (succeeds (roles.validate expectedRoles)) "all expected roles must validate";
-assert (fails (roles.validate [ "does-not-exist" ])) "unknown roles must be rejected";
-assert builtins.elem "machine" hosts.available "machine must be discovered as a host";
-assert builtins.elem "ci" hosts.available "ci must be discovered as a host";
-assert hosts.default == "machine" "machine must remain the explicit production host";
-assert
+) expectedRoles) "all expected roles must be auto-discovered";
+assert lib.assertMsg (succeeds (roles.validate expectedRoles))
+  "all expected roles must validate";
+assert lib.assertMsg (fails (roles.validate [ "does-not-exist" ]))
+  "unknown roles must be rejected";
+assert lib.assertMsg (builtins.elem "machine" hosts.available)
+  "machine must be discovered as a host";
+assert lib.assertMsg (builtins.elem "ci" hosts.available)
+  "ci must be discovered as a host";
+assert lib.assertMsg (hosts.default == "machine")
+  "machine must remain the explicit production host";
+assert lib.assertMsg (
   hosts.definitions.ci.machine.architectures == [
     "x86_64-linux"
     "aarch64-linux"
   ]
-    "ci must cover both supported architectures";
+) "ci must cover both supported architectures";
 true
