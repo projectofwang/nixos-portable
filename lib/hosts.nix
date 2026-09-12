@@ -36,16 +36,28 @@ let
     }
   );
 
-  hostnames = map (name: definitions.${name}.machine.hostname) hostNames;
+  hostPairs = map (
+    name: {
+      host = name;
+      hostname = definitions.${name}.machine.hostname;
+    }
+  ) hostNames;
+  hostnames = map (pair: pair.hostname) hostPairs;
   duplicateHostnames = lib.unique (
     lib.filter (
       hostname: builtins.length (lib.filter (candidate: candidate == hostname) hostnames) > 1
     ) hostnames
   );
+  aliasCollisions = lib.filter (
+    pair: builtins.elem pair.hostname hostNames && pair.hostname != pair.host
+  ) hostPairs;
 in
 assert lib.assertMsg (
   duplicateHostnames == [ ]
 ) "Duplicate host hostname(s): ${lib.concatStringsSep ", " duplicateHostnames}";
+assert lib.assertMsg (
+  aliasCollisions == [ ]
+) "Hostname alias collides with host directory name(s): ${lib.concatStringsSep ", " (map (pair: "${pair.host} -> ${pair.hostname}") aliasCollisions)}";
 assert lib.assertMsg (builtins.elem "machine" hostNames)
   "The production host 'machine' must exist under hosts/machine/";
 {
