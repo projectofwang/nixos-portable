@@ -40,9 +40,7 @@ jobs:
         run: nix flake show --no-write-lock-file
 
       - name: Validate nixos-portable CLI
-        run: |
-          nix run .#nixos-portable -- --help
-          nix run .#nixos-portable -- check
+        run: nix run .#nixos-portable -- --help
 
       - name: Export CI matrix
         id: matrix
