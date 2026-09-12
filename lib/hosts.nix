@@ -31,6 +31,8 @@ let
     "homeStateVersion"
   ];
 
+  listFields = [ "roles" "profiles" ];
+
   definitions = lib.genAttrs hostNames (
     name:
     let
@@ -41,7 +43,13 @@ let
       ) stringFields;
       invalidListFields = lib.filter (
         field: builtins.hasAttr field machine && !builtins.isList machine.${field}
-      ) [ "roles" "profiles" ];
+      ) listFields;
+      invalidListElementFields = lib.filter (
+        field:
+        builtins.hasAttr field machine
+        && builtins.isList machine.${field}
+        && !(lib.all builtins.isString machine.${field})
+      ) listFields;
       emptyFields = lib.filter (
         field: builtins.hasAttr field machine && builtins.isString machine.${field} && machine.${field} == ""
       ) [ "hostname" "username" ];
@@ -59,12 +67,16 @@ let
       "Host '${name}' has non-string identity field(s): ${lib.concatStringsSep ", " invalidStringFields}";
     assert lib.assertMsg (invalidListFields == [ ])
       "Host '${name}' has non-list identity field(s): ${lib.concatStringsSep ", " invalidListFields}";
+    assert lib.assertMsg (invalidListElementFields == [ ])
+      "Host '${name}' has non-string element(s) in identity list field(s): ${lib.concatStringsSep ", " invalidListElementFields}";
     assert lib.assertMsg (emptyFields == [ ])
       "Host '${name}' has empty identity field(s): ${lib.concatStringsSep ", " emptyFields}";
     assert lib.assertMsg validArchitectureList
       "Host '${name}' must declare architectures as a list";
     assert lib.assertMsg (declaredArchitectures != [ ])
       "Host '${name}' must declare at least one architecture";
+    assert lib.assertMsg (lib.all builtins.isString declaredArchitectures)
+      "Host '${name}' must declare architectures as strings";
     assert lib.assertMsg (invalidArchitectures == [ ])
       "Host '${name}' has unsupported architecture(s): ${lib.concatStringsSep ", " invalidArchitectures}. Supported architectures: ${lib.concatStringsSep ", " architectures.supported}";
     assert lib.assertMsg (lib.unique declaredArchitectures == declaredArchitectures)
