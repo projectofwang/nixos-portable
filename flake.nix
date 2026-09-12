@@ -38,7 +38,7 @@
 
     umbriel = {
       url = "github:projectofwang/umbriel";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "xdg-desktop-portal-umbriel";
       inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
     };
 
@@ -90,16 +90,11 @@
             inherit (item) profile;
           };
         in
-        checks
-        // {
-          "${item.architecture}"."${item.host}-${item.profile}" = configuration.config.system.build.toplevel;
-        }
+        lib.setAttrByPath [ item.architecture "${item.host}-${item.profile}" ] configuration.config.system.build.toplevel checks
       ) { } ciMatrix;
     in
     {
-      nixosConfigurations = allConfigurations // {
-        ci = ci;
-      };
+      nixosConfigurations = allConfigurations;
 
       inherit ciMatrix;
 
