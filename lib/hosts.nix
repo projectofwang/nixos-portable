@@ -1,4 +1,4 @@
-# Discover host definitions from `hosts/*/identity.nix` so the framework can scale to multiple machines.
+# Discover host definitions from `hosts/*/identity.nix` and validate their framework contract.
 { lib }:
 
 let
@@ -18,6 +18,7 @@ let
     "timeZone"
     "nixosStateVersion"
     "homeStateVersion"
+    "roles"
     "profiles"
   ];
 
@@ -56,7 +57,5 @@ assert lib.assertMsg (builtins.elem "machine" hostNames)
   # The production host is explicit rather than inferred from an arbitrary definition.
   default = "machine";
 
-  # Each host supplies identity and its machine module directory. Hardware and software
-  # composition remain inside that host and the shared framework.
   inherit definitions;
 }
