@@ -1,4 +1,4 @@
-# Provide a development shell with formatting, diagnostics, and the repository CLI.
+# Provide a development shell with the repository's authoritative formatter, linter, diagnostics, and CLI.
 { inputs, machine, ... }:
 
 let
@@ -11,10 +11,10 @@ let
 in
 pkgs.mkShell {
   packages = with pkgs; [
-    alejandra
     nil
-    nixfmt-rfc-style
+    nixfmt
     statix
+    pre-commit
     nixos-portable
   ];
 }
