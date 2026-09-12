@@ -103,6 +103,14 @@
       checks = lib.recursiveUpdate matrixChecks {
         ${ciSystem}.ci = ci.config.system.build.toplevel;
       };
+
+      cliPackages = lib.genAttrs framework.architectures.supported (
+        system:
+        import ./lib/cli.nix {
+          pkgs = nixpkgs.legacyPackages.${system};
+          flake = ".";
+        }
+      );
     in
     {
       nixosConfigurations = allConfigurations;
@@ -113,21 +121,20 @@
         system: nixpkgs.legacyPackages.${system}.nixfmt
       );
 
+      packages = lib.mapAttrs (_system: cli: {
+        nixos-portable = cli;
+      }) cliPackages;
+
       devShells.${productionMachine.system}.default = import ./lib/devshell.nix {
         inherit inputs;
         machine = productionMachine;
       };
 
-      apps = lib.genAttrs framework.architectures.supported (system: {
+      apps = lib.mapAttrs (_system: cli: {
         nixos-portable = {
           type = "app";
-          program = "${
-            import ./lib/cli.nix {
-              pkgs = nixpkgs.legacyPackages.${system};
-              flake = ".";
-            }
-          }/bin/nixos-portable";
+          program = "${cli}/bin/nixos-portable";
         };
-      });
+      }) cliPackages;
     };
 }
