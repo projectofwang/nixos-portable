@@ -8,7 +8,7 @@
   homeStateVersion = "26.05";
 
   roles = [
-    "workstation"
+    "completed"
   ];
 
   profiles = [ ];
