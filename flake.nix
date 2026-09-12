@@ -66,12 +66,15 @@
           selectedProfiles = lib.unique (
             definition.machine.profiles ++ framework.roles.expand (definition.machine.roles or [ ])
           );
+          architectures = definition.machine.architectures or [ definition.machine.system ];
         in
-        map (profile: {
-          host = hostName;
-          architecture = definition.machine.system;
-          inherit profile;
-        }) selectedProfiles
+        lib.concatMap (
+          architecture:
+          map (profile: {
+            host = hostName;
+            inherit architecture profile;
+          }) selectedProfiles
+        ) architectures
       ) framework.hosts.available;
 
       matrixChecks = lib.foldl' (
@@ -81,6 +84,7 @@
           configuration = framework.mkProfileHost {
             inherit (definition) machine hostModule;
             inherit (item) profile;
+            system = item.architecture;
           };
         in
         lib.recursiveUpdate checks (
