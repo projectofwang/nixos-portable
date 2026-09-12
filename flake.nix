@@ -73,7 +73,11 @@
           map (profile: {
             host = hostName;
             inherit architecture profile;
-          }) selectedProfiles
+          }) (
+            lib.filter (
+              profile: builtins.elem architecture (framework.profiles.architecturesFor profile)
+            ) selectedProfiles
+          )
         ) architectures
       ) framework.hosts.available;
 
@@ -95,8 +99,14 @@
         )
       ) { } ciMatrix;
 
+      frameworkTests = import ./tests/framework.nix { inherit lib; };
+
       checks = lib.recursiveUpdate matrixChecks {
-        ${ciSystem}.ci = ci.config.system.build.toplevel;
+        ${ciSystem} = {
+          ci = ci.config.system.build.toplevel;
+          framework-tests = assert frameworkTests;
+            nixpkgs.legacyPackages.${ciSystem}.runCommand "nixos-portable-framework-tests" { } "touch $out";
+        };
       };
 
       cliPackages = lib.genAttrs framework.architectures.supported (
