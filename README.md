@@ -39,20 +39,6 @@ Machine-specific hardware stays under `hosts/machine/`. Optional software stays 
 
 Production machine identity intentionally selects only `base` and the explicitly enabled optional profiles. Add profiles when building a specific machine configuration.
 
-## Hermes Agent
-
-[Hermes Agent](https://github.com/NousResearch/hermes-agent) is installed as a standalone Home Manager package through the `hermes-agent` profile.
-
-The profile intentionally provides **installation only**. It does not configure:
-
-- providers or API keys
-- models
-- agent behavior
-- gateway/services
-- secrets
-
-After rebuilding the system with the profile enabled, configure Hermes Agent yourself according to your preferred provider and model setup.
-
 ## AI
 
 ```text
@@ -61,8 +47,6 @@ llama.cpp : 127.0.0.1:8080
 ```
 
 The `ai` profile selects the Vulkan llama.cpp backend while the machine GPU layer provides the underlying graphics capability.
-
-Hermes Agent is managed separately by the `hermes-agent` profile and is not coupled to the llama.cpp configuration.
 
 ## GPU
 
