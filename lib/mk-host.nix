@@ -14,11 +14,17 @@ let
       machine,
       hostModule,
       extraProfiles ? [ ],
+      profileOnly ? false,
     }:
     let
       roleProfiles = roles.expand (machine.roles or [ ]);
+      baseProfiles =
+        if profileOnly then
+          [ "base" ]
+        else
+          roleProfiles ++ machine.profiles;
       selectedProfiles = profiles.validate (
-        lib.unique (roleProfiles ++ machine.profiles ++ extraProfiles)
+        lib.unique (baseProfiles ++ extraProfiles)
       );
       home = import ./home-manager.nix { inherit inputs; };
       system = architectures.validate machine.system;
@@ -57,11 +63,18 @@ in
   # Build the complete host definition used by normal NixOS operations.
   mkHost = args: build args;
 
-  # Build a host with one additional profile so CI can test host × architecture × profile combinations.
+  # Build an isolated host/profile composition for CI so each matrix entry tests only the
+  # common baseline plus its selected profile rather than rebuilding every role profile.
   mkProfileHost =
     args@{
       profile,
       ...
     }:
-    build (builtins.removeAttrs args [ "profile" ] // { extraProfiles = [ profile ]; });
+    build (
+      builtins.removeAttrs args [ "profile" ]
+      // {
+        extraProfiles = [ profile ];
+        profileOnly = true;
+      }
+    );
 }
