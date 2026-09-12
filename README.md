@@ -27,7 +27,6 @@ Machine-specific hardware stays under `hosts/machine/`. Optional software stays 
 | `helium` | Helium + browser integration |
 | `gaming` | Steam, GameMode, MangoHud |
 | `gpu-tools` | Vulkan and VA-API diagnostics |
-| `ai` | llama.cpp + Neovim integrations |
 | `hermes-agent` | Hermes Agent CLI installation |
 | `media` | Media applications |
 | `downloads` | qBittorrent |
@@ -38,15 +37,6 @@ Machine-specific hardware stays under `hosts/machine/`. Optional software stays 
 | `vietnamese-input` | Fcitx5 + Lotus |
 
 Production machine identity intentionally selects only `base` and the explicitly enabled optional profiles. Add profiles when building a specific machine configuration.
-
-## AI
-
-```text
-llama.cpp : 127.0.0.1:8080
-       └── Neovim CodeCompanion OpenAI-compatible adapter
-```
-
-The `ai` profile selects the Vulkan llama.cpp backend while the machine GPU layer provides the underlying graphics capability.
 
 ## GPU
 
