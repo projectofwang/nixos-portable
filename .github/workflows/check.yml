@@ -17,6 +17,8 @@ jobs:
   framework:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
 
     steps:
       - name: Check out repository
