@@ -98,8 +98,12 @@ Current roles:
 
 | Role | Profiles |
 |---|---|
-| `completed` | all discovered profiles |
-| `ci` | all discovered profiles on the hardware-independent CI host |
+| `completed` | curated production profile set listed below |
+| `ci` | every discovered profile, evaluated on the hardware-independent CI host |
+
+The `completed` role is intentionally **curated**. Adding a new file under `profiles/` does not automatically install that profile on the production machine; add it to `roles/completed.nix` deliberately when it is ready.
+
+The `ci` role remains dynamic and follows `profiles.available`, so framework checks cover newly discovered profiles.
 
 Current profiles:
 
@@ -121,6 +125,10 @@ Current profiles:
 | `telegram` | Telegram Desktop | x86_64, aarch64 |
 | `terminal` | WezTerm, Zellij, terminal tools | x86_64, aarch64 |
 | `terminal-ide` | terminal + LazyVim | x86_64, aarch64 |
+| `thunderbird` | Thunderbird | x86_64, aarch64 |
+| `umbriel` | Umbriel desktop environment integration | x86_64, aarch64 |
+| `vesktop` | Vesktop | x86_64, aarch64 |
+| `vietnamese-input` | Vietnamese input support | x86_64, aarch64 |
 
 Profiles are discovered automatically from `profiles/*.nix`. Architecture compatibility is declared centrally in `lib/profiles.nix`.
 
@@ -213,6 +221,8 @@ Framework-specific tests:
 ```bash
 nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file
 ```
+
+The framework tests intentionally enforce the profile and role inventories. If a profile is added or removed, update `tests/framework.nix` and, when appropriate, the curated `completed` role in the same change.
 
 ## Add a machine
 
