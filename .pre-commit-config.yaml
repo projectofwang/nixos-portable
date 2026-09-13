@@ -12,7 +12,7 @@ repos:
       - id: check-merge-conflicts
 
   - repo: https://github.com/NixOS/nixfmt
-    rev: 81f2023 # v1.1.0
+    rev: 81f20233e19adb967b0210e82206659e681f8712 # v1.1.0
     hooks:
       - id: nixfmt
 
