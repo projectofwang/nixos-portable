@@ -119,7 +119,8 @@
       checks = lib.recursiveUpdate matrixChecks {
         ${ciSystem} = {
           ci = ci.config.system.build.toplevel;
-          production-machine = allConfigurations.${framework.hosts.default}.config.system.build.toplevel;
+          production-machine =
+            allConfigurations.${framework.hosts.default}.config.system.build.toplevel;
           framework-tests =
             assert frameworkTests;
             nixpkgs.legacyPackages.${ciSystem}.runCommand "nixos-portable-framework-tests" { } "touch $out";
