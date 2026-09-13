@@ -33,7 +33,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Enable Nix binary cache
-        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff6294f4cc17666315b7fd3ec127c6244d # v14
         with:
           use-flakehub: disabled
 
@@ -65,6 +65,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
+      max-parallel: 8
       matrix:
         include: ${{ fromJSON(needs.framework.outputs.matrix) }}
 
@@ -81,7 +82,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Enable Nix binary cache
-        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff6294f4cc17666315b7fd3ec127c6244d # v14
         with:
           use-flakehub: disabled
 
@@ -89,7 +90,6 @@ jobs:
         run: nix build ".#checks.${{ matrix.architecture }}.${{ matrix.host }}-${{ matrix.profile }}" --no-link --no-write-lock-file
 
   production:
-    needs: framework
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -106,7 +106,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Enable Nix binary cache
-        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff6294f4cc17666315b7fd3ec127c6244d # v14
         with:
           use-flakehub: disabled
 
