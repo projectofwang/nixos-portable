@@ -24,6 +24,12 @@ Deploy the same host definition to another machine:
 nixos-portable deploy machine root@server
 ```
 
+When the target architecture cannot be built efficiently on the current machine, provide a remote build host explicitly:
+
+```bash
+nixos-portable deploy machine root@server root@builder
+```
+
 The CLI can also be run directly from the flake:
 
 ```bash
@@ -151,6 +157,7 @@ For the normal full machine:
 2. Add architecture restrictions in `lib/profiles.nix` only if needed.
 3. Keep the machine on `roles = [ "completed" ]`.
 4. The new profile is automatically selected on the next evaluation.
+5. The `ci` role also picks it up automatically for compatible CI matrix entries.
 
 For a selective host, add the profile name to that host's `profiles` list instead.
 
@@ -226,6 +233,12 @@ hosts/machine/gpu.nix
 
 The host selects the reusable implementation; profiles should not contain physical-device assumptions.
 
+## DNS
+
+The machine host sends normal DNS queries only to the local `dnscrypt-proxy` listeners on `127.0.0.1:53` and `[::1]:53`. The configured encrypted upstream is the self-hosted `sdns.taiyuanwangjie.dpdns.org` server.
+
+A bootstrap resolver is used only to resolve the encrypted server hostname. It is not advertised as a normal system nameserver, so applications do not have a direct `1.1.1.1` fallback path through the host resolver configuration.
+
 ## Supported architectures
 
 - `x86_64-linux`
@@ -241,9 +254,9 @@ The framework generates a matrix from:
 host × architecture × compatible profile
 ```
 
-GitHub Actions evaluates the framework, validates the flake, checks formatting, validates the CLI, and evaluates every compatible matrix entry as a dry-run build plan.
+GitHub Actions validates formatting, framework semantics, flake structure, CLI availability, and every compatible matrix entry. Matrix entries perform a real `nix build` of the corresponding NixOS system derivation rather than only a dry-run evaluation.
 
-The `ci` role also follows `profiles.available`, so a newly added profile automatically becomes part of the CI profile surface.
+The `ci` role also follows `profiles.available`, so a newly added profile automatically becomes part of the CI profile surface for every compatible architecture.
 
 Run the same checks locally:
 
