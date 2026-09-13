@@ -46,7 +46,10 @@ jobs:
       - name: Validate nixos-portable CLI
         run: nix run --no-write-lock-file .#nixos-portable -- --help
 
-      - name: Export CI matrix
+      - name: Evaluate complete host/profile matrix
+        run: nix eval .#lib.ciEvaluationMatrix --json --no-write-lock-file
+
+      - name: Export CI build matrix
         id: matrix
         run: echo "matrix=$(nix eval .#lib.ciMatrix --json --no-write-lock-file)" >> "$GITHUB_OUTPUT"
 
@@ -71,5 +74,25 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - name: Build host/profile/architecture check
+      - name: Build CI profile/architecture check
         run: nix build ".#checks.${{ matrix.architecture }}.${{ matrix.host }}-${{ matrix.profile }}" --no-link --no-write-lock-file
+
+  production:
+    needs: framework
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Build production machine
+        run: nix build .#checks.x86_64-linux.production-machine --no-link --no-write-lock-file
