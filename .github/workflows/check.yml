@@ -33,7 +33,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Enable Nix binary cache
-        uses: DeterminateSystems/magic-nix-cache-action@908b263ff6294fcc17666315b7fd3ec127c6244d # v14
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff6294f4cc17666315b7fd3ec127c6244d # v14
         with:
           use-flakehub: disabled
 
@@ -82,7 +82,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Enable Nix binary cache
-        uses: DeterminateSystems/magic-nix-cache-action@908b263ff6294fcc17666315b7fd3ec127c6244d # v14
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff6294f4cc17666315b7fd3ec127c6244d # v14
         with:
           use-flakehub: disabled
 
@@ -106,7 +106,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Enable Nix binary cache
-        uses: DeterminateSystems/magic-nix-cache-action@908b263ff6294fcc17666315b7fd3ec127c6244d # v14
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff6294f4cc17666315b7fd3ec127c6244d # v14
         with:
           use-flakehub: disabled
 
