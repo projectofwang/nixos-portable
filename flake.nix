@@ -29,7 +29,7 @@
     };
     umbriel = {
       url = "github:projectofwang/umbriel";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "xdg-desktop-portal-umbriel";
       inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
     };
     helium = {
@@ -65,7 +65,9 @@
       ciSystem = ciDefinition.machine.system;
       productionMachine = framework.hosts.definitions.${framework.hosts.default}.machine;
 
-      ciMatrix = lib.concatMap (
+      # Evaluation coverage: enumerate every host/architecture/profile combination
+      # that the framework accepts, without forcing a build for every host.
+      ciEvaluationMatrix = lib.concatMap (
         hostName:
         let
           definition = framework.hosts.definitions.${hostName};
@@ -88,6 +90,23 @@
             )
         ) architectures
       ) framework.hosts.available;
+
+      # Build coverage uses the hardware-independent CI host as the representative
+      # host for every discovered profile and supported architecture. This removes
+      # duplicate profile builds while retaining real NixOS system builds.
+      ciMatrix = lib.concatMap (
+        architecture:
+        map
+          (profile: {
+            host = "ci";
+            inherit architecture profile;
+          })
+          (
+            lib.filter (
+              profile: builtins.elem architecture (framework.profiles.architecturesFor profile)
+            ) framework.roles.expand [ "ci" ]
+          )
+      ) ciDefinition.machine.architectures;
 
       matrixChecks = lib.foldl' (
         checks: item:
@@ -112,25 +131,19 @@
       checks = lib.recursiveUpdate matrixChecks {
         ${ciSystem} = {
           ci = ci.config.system.build.toplevel;
+          production-machine = allConfigurations.${framework.hosts.default}.config.system.build.toplevel;
           framework-tests =
             assert frameworkTests;
             nixpkgs.legacyPackages.${ciSystem}.runCommand "nixos-portable-framework-tests" { } "touch $out";
         };
       };
-
-      cliPackages = lib.genAttrs framework.architectures.supported (
-        system:
-        import ./lib/cli.nix {
-          pkgs = nixpkgs.legacyPackages.${system};
-        }
-      );
     in
     {
       nixosConfigurations = allConfigurations;
 
       checks = checks;
       lib = {
-        inherit ciMatrix;
+        inherit ciMatrix ciEvaluationMatrix;
       };
 
       formatter = lib.genAttrs framework.architectures.supported (
@@ -139,7 +152,12 @@
 
       packages = lib.mapAttrs (_system: cli: {
         nixos-portable = cli;
-      }) cliPackages;
+      }) (lib.genAttrs framework.architectures.supported (
+        system:
+        import ./lib/cli.nix {
+          pkgs = nixpkgs.legacyPackages.${system};
+        }
+      ));
 
       devShells.${productionMachine.system}.default = import ./lib/devshell.nix {
         inherit inputs;
@@ -154,6 +172,11 @@
             description = "nixos-portable command-line interface";
           };
         };
-      }) cliPackages;
+      }) (lib.genAttrs framework.architectures.supported (
+        system:
+        import ./lib/cli.nix {
+          pkgs = nixpkgs.legacyPackages.${system};
+        }
+      ));
     };
 }
