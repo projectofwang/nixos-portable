@@ -17,13 +17,14 @@ pkgs.writeShellApplication {
       nixos-portable check
       nixos-portable build <host>
       nixos-portable switch <host>
-      nixos-portable deploy <host> <target>
+      nixos-portable deploy <host> <target> [build-host]
 
     Examples:
       nixos-portable check
       nixos-portable build machine
       nixos-portable switch machine
       nixos-portable deploy machine root@server
+      nixos-portable deploy machine root@server root@builder
     EOF
     }
 
@@ -79,10 +80,17 @@ pkgs.writeShellApplication {
         nixos-rebuild switch --flake "''${flake_ref}#$host"
         ;;
       deploy)
-        require_args 2 "$@"
+        if (( $# < 2 || $# > 3 )); then
+          die "expected 2 or 3 argument(s), got $#"
+        fi
         host="$1"
         target="$2"
-        nixos-rebuild switch --flake "''${flake_ref}#$host" --target-host "$target"
+        build_args=()
+        if (( $# == 3 )); then
+          build_host="$3"
+          build_args=(--build-host "$build_host")
+        fi
+        nixos-rebuild switch --flake "''${flake_ref}#$host" --target-host "$target" "''${build_args[@]}"
         ;;
       -h|--help|help)
         require_args 0 "$@"
