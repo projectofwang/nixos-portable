@@ -98,12 +98,61 @@ Current roles:
 
 | Role | Profiles |
 |---|---|
-| `completed` | curated production profile set listed below |
-| `ci` | every discovered profile, evaluated on the hardware-independent CI host |
+| `completed` | **all discovered profiles** |
+| `ci` | **all discovered profiles**, evaluated on the hardware-independent CI host |
 
-The `completed` role is intentionally **curated**. Adding a new file under `profiles/` does not automatically install that profile on the production machine; add it to `roles/completed.nix` deliberately when it is ready.
+### `completed` role
 
-The `ci` role remains dynamic and follows `profiles.available`, so framework checks cover newly discovered profiles.
+`completed` is the full-install role for the main machine. It intentionally follows `profiles.available`:
+
+```nix
+{ profiles }:
+
+{
+  profiles = profiles.available;
+}
+```
+
+Therefore the rule is simple:
+
+- **Add** `profiles/foo.nix` → `foo` is automatically included by `completed`.
+- **Remove** `profiles/foo.nix` → `foo` is automatically removed from `completed`.
+- No second list needs to be maintained in `roles/completed.nix`.
+
+The production machine normally uses:
+
+```nix
+roles = [ "completed" ];
+profiles = [ ];
+```
+
+### Opt out of `completed`
+
+If a machine should install only a selected subset, do not use `completed`. Set roles to an empty list and select profiles explicitly:
+
+```nix
+roles = [ ];
+profiles = [
+  "base"
+  "desktop"
+  "terminal-ide"
+  "hermes-agent"
+  "opencode"
+];
+```
+
+This is the intended mechanism for adding or removing individual capabilities for a specific host. The role provides the default "install everything" behavior; explicit `profiles` provide the override.
+
+### Adding a new profile
+
+For the normal full machine:
+
+1. Create `profiles/<name>.nix`.
+2. Add architecture restrictions in `lib/profiles.nix` only if needed.
+3. Keep the machine on `roles = [ "completed" ]`.
+4. The new profile is automatically selected on the next evaluation.
+
+For a selective host, add the profile name to that host's `profiles` list instead.
 
 Current profiles:
 
@@ -132,24 +181,9 @@ Current profiles:
 
 Profiles are discovered automatically from `profiles/*.nix`. Architecture compatibility is declared centrally in `lib/profiles.nix`.
 
-### Select profiles directly
-
-For a host that should not use the full completed role:
-
-```nix
-roles = [ ];
-profiles = [
-  "base"
-  "desktop"
-  "terminal-ide"
-  "hermes-agent"
-  "opencode"
-];
-```
-
 ## Hermes Agent and OpenCode
 
-The completed role currently includes both `hermes-agent` and `opencode`.
+The `completed` role includes `hermes-agent` and `opencode` automatically because they are profiles in the discovered set.
 
 Verify them after switching:
 
@@ -209,6 +243,8 @@ host × architecture × compatible profile
 
 GitHub Actions evaluates the framework, validates the flake, checks formatting, validates the CLI, and evaluates every compatible matrix entry as a dry-run build plan.
 
+The `ci` role also follows `profiles.available`, so a newly added profile automatically becomes part of the CI profile surface.
+
 Run the same checks locally:
 
 ```bash
@@ -222,15 +258,13 @@ Framework-specific tests:
 nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file
 ```
 
-The framework tests intentionally enforce the profile and role inventories. If a profile is added or removed, update `tests/framework.nix` and, when appropriate, the curated `completed` role in the same change.
-
 ## Add a machine
 
 1. Create the host directory.
 2. Add `identity.nix`.
 3. Add `default.nix`.
 4. Generate hardware facts on the target machine.
-5. Select roles or profiles.
+5. Use `roles = [ "completed" ]` for the full profile set, or `roles = [ ];` plus explicit `profiles` for a selective machine.
 6. Validate before switching.
 
 Example:
