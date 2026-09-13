@@ -29,7 +29,7 @@
     };
     umbriel = {
       url = "github:projectofwang/umbriel";
-      inputs.nixpkgs.follows = "xdg-desktop-portal-umbriel";
+      inputs.nixpkgs.follows = "nixpkgs";
       inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
     };
     helium = {
@@ -104,7 +104,7 @@
           (
             lib.filter (
               profile: builtins.elem architecture (framework.profiles.architecturesFor profile)
-            ) framework.roles.expand [ "ci" ]
+            ) (framework.roles.expand [ "ci" ])
           )
       ) ciDefinition.machine.architectures;
 
@@ -137,6 +137,13 @@
             nixpkgs.legacyPackages.${ciSystem}.runCommand "nixos-portable-framework-tests" { } "touch $out";
         };
       };
+
+      cliPackages = lib.genAttrs framework.architectures.supported (
+        system:
+        import ./lib/cli.nix {
+          pkgs = nixpkgs.legacyPackages.${system};
+        }
+      );
     in
     {
       nixosConfigurations = allConfigurations;
@@ -152,12 +159,7 @@
 
       packages = lib.mapAttrs (_system: cli: {
         nixos-portable = cli;
-      }) (lib.genAttrs framework.architectures.supported (
-        system:
-        import ./lib/cli.nix {
-          pkgs = nixpkgs.legacyPackages.${system};
-        }
-      ));
+      }) cliPackages;
 
       devShells.${productionMachine.system}.default = import ./lib/devshell.nix {
         inherit inputs;
@@ -172,11 +174,6 @@
             description = "nixos-portable command-line interface";
           };
         };
-      }) (lib.genAttrs framework.architectures.supported (
-        system:
-        import ./lib/cli.nix {
-          pkgs = nixpkgs.legacyPackages.${system};
-        }
-      ));
+      }) cliPackages;
     };
 }
