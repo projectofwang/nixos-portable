@@ -38,9 +38,10 @@
         ];
 
         # Bootstrap the hostname of the user's private encrypted DNS server.
-        # This resolver is only used to bootstrap the configured server name;
+        # This resolver is only used for one-shot bootstrap resolution;
         # normal host DNS queries stay on the local dnscrypt-proxy listener.
         bootstrap_resolvers = [ "1.1.1.1:53" ];
+        ignore_system_dns = true;
 
         # Use the user's self-hosted encrypted DNS resolver.
         server_names = [ "sdns" ];
