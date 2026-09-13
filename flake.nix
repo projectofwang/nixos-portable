@@ -94,19 +94,7 @@
       # Build coverage uses the hardware-independent CI host as the representative
       # host for every discovered profile and supported architecture. This removes
       # duplicate profile builds while retaining real NixOS system builds.
-      ciMatrix = lib.concatMap (
-        architecture:
-        map
-          (profile: {
-            host = "ci";
-            inherit architecture profile;
-          })
-          (
-            lib.filter (
-              profile: builtins.elem architecture (framework.profiles.architecturesFor profile)
-            ) (framework.roles.expand [ "ci" ])
-          )
-      ) ciDefinition.machine.architectures;
+      ciMatrix = lib.filter (item: item.host == "ci") ciEvaluationMatrix;
 
       matrixChecks = lib.foldl' (
         checks: item:
