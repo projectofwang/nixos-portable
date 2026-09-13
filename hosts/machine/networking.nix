@@ -1,12 +1,14 @@
-{ ... }:
+{
+  ...
+}:
 
 {
   # Use NetworkManager for links and dnscrypt-proxy for DNS transport.
   networking = {
+    # Keep all normal host DNS queries on the local dnscrypt-proxy listener.
     nameservers = [
       "127.0.0.1"
       "::1"
-      "1.1.1.1"
     ];
 
     # Allow applications to see the local resolver configuration.
@@ -35,10 +37,12 @@
           "[::1]:53"
         ];
 
-        # Use Cloudflare as the fallback resolver.
-        fallback_resolvers = [ "1.1.1.1:53" ];
+        # Bootstrap the hostname of the user's private encrypted DNS server.
+        # This resolver is only used to bootstrap the configured server name;
+        # normal host DNS queries stay on the local dnscrypt-proxy listener.
+        bootstrap_resolvers = [ "1.1.1.1:53" ];
 
-        # Select and pin the configured DNSCrypt resolver.
+        # Use the user's self-hosted encrypted DNS resolver.
         server_names = [ "sdns" ];
         static.sdns.stamp = "sdns://AgcAAAAAAAAAAAAdc2Rucy50YWl5dWFud2FuZ2ppZS5kcGRucy5vcmcKL2Rucy1xdWVyeQ";
       };
