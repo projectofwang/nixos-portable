@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: check-${{ github.workflow }}-${{ github.ref }}
@@ -30,6 +31,11 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+
+      - name: Enable Nix binary cache
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
+        with:
+          use-flakehub: disabled
 
       - name: Check Nix formatting
         run: nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
@@ -74,6 +80,11 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
+      - name: Enable Nix binary cache
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
+        with:
+          use-flakehub: disabled
+
       - name: Build CI profile/architecture check
         run: nix build ".#checks.${{ matrix.architecture }}.${{ matrix.host }}-${{ matrix.profile }}" --no-link --no-write-lock-file
 
@@ -93,6 +104,11 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+
+      - name: Enable Nix binary cache
+        uses: DeterminateSystems/magic-nix-cache-action@908b263ff629f4cc17666315b7fd3ec127c6244d # v14
+        with:
+          use-flakehub: disabled
 
       - name: Build production machine
         run: nix build .#checks.x86_64-linux.production-machine --no-link --no-write-lock-file
