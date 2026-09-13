@@ -24,9 +24,4 @@
     "vesktop"
     "vietnamese-input"
   ];
-
-  # Fail evaluation immediately if the curated list references a removed profile.
-  _module.args = {
-    inherit profiles;
-  };
 }
