@@ -29,11 +29,10 @@
     };
     umbriel = {
       url = "github:projectofwang/umbriel";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.xdg-desktop-portal-umbriel.follows = "xdg-desktop-portal-umbriel";
+      inputs.nixpkgs.follows = "xdg-desktop-portal-umbriel";
     };
     helium = {
-      url = "github:oxcl/nix-flake-helium-browser";
+      url = "github:projectofwang/helium-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -65,8 +64,6 @@
       ciSystem = ciDefinition.machine.system;
       productionMachine = framework.hosts.definitions.${framework.hosts.default}.machine;
 
-      # Evaluation coverage: enumerate every host/architecture/profile combination
-      # that the framework accepts, without forcing a build for every host.
       ciEvaluationMatrix = lib.concatMap (
         hostName:
         let
@@ -91,9 +88,6 @@
         ) architectures
       ) framework.hosts.available;
 
-      # Build coverage uses the hardware-independent CI host as the representative
-      # host for every discovered profile and supported architecture. This removes
-      # duplicate profile builds while retaining real NixOS system builds.
       ciMatrix = lib.filter (item: item.host == "ci") ciEvaluationMatrix;
 
       matrixChecks = lib.foldl' (
