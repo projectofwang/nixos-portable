@@ -1,4 +1,6 @@
-{ lib }:
+{
+  lib
+}:
 
 let
   architectures = import ../lib/architectures.nix { inherit lib; };
@@ -13,8 +15,12 @@ let
 in
 assert lib.assertMsg (builtins.tryEval (architectures.validate "x86_64-linux")).success
   "x86_64-linux must be a supported architecture";
-assert lib.assertMsg (builtins.tryEval (architectures.validate "aarch64-linux")).success
-  "aarch64-linux must be a supported architecture";
+assert lib.assertMsg (
+  !(builtins.tryEval (architectures.validate "aarch64-linux")).success
+) "aarch64-linux must be rejected";
+assert lib.assertMsg (
+  !(builtins.tryEval (architectures.validate "i686-linux")).success
+) "i686-linux must be rejected";
 assert lib.assertMsg (
   !(builtins.tryEval (architectures.validate "riscv64-linux")).success
 ) "unsupported architectures must be rejected";
@@ -57,9 +63,6 @@ assert lib.assertMsg (
   hosts.default == "machine"
 ) "machine must remain the explicit production host";
 assert lib.assertMsg (
-  hosts.definitions.ci.machine.architectures == [
-    "x86_64-linux"
-    "aarch64-linux"
-  ]
-) "ci must cover both supported architectures";
+  hosts.definitions.ci.machine.architectures == [ "x86_64-linux" ]
+) "ci must cover the supported x86_64 architecture";
 true
