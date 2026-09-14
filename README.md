@@ -204,9 +204,6 @@ nix flake check
 
 Không cập nhật lockfile mù quáng, đặc biệt với binary package và các repository cá nhân được dùng làm flake input.
 
-## Mô hình tin cậy
-
-`flake.lock` cố định revision của các flake input. Với Helium, fixed-output hash trong package bảo vệ tính toàn vẹn của artifact đã chọn, nhưng **không chứng minh binary upstream an toàn**.
 
 Các repository cá nhân được dùng làm input cũng là trust boundary. Khi đổi revision, cần xem xét diff và chạy lại `nix flake check`.
 
