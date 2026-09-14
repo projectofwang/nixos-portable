@@ -15,7 +15,7 @@ concurrency:
 jobs:
   framework:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
 
@@ -54,19 +54,28 @@ jobs:
       - name: Evaluate complete host/profile matrix
         run: nix eval .#lib.ciEvaluationMatrix --json --no-write-lock-file
 
+      - name: Evaluate every CI profile configuration
+        run: |
+          set -euo pipefail
+          nix eval .#lib.ciMatrix --json --no-write-lock-file \
+            | jq -r '.[] | "\(.architecture) \(.host) \(.profile)"' \
+            | while read -r architecture host profile; do
+                nix eval ".#checks.${architecture}.${host}-${profile}.drvPath" --no-write-lock-file >/dev/null
+              done
+
       - name: Export CI build matrix
         id: matrix
-        run: echo "matrix=$(nix eval .#lib.ciMatrix --json --no-write-lock-file)" >> "$GITHUB_OUTPUT"
+        run: echo 'matrix=[{"architecture":"x86_64-linux"},{"architecture":"aarch64-linux"}]' >> "$GITHUB_OUTPUT"
 
-  matrix:
+  ci-build:
     needs: framework
-    runs-on: ${{ matrix.architecture == 'aarch64-linux' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
-    timeout-minutes: 30
     strategy:
-      fail-fast: false
-      max-parallel: 8
+      fail-fast: true
+      max-parallel: 2
       matrix:
         include: ${{ fromJSON(needs.framework.outputs.matrix) }}
+    runs-on: ${{ matrix.architecture == 'aarch64-linux' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    timeout-minutes: 10
 
     steps:
       - name: Check out repository
@@ -85,12 +94,12 @@ jobs:
         with:
           use-flakehub: disabled
 
-      - name: Build CI profile
-        run: nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --no-link --no-write-lock-file
+      - name: Build CI system
+        run: nix build .#checks.${{ matrix.architecture }}.ci --no-link --no-write-lock-file
 
   production:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
