@@ -103,11 +103,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789388707,
-        "narHash": "sha256-Qe5YDx5agLIloepA4IZKcYSXqrUsoAe6vA56eiPTcVU=",
+        "lastModified": 1789391650,
+        "narHash": "sha256-+KpNh7RVS/UvRMLen3ucU97kDrcCVGVHGM4vjHTQt9Y=",
         "owner": "projectofwang",
         "repo": "helium-nix",
-        "rev": "afd908f264fc7bd6cfa7ec22ce3a89f8abc1067f",
+        "rev": "8e12b2bc47fdfcb6c9d087e2e09f3b7a7d97d5b8",
         "type": "github"
       },
       "original": {
