@@ -385,7 +385,7 @@
     "umbriel": {
       "inputs": {
         "nixpkgs": [
-          "xdg-desktop-portal-umbriel"
+          "nixpkgs"
         ],
         "xdg-desktop-portal-umbriel": "xdg-desktop-portal-umbriel"
       },
