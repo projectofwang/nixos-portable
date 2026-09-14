@@ -36,11 +36,6 @@ jobs:
         with:
           use-flakehub: disabled
 
-      - name: Regenerate Umbriel lock diagnostics
-        run: |
-          nix flake lock --update-input umbriel --update-input xdg-desktop-portal-umbriel
-          git diff -- flake.lock
-
       - name: Check Nix formatting
         run: nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
 
