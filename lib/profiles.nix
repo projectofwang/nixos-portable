@@ -11,7 +11,6 @@ let
   # Override the default architecture set only for profiles with narrower support.
   architectureOverrides = {
     gaming = [ "x86_64-linux" ];
-    helium = [ "x86_64-linux" ];
   };
 
   architecturesFor =
