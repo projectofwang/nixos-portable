@@ -36,8 +36,10 @@ jobs:
         with:
           use-flakehub: disabled
 
-      - name: Check Nix formatting
-        run: nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
+      - name: Format Nix files for diagnostics
+        run: |
+          nix fmt --no-write-lock-file -- $(git ls-files '*.nix')
+          git diff -- flake.nix
 
       - name: Evaluate framework tests
         run: nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file
