@@ -8,17 +8,7 @@ let
     )
   );
 
-  # Override the default architecture set only for profiles with narrower support.
-  architectureOverrides = {
-    gaming = [ "x86_64-linux" ];
-    helium = [ "x86_64-linux" ];
-  };
-
-  architecturesFor =
-    profile:
-    architectureOverrides.${profile} or [
-      "x86_64-linux"
-    ];
+  architecturesFor = _profile: [ "x86_64-linux" ];
 
   validate =
     selected:
@@ -31,9 +21,9 @@ let
     selected;
 in
 {
-  # Export the discovered profiles and their architecture compatibility rules.
+  # Profiles are dynamically discovered; the framework currently has one
+  # supported system, so every discovered profile targets x86_64-linux.
   inherit available architecturesFor;
 
-  # Validate profile selections before host composition starts.
   inherit validate;
 }
