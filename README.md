@@ -1,6 +1,8 @@
 # nixos-portable
 
-NixOS flake for managing reusable hosts, profiles, roles, hardware, Home Manager, multi-architecture checks, and a small deployment CLI.
+Personal NixOS configuration framework for managing my machines, hosts, profiles, roles, hardware, Home Manager, multi-architecture checks, and a small deployment CLI.
+
+This repository is intentionally maintained for **personal use**. It is not a general-purpose NixOS framework, distribution, or supported configuration for other users or machines. The structure and interfaces may change whenever needed for my own setup.
 
 ## Quick start
 
@@ -37,21 +39,23 @@ nix run .#nixos-portable -- check
 nix run .#nixos-portable -- build machine
 ```
 
-## Repository layout
+## Personal-use design
+
+The repository is organized around my own machines and workflows:
 
 ```text
-.
-├── flake.nix
-├── flake.lock
-├── hardware/                  reusable hardware modules
-├── home/                      base Home Manager configuration
-├── hosts/                     host identity and machine-specific modules
-├── lib/                       framework, validation, host builder, CLI
-├── modules/                   reusable NixOS and Home Manager modules
-├── profiles/                  optional capabilities
-├── roles/                     profile bundles
-└── tests/                     framework checks
+nixos-portable
+├── hosts/       machine identity and host-specific configuration
+├── hardware/    reusable hardware modules
+├── profiles/    optional capabilities
+├── roles/       profile bundles
+├── home/        base Home Manager configuration
+├── modules/     reusable NixOS/Home Manager modules
+├── lib/         framework and CLI implementation
+└── tests/       framework checks
 ```
+
+There is deliberately no compatibility promise for configurations outside this repository. Changes may be opinionated and may require corresponding changes to existing hosts.
 
 ## Hosts
 
@@ -109,7 +113,7 @@ Current roles:
 
 ### `completed` role
 
-`completed` is the full-install role for the main machine. It intentionally follows `profiles.available`:
+`completed` is the full-install role for my main machine. It intentionally follows `profiles.available`:
 
 ```nix
 { profiles }:
@@ -119,22 +123,21 @@ Current roles:
 }
 ```
 
-Therefore the rule is simple:
+Therefore:
 
-- **Add** `profiles/foo.nix` → `foo` is automatically included by `completed`.
-- **Remove** `profiles/foo.nix` → `foo` is automatically removed from `completed`.
-- No second list needs to be maintained in `roles/completed.nix`.
+- add `profiles/foo.nix` → `foo` is automatically included by `completed`;
+- remove `profiles/foo.nix` → `foo` is automatically removed from `completed`.
 
-The production machine normally uses:
+The main machine normally uses:
 
 ```nix
 roles = [ "completed" ];
 profiles = [ ];
 ```
 
-### Opt out of `completed`
+### Selective machines
 
-If a machine should install only a selected subset, do not use `completed`. Set roles to an empty list and select profiles explicitly:
+If one of my machines should install only selected capabilities, use:
 
 ```nix
 roles = [ ];
@@ -147,21 +150,9 @@ profiles = [
 ];
 ```
 
-This is the intended mechanism for adding or removing individual capabilities for a specific host. The role provides the default "install everything" behavior; explicit `profiles` provide the override.
+The role provides the default full-install behavior; explicit profiles provide the per-machine override.
 
-### Adding a new profile
-
-For the normal full machine:
-
-1. Create `profiles/<name>.nix`.
-2. Add architecture restrictions in `lib/profiles.nix` only if needed.
-3. Keep the machine on `roles = [ "completed" ]`.
-4. The new profile is automatically selected on the next evaluation.
-5. The `ci` role also picks it up automatically for compatible CI matrix entries.
-
-For a selective host, add the profile name to that host's `profiles` list instead.
-
-Current profiles:
+## Current profiles
 
 | Profile | Purpose | Architectures |
 |---|---|---|
@@ -188,6 +179,30 @@ Current profiles:
 
 Profiles are discovered automatically from `profiles/*.nix`. Architecture compatibility is declared centrally in `lib/profiles.nix`.
 
+## Helium
+
+Helium is kept as a separate personal flake so that browser packaging does not have to live inside this framework:
+
+```text
+nixos-portable
+      │
+      └── helium-nix
+             └── upstream Helium binary
+```
+
+The input is pinned through `flake.lock` and follows this repository's `nixpkgs` input:
+
+```nix
+helium = {
+  url = "github:projectofwang/helium-nix";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+```
+
+The `helium` profile imports the dedicated NixOS module. Machine-specific flags and policies stay in `nixos-portable`; packaging details stay in `helium-nix`.
+
+`helium` is currently restricted to `x86_64-linux` in this framework even though the separate package repository also contains an `aarch64-linux` package. This reflects the architecture of my current machine configuration, not a claim that the package cannot run on ARM64.
+
 ## Hardware
 
 Machine-specific hardware belongs under `hosts/<name>/`. Reusable hardware implementations belong under `hardware/`.
@@ -202,10 +217,12 @@ A bootstrap resolver is used only to resolve the encrypted server hostname. It i
 
 ## Supported architectures
 
+The framework currently targets:
+
 - `x86_64-linux`
 - `aarch64-linux`
 
-`gaming` and `helium` are currently restricted to `x86_64-linux`.
+Individual profiles may intentionally support fewer architectures. For example, `gaming` and the current `helium` profile are x86_64-only in this personal configuration.
 
 ## CI
 
@@ -215,9 +232,9 @@ The framework generates a matrix from:
 host × architecture × compatible profile
 ```
 
-GitHub Actions validates formatting, framework semantics, flake structure, CLI availability, and every compatible matrix entry. Matrix entries perform a real `nix build` of the corresponding NixOS system derivation rather than only a dry-run evaluation.
+GitHub Actions validates formatting, framework semantics, flake structure, CLI availability, and compatible matrix entries. Matrix entries perform real NixOS system builds where configured.
 
-The `ci` role also follows `profiles.available`, so a newly added profile automatically becomes part of the CI profile surface for every compatible architecture.
+The `ci` role follows `profiles.available`, so a newly added compatible profile becomes part of the CI surface automatically.
 
 Run the same checks locally:
 
@@ -226,7 +243,7 @@ nixos-portable check
 nix flake check --no-write-lock-file
 ```
 
-Framework-specific tests:
+Framework tests:
 
 ```bash
 nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file
@@ -265,6 +282,8 @@ nixos-portable switch laptop
 
 ## Development
 
+This section describes the workflow used for maintaining my configuration, not a supported development environment for third parties.
+
 Enter the repository development shell:
 
 ```bash
@@ -302,3 +321,9 @@ nix flake check
 ```
 
 Commit `flake.lock` together with intentional input updates.
+
+## Personal-use notice
+
+This project is a private configuration in the practical sense: it is public on GitHub for convenience and version control, but its design target is my own machines.
+
+There is no expectation of backward compatibility, issue response, release management, or support for other users. Fork or adapt it if useful, but treat the current repository state as personal infrastructure rather than a stable public framework.
