@@ -62,6 +62,14 @@
       ci = hostConfigurations.ci;
       ciDefinition = framework.hosts.definitions.ci;
       ciSystem = ciDefinition.machine.system;
+      ciArchitectures = ciDefinition.machine.architectures or [ ciSystem ];
+      ciConfigurations = lib.genAttrs ciArchitectures (
+        system:
+        framework.mkHost {
+          inherit (ciDefinition) machine hostModule;
+          inherit system;
+        }
+      );
       productionMachine = framework.hosts.definitions.${framework.hosts.default}.machine;
 
       ciEvaluationMatrix = lib.concatMap (
@@ -110,15 +118,22 @@
 
       frameworkTests = import ./tests/framework.nix { inherit lib; };
 
-      checks = lib.recursiveUpdate matrixChecks {
-        ${ciSystem} = {
-          ci = ci.config.system.build.toplevel;
-          production-machine = allConfigurations.${framework.hosts.default}.config.system.build.toplevel;
-          framework-tests =
-            assert frameworkTests;
-            nixpkgs.legacyPackages.${ciSystem}.runCommand "nixos-portable-framework-tests" { } "touch $out";
-        };
-      };
+      checks = lib.recursiveUpdate matrixChecks (
+        lib.genAttrs ciArchitectures (
+          system:
+          {
+            ci = ciConfigurations.${system}.config.system.build.toplevel;
+          }
+        )
+        // {
+          ${ciSystem} = {
+            production-machine = allConfigurations.${framework.hosts.default}.config.system.build.toplevel;
+            framework-tests =
+              assert frameworkTests;
+              nixpkgs.legacyPackages.${ciSystem}.runCommand "nixos-portable-framework-tests" { } "touch $out";
+          };
+        }
+      );
 
       cliPackages = lib.genAttrs framework.architectures.supported (
         system:
