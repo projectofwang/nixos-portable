@@ -1,10 +1,10 @@
 # nixos-portable
 
-Personal NixOS configuration framework for managing my machines, hosts, profiles, roles, hardware, Home Manager, multi-architecture checks, and a small deployment CLI.
+Framework cấu hình NixOS cá nhân dùng để quản lý các máy của tôi, bao gồm host, profile, role, hardware, Home Manager, kiểm tra đa kiến trúc và một CLI triển khai nhỏ.
 
-This repository is intentionally maintained for **personal use**. It is not a general-purpose NixOS framework, distribution, or supported configuration for other users or machines. The structure and interfaces may change whenever needed for my own setup.
+Repository này được duy trì dành riêng cho **personal use**. Đây không phải framework NixOS tổng quát, bản phân phối, hay cấu hình được hỗ trợ cho người dùng hoặc máy khác. Cấu trúc và interface có thể thay đổi bất cứ lúc nào theo nhu cầu cấu hình cá nhân.
 
-## Quick start
+## Bắt đầu nhanh
 
 ```bash
 git clone https://github.com/projectofwang/nixos-portable.git
@@ -14,52 +14,52 @@ nixos-portable check
 nixos-portable build machine
 ```
 
-Apply the local machine configuration:
+Áp dụng cấu hình cho máy hiện tại:
 
 ```bash
 nixos-portable switch machine
 ```
 
-Deploy the same host definition to another machine:
+Triển khai cùng host definition sang máy khác:
 
 ```bash
 nixos-portable deploy machine root@server
 ```
 
-When the target architecture cannot be built efficiently on the current machine, provide a remote build host explicitly:
+Nếu kiến trúc đích không thể build hiệu quả trên máy hiện tại, chỉ định rõ máy build từ xa:
 
 ```bash
 nixos-portable deploy machine root@server root@builder
 ```
 
-The CLI can also be run directly from the flake:
+CLI cũng có thể chạy trực tiếp từ flake:
 
 ```bash
 nix run .#nixos-portable -- check
 nix run .#nixos-portable -- build machine
 ```
 
-## Personal-use design
+## Thiết kế cho mục đích cá nhân
 
-The repository is organized around my own machines and workflows:
+Repository được tổ chức xoay quanh các máy và workflow của tôi:
 
 ```text
 nixos-portable
-├── hosts/       machine identity and host-specific configuration
-├── hardware/    reusable hardware modules
-├── profiles/    optional capabilities
-├── roles/       profile bundles
-├── home/        base Home Manager configuration
-├── modules/     reusable NixOS/Home Manager modules
-├── lib/         framework and CLI implementation
-└── tests/       framework checks
+├── hosts/       identity và cấu hình riêng của từng máy
+├── hardware/    hardware module có thể tái sử dụng
+├── profiles/    các capability tùy chọn
+├── roles/       nhóm profile
+├── home/        cấu hình Home Manager cơ sở
+├── modules/     NixOS/Home Manager module dùng lại
+├── lib/         framework và implementation của CLI
+└── tests/       các kiểm tra của framework
 ```
 
-There is deliberately no compatibility promise for configurations outside this repository. Changes may be opinionated and may require corresponding changes to existing hosts.
+Cố ý không có cam kết compatibility cho các cấu hình bên ngoài repository này. Các thay đổi có thể mang tính opinionated và có thể yêu cầu sửa các host hiện có.
 
-## Hosts
+## Host
 
-Each host needs:
+Mỗi host cần:
 
 ```text
 hosts/<name>/
@@ -67,14 +67,14 @@ hosts/<name>/
 └── identity.nix
 ```
 
-A physical machine normally also has:
+Một máy vật lý thông thường cũng có:
 
 ```text
 hosts/<name>/
 └── hardware-configuration.nix
 ```
 
-Example identity:
+Ví dụ identity:
 
 ```nix
 {
@@ -89,31 +89,31 @@ Example identity:
 }
 ```
 
-Optional `architectures` declares every architecture that the host is allowed to evaluate. It must include the primary `system`.
+`architectures` tùy chọn dùng để khai báo toàn bộ kiến trúc mà host được phép evaluate. Nó phải bao gồm `system` chính.
 
-Host directories are the stable flake targets:
+Các thư mục host là flake target ổn định:
 
 ```bash
 nixos-portable build machine
 nixos-portable switch machine
 ```
 
-The hostname is also exposed as a flake alias for compatibility.
+Hostname cũng được expose dưới dạng flake alias để tương thích.
 
-## Roles and profiles
+## Role và profile
 
-A **profile** adds one capability. A **role** expands to a reusable profile set.
+**Profile** thêm một capability. **Role** mở rộng thành một tập profile có thể tái sử dụng.
 
-Current roles:
+Các role hiện tại:
 
-| Role | Profiles |
+| Role | Profile |
 |---|---|
-| `completed` | **all discovered profiles** |
-| `ci` | **all discovered profiles**, evaluated on the hardware-independent CI host |
+| `completed` | **tất cả profile được tự động phát hiện** |
+| `ci` | **tất cả profile được tự động phát hiện**, evaluate trên CI host không phụ thuộc hardware |
 
-### `completed` role
+### Role `completed`
 
-`completed` is the full-install role for my main machine. It intentionally follows `profiles.available`:
+`completed` là role cài đặt đầy đủ cho máy chính của tôi. Nó tự động lấy theo `profiles.available`:
 
 ```nix
 { profiles }:
@@ -123,21 +123,21 @@ Current roles:
 }
 ```
 
-Therefore:
+Vì vậy:
 
-- add `profiles/foo.nix` → `foo` is automatically included by `completed`;
-- remove `profiles/foo.nix` → `foo` is automatically removed from `completed`.
+- thêm `profiles/foo.nix` → `foo` tự động được `completed` chọn;
+- xóa `profiles/foo.nix` → `foo` tự động bị loại khỏi `completed`.
 
-The main machine normally uses:
+Máy chính thông thường sử dụng:
 
 ```nix
 roles = [ "completed" ];
 profiles = [ ];
 ```
 
-### Selective machines
+### Máy chọn profile riêng
 
-If one of my machines should install only selected capabilities, use:
+Nếu một máy chỉ cần một số capability nhất định, sử dụng:
 
 ```nix
 roles = [ ];
@@ -150,47 +150,47 @@ profiles = [
 ];
 ```
 
-The role provides the default full-install behavior; explicit profiles provide the per-machine override.
+Role cung cấp hành vi cài đặt đầy đủ mặc định; `profiles` tường minh dùng để override theo từng máy.
 
-## Current profiles
+## Các profile hiện tại
 
-| Profile | Purpose | Architectures |
+| Profile | Mục đích | Kiến trúc |
 |---|---|---|
-| `ai` | llama.cpp Vulkan tools | x86_64, aarch64 |
-| `base` | core NixOS system | x86_64, aarch64 |
+| `ai` | công cụ llama.cpp Vulkan | x86_64, aarch64 |
+| `base` | hệ thống NixOS cơ sở | x86_64, aarch64 |
 | `bitwarden` | Bitwarden Desktop | x86_64, aarch64 |
 | `desktop` | Umbriel, Noctalia, PipeWire, Flatpak | x86_64, aarch64 |
 | `downloads` | qBittorrent | x86_64, aarch64 |
-| `firefox` | Firefox and browser Wayland integration | x86_64, aarch64 |
+| `firefox` | Firefox và tích hợp browser Wayland | x86_64, aarch64 |
 | `gaming` | Steam, GameMode, MangoHud | x86_64 |
-| `helium` | Helium browser integration | x86_64 |
+| `helium` | tích hợp trình duyệt Helium | x86_64 |
 | `hermes-agent` | Hermes Agent | x86_64, aarch64 |
 | `keepassxc` | KeePassXC | x86_64, aarch64 |
 | `media` | mpv, mpvpaper, VLC, Stremio | x86_64, aarch64 |
 | `opencode` | OpenCode coding agent | x86_64, aarch64 |
 | `signal` | Signal Desktop | x86_64, aarch64 |
 | `telegram` | Telegram Desktop | x86_64, aarch64 |
-| `terminal` | WezTerm, Zellij, terminal tools | x86_64, aarch64 |
+| `terminal` | WezTerm, Zellij, công cụ terminal | x86_64, aarch64 |
 | `terminal-ide` | terminal + LazyVim | x86_64, aarch64 |
 | `thunderbird` | Thunderbird | x86_64, aarch64 |
-| `umbriel` | Umbriel desktop environment integration | x86_64, aarch64 |
+| `umbriel` | tích hợp môi trường desktop Umbriel | x86_64, aarch64 |
 | `vesktop` | Vesktop | x86_64, aarch64 |
-| `vietnamese-input` | Vietnamese input support | x86_64, aarch64 |
+| `vietnamese-input` | hỗ trợ nhập tiếng Việt | x86_64, aarch64 |
 
-Profiles are discovered automatically from `profiles/*.nix`. Architecture compatibility is declared centrally in `lib/profiles.nix`.
+Profile được tự động phát hiện từ `profiles/*.nix`. Compatibility theo kiến trúc được khai báo tập trung trong `lib/profiles.nix`.
 
 ## Helium
 
-Helium is kept as a separate personal flake so that browser packaging does not have to live inside this framework:
+Helium được tách thành một flake cá nhân riêng để phần đóng gói browser không nằm trực tiếp trong framework:
 
 ```text
 nixos-portable
       │
       └── helium-nix
-             └── upstream Helium binary
+             └── binary Helium upstream
 ```
 
-The input is pinned through `flake.lock` and follows this repository's `nixpkgs` input:
+Input được pin trong `flake.lock` và dùng cùng input `nixpkgs` của repository này:
 
 ```nix
 helium = {
@@ -199,131 +199,131 @@ helium = {
 };
 ```
 
-The `helium` profile imports the dedicated NixOS module. Machine-specific flags and policies stay in `nixos-portable`; packaging details stay in `helium-nix`.
+Profile `helium` import NixOS module riêng. Các flag và policy phụ thuộc từng máy nằm trong `nixos-portable`; chi tiết đóng gói nằm trong `helium-nix`.
 
-`helium` is currently restricted to `x86_64-linux` in this framework even though the separate package repository also contains an `aarch64-linux` package. This reflects the architecture of my current machine configuration, not a claim that the package cannot run on ARM64.
+`helium` hiện bị giới hạn ở `x86_64-linux` trong framework này dù package repository riêng cũng có package `aarch64-linux`. Đây là giới hạn theo cấu hình máy hiện tại, không phải tuyên bố rằng package không chạy được trên ARM64.
 
 ## Hardware
 
-Machine-specific hardware belongs under `hosts/<name>/`. Reusable hardware implementations belong under `hardware/`.
+Hardware phụ thuộc từng máy thuộc `hosts/<name>/`. Hardware implementation có thể tái sử dụng thuộc `hardware/`.
 
-The host selects reusable hardware implementations; profiles should not contain physical-device assumptions.
+Host chọn các hardware implementation cần thiết; profile không nên chứa giả định về thiết bị vật lý cụ thể.
 
 ## DNS
 
-The machine host sends normal DNS queries only to the local `dnscrypt-proxy` listeners on `127.0.0.1:53` and `[::1]:53`. The configured encrypted upstream is the self-hosted `sdns.taiyuanwangjie.dpdns.org` server.
+Host gửi truy vấn DNS thông thường chỉ tới các listener `dnscrypt-proxy` cục bộ tại `127.0.0.1:53` và `[::1]:53`. Upstream mã hóa được cấu hình là server `sdns.taiyuanwangjie.dpdns.org` tự vận hành.
 
-A bootstrap resolver is used only to resolve the encrypted server hostname. It is not advertised as a normal system nameserver, so applications do not have a direct `1.1.1.1` fallback path through the host resolver configuration.
+Bootstrap resolver chỉ được dùng để phân giải hostname của encrypted server. Nó không được quảng bá như nameserver hệ thống thông thường, do đó ứng dụng không có đường fallback trực tiếp tới `1.1.1.1` thông qua cấu hình resolver của host.
 
-## Supported architectures
+## Kiến trúc được hỗ trợ
 
-The framework currently targets:
+Framework hiện nhắm tới:
 
 - `x86_64-linux`
 - `aarch64-linux`
 
-Individual profiles may intentionally support fewer architectures. For example, `gaming` and the current `helium` profile are x86_64-only in this personal configuration.
+Từng profile có thể cố ý hỗ trợ ít kiến trúc hơn. Ví dụ, `gaming` và profile `helium` hiện tại chỉ dùng `x86_64-linux` trong cấu hình cá nhân này.
 
 ## CI
 
-The framework generates a matrix from:
+Framework tạo matrix theo:
 
 ```text
 host × architecture × compatible profile
 ```
 
-GitHub Actions validates formatting, framework semantics, flake structure, CLI availability, and compatible matrix entries. Matrix entries perform real NixOS system builds where configured.
+GitHub Actions kiểm tra formatting, semantics của framework, cấu trúc flake, khả năng chạy CLI và các matrix entry tương thích. Các matrix entry được cấu hình để thực hiện build NixOS thực tế.
 
-The `ci` role follows `profiles.available`, so a newly added compatible profile becomes part of the CI surface automatically.
+Role `ci` theo `profiles.available`, vì vậy profile mới tương thích sẽ tự động trở thành một phần của CI surface.
 
-Run the same checks locally:
+Chạy các kiểm tra tương tự trên máy cá nhân:
 
 ```bash
 nixos-portable check
 nix flake check --no-write-lock-file
 ```
 
-Framework tests:
+Kiểm tra riêng của framework:
 
 ```bash
 nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file
 ```
 
-## Add a machine
+## Thêm một máy
 
-1. Create the host directory.
-2. Add `identity.nix`.
-3. Add `default.nix`.
-4. Generate hardware facts on the target machine.
-5. Use `roles = [ "completed" ]` for the full profile set, or `roles = [ ];` plus explicit `profiles` for a selective machine.
-6. Validate before switching.
+1. Tạo thư mục host.
+2. Thêm `identity.nix`.
+3. Thêm `default.nix`.
+4. Sinh hardware facts trên máy đích.
+5. Dùng `roles = [ "completed" ]` cho toàn bộ profile, hoặc `roles = [ ];` kết hợp `profiles` tường minh cho máy chọn lọc.
+6. Kiểm tra trước khi switch.
 
-Example:
+Ví dụ:
 
 ```bash
 mkdir -p hosts/laptop
 sudo nixos-generate-config --show-hardware-config > hosts/laptop/hardware-configuration.nix
 ```
 
-Then create `hosts/laptop/identity.nix` and `hosts/laptop/default.nix`.
+Sau đó tạo `hosts/laptop/identity.nix` và `hosts/laptop/default.nix`.
 
-Validate:
+Kiểm tra:
 
 ```bash
 nixos-portable check
 nixos-portable build laptop
 ```
 
-Apply locally:
+Áp dụng trên máy:
 
 ```bash
 nixos-portable switch laptop
 ```
 
-## Development
+## Phát triển và bảo trì
 
-This section describes the workflow used for maintaining my configuration, not a supported development environment for third parties.
+Phần này mô tả workflow dùng để bảo trì cấu hình cá nhân, không phải môi trường phát triển được hỗ trợ cho bên thứ ba.
 
-Enter the repository development shell:
+Vào development shell:
 
 ```bash
 nix develop
 ```
 
-Available tools include `nil`, `nixfmt`, `statix`, `pre-commit`, and `nixos-portable`.
+Các công cụ có sẵn gồm `nil`, `nixfmt`, `statix`, `pre-commit` và `nixos-portable`.
 
-Run formatting checks:
+Kiểm tra formatting:
 
 ```bash
 nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
 ```
 
-Run pre-commit:
+Chạy pre-commit:
 
 ```bash
 pre-commit run --all-files
 ```
 
-Build the CLI package:
+Build CLI package:
 
 ```bash
 nix build .#nixos-portable
 ./result/bin/nixos-portable --help
 ```
 
-## Updating inputs
+## Cập nhật input
 
-Review changes before updating the lockfile:
+Xem xét thay đổi trước khi cập nhật lockfile:
 
 ```bash
 nix flake update
 nix flake check
 ```
 
-Commit `flake.lock` together with intentional input updates.
+Commit `flake.lock` cùng với các thay đổi input có chủ đích.
 
-## Personal-use notice
+## Thông báo về phạm vi sử dụng cá nhân
 
-This project is a private configuration in the practical sense: it is public on GitHub for convenience and version control, but its design target is my own machines.
+Repository này được public trên GitHub để thuận tiện cho version control và truy cập, nhưng mục tiêu thiết kế là phục vụ **các máy cá nhân của tôi**.
 
-There is no expectation of backward compatibility, issue response, release management, or support for other users. Fork or adapt it if useful, but treat the current repository state as personal infrastructure rather than a stable public framework.
+Không có cam kết về backward compatibility, hỗ trợ issue, release management hoặc hỗ trợ người dùng khác. Có thể fork hoặc điều chỉnh nếu thấy hữu ích, nhưng hãy xem trạng thái hiện tại của repository là **personal infrastructure**, không phải một framework public ổn định.
