@@ -188,50 +188,11 @@ Current profiles:
 
 Profiles are discovered automatically from `profiles/*.nix`. Architecture compatibility is declared centrally in `lib/profiles.nix`.
 
-## Hermes Agent and OpenCode
-
-The `completed` role includes `hermes-agent` and `opencode` automatically because they are profiles in the discovered set.
-
-Verify them after switching:
-
-```bash
-hermes --version
-opencode --version
-```
-
-Start Hermes:
-
-```bash
-hermes
-```
-
-Initial Hermes provider/model setup:
-
-```bash
-hermes model
-```
-
-Start OpenCode in a repository:
-
-```bash
-cd /path/to/project
-opencode
-```
-
-These profiles install the agents but do not impose provider, model, API-key, or agent-behavior configuration.
-
 ## Hardware
 
 Machine-specific hardware belongs under `hosts/<name>/`. Reusable hardware implementations belong under `hardware/`.
 
-Example:
-
-```text
-hardware/gpu/amd/rx580-2048sp.nix
-hosts/machine/gpu.nix
-```
-
-The host selects the reusable implementation; profiles should not contain physical-device assumptions.
+The host selects reusable hardware implementations; profiles should not contain physical-device assumptions.
 
 ## DNS
 
