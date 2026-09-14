@@ -41,29 +41,29 @@ jobs:
           nix flake lock \
             --override-input helium github:projectofwang/helium-nix/4c4a9bbcbcb81b7463b3bf36333aaa1da2a2037e \
             --output-lock-file /tmp/flake.lock
-          jq '.nodes.helium' /tmp/flake.lock
+          jq '{helium: .nodes.helium, heliumHomeManager: .nodes[.nodes.helium.inputs.home-manager], heliumRootInput: .nodes.root.inputs.helium}' /tmp/flake.lock
 
       - name: Check Nix formatting
-        run: nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
+        run: nix fmt --no-write-lock-file --no-update-lock-file -- --check $(git ls-files '*.nix')
 
       - name: Evaluate framework tests
-        run: nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file
+        run: nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file --no-update-lock-file
 
       - name: Evaluate CI system
-        run: nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
+        run: nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file --no-update-lock-file
 
       - name: Validate flake structure
-        run: nix flake show --no-write-lock-file
+        run: nix flake show --no-write-lock-file --no-update-lock-file
 
       - name: Validate nixos-portable CLI
-        run: nix run --no-write-lock-file .#nixos-portable -- --help
+        run: nix run --no-write-lock-file --no-update-lock-file .#nixos-portable -- --help
 
       - name: Evaluate complete host/profile matrix
-        run: nix eval .#lib.ciEvaluationMatrix --json --no-write-lock-file
+        run: nix eval .#lib.ciEvaluationMatrix --json --no-write-lock-file --no-update-lock-file
 
       - name: Export CI build matrix
         id: matrix
-        run: echo "matrix=$(nix eval .#lib.ciMatrix --json --no-write-lock-file)" >> "$GITHUB_OUTPUT"
+        run: echo "matrix=$(nix eval .#lib.ciMatrix --json --no-write-lock-file --no-update-lock-file)" >> "$GITHUB_OUTPUT"
 
   matrix:
     needs: framework
@@ -93,7 +93,7 @@ jobs:
           use-flakehub: disabled
 
       - name: Build CI profile
-        run: nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --no-link --no-write-lock-file
+        run: nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --no-link --no-write-lock-file --no-update-lock-file
 
   production:
     runs-on: ubuntu-latest
@@ -116,5 +116,5 @@ jobs:
           use-flakehub: disabled
 
       - name: Build production machine
-        run: nix build .#nixosConfigurations.production.config.system.build.toplevel --no-link --no-write-lock-file
+        run: nix build .#nixosConfigurations.production.config.system.build.toplevel --no-link --no-write-lock-file --no-update-lock-file
 
