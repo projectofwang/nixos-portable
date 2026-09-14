@@ -28,6 +28,18 @@ assert lib.assertMsg (
   !(builtins.tryEval (profiles.validate [ "does-not-exist" ])).success
 ) "unknown profiles must be rejected";
 
+# Helium is a binary package with explicit x86_64/aarch64 support and must not
+# accidentally be narrowed to x86_64 by the framework.
+assert lib.assertMsg (
+  profiles.architecturesFor "helium" == [
+    "x86_64-linux"
+    "aarch64-linux"
+  ]
+) "helium profile must cover both supported architectures";
+assert lib.assertMsg (
+  profiles.architecturesFor "gaming" == [ "x86_64-linux" ]
+) "gaming profile must remain x86_64-only";
+
 assert lib.assertMsg (
   lib.sort builtins.lessThan roles.available == lib.sort builtins.lessThan expectedRoles
 ) "discovered roles must exactly match the expected inventory";
