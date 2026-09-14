@@ -3,7 +3,8 @@
 let
   # The CI system itself must be buildable on every declared CI architecture.
   # Architecture-specific profiles are exercised separately by the profile matrix.
-  universallySupported = profile:
+  universallySupported =
+    profile:
     lib.all (system: builtins.elem system (profiles.architecturesFor profile)) [
       "x86_64-linux"
       "aarch64-linux"
