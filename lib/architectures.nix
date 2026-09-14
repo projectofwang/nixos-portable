@@ -4,7 +4,6 @@ let
   # Keep the framework architecture contract in one registry.
   supported = [
     "x86_64-linux"
-    "aarch64-linux"
   ];
 in
 {
