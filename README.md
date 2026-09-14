@@ -18,7 +18,9 @@ nixos-portable
 └── tests/       kiểm tra framework
 ```
 
-Host production là `machine`. Host `ci` là host không phụ thuộc hardware, dùng để kiểm tra profile trên `x86_64-linux` và `aarch64-linux`.
+Host production là `machine`. Host `ci` là host không phụ thuộc hardware, dùng để kiểm tra profile trên **`x86_64-linux`**.
+
+Repository hiện chỉ có một system target: **`x86_64-linux`**. ARM, i686 và các kiến trúc khác nằm ngoài phạm vi hỗ trợ của framework này.
 
 ## Sử dụng
 
@@ -45,7 +47,7 @@ nixos-portable deploy machine root@server
 nixos-portable deploy machine root@server root@builder
 ```
 
-CLI hiện có bốn thao tác: `check`, `build`, `switch`, `deploy`. Nó dùng `set -euo pipefail` và chuyển các thao tác hệ thống cho `nixos-rebuild --flake`. fileciteturn91file0L2-L2
+CLI hiện có bốn thao tác: `check`, `build`, `switch`, `deploy`. Nó dùng `set -euo pipefail` và chuyển các thao tác hệ thống cho `nixos-rebuild --flake`.
 
 ## Host
 
@@ -74,7 +76,7 @@ Ví dụ identity:
 }
 ```
 
-`architectures` là tùy chọn và phải chứa `system` chính nếu được khai báo. Framework kiểm tra field bắt buộc, kiểu dữ liệu, architecture, hostname trùng và `default.nix` trước khi tạo NixOS configuration. fileciteturn88file0L2-L2
+`architectures` là tùy chọn và phải chứa `system` chính nếu được khai báo. Framework kiểm tra field bắt buộc, kiểu dữ liệu, architecture, hostname trùng và `default.nix` trước khi tạo NixOS configuration.
 
 ## Role và profile
 
@@ -85,7 +87,7 @@ Ví dụ identity:
 | `completed` | tự động chọn toàn bộ `profiles/*.nix` |
 | `ci` | tự động chọn toàn bộ profile cho CI |
 
-`completed` và `ci` đều lấy từ `profiles.available`, vì vậy thêm hoặc xóa profile không cần sửa thêm danh sách role. fileciteturn87file0L2-L2
+`completed` và `ci` đều lấy từ `profiles.available`, vì vậy thêm hoặc xóa profile không cần sửa thêm danh sách role.
 
 Host chọn lọc có thể dùng:
 
@@ -98,34 +100,34 @@ profiles = [
 ];
 ```
 
-Profile được phát hiện từ `profiles/*.nix` và được kiểm tra tương thích với architecture khi build. fileciteturn86file0L2-L2 fileciteturn89file0L2-L2
+Profile được phát hiện từ `profiles/*.nix` và được kiểm tra tương thích với `x86_64-linux` khi build.
 
 ### Profile hiện tại
 
-| Profile | Mục đích | Architecture |
-|---|---|---|
-| `ai` | llama.cpp Vulkan | x86_64, aarch64 |
-| `base` | NixOS baseline | x86_64, aarch64 |
-| `bitwarden` | Bitwarden Desktop | x86_64, aarch64 |
-| `desktop` | Umbriel, Noctalia, Flatpak, PipeWire | x86_64, aarch64 |
-| `downloads` | qBittorrent | x86_64, aarch64 |
-| `firefox` | Firefox + Wayland defaults | x86_64, aarch64 |
-| `gaming` | Steam, GameMode, MangoHud | x86_64 |
-| `helium` | Helium Browser | x86_64 |
-| `hermes-agent` | Hermes Agent | x86_64, aarch64 |
-| `keepassxc` | KeePassXC | x86_64, aarch64 |
-| `media` | mpv, mpvpaper, VLC, Stremio | x86_64, aarch64 |
-| `opencode` | OpenCode | x86_64, aarch64 |
-| `signal` | Signal Desktop | x86_64, aarch64 |
-| `telegram` | Telegram Desktop | x86_64, aarch64 |
-| `terminal` | WezTerm, Zellij, terminal tools | x86_64, aarch64 |
-| `terminal-ide` | terminal + LazyVim | x86_64, aarch64 |
-| `thunderbird` | Thunderbird | x86_64, aarch64 |
-| `umbriel` | Umbriel | x86_64, aarch64 |
-| `vesktop` | Vesktop | x86_64, aarch64 |
-| `vietnamese-input` | Fcitx5 + Lotus | x86_64, aarch64 |
+| Profile | Mục đích |
+|---|---|
+| `ai` | llama.cpp Vulkan |
+| `base` | NixOS baseline |
+| `bitwarden` | Bitwarden Desktop |
+| `desktop` | Umbriel, Noctalia, Flatpak, PipeWire |
+| `downloads` | qBittorrent |
+| `firefox` | Firefox + Wayland defaults |
+| `gaming` | Steam, GameMode, MangoHud |
+| `helium` | Helium Browser |
+| `hermes-agent` | Hermes Agent |
+| `keepassxc` | KeePassXC |
+| `media` | mpv, mpvpaper, VLC, Stremio |
+| `opencode` | OpenCode |
+| `signal` | Signal Desktop |
+| `telegram` | Telegram Desktop |
+| `terminal` | WezTerm, Zellij, terminal tools |
+| `terminal-ide` | terminal + LazyVim |
+| `thunderbird` | Thunderbird |
+| `umbriel` | Umbriel |
+| `vesktop` | Vesktop |
+| `vietnamese-input` | Fcitx5 + Lotus |
 
-Chỉ `gaming` và `helium` có giới hạn architecture riêng trong cấu hình hiện tại. fileciteturn86file0L2-L2
+Tất cả profile trong framework đều được đánh giá trong target `x86_64-linux` hiện tại.
 
 ## Helium
 
@@ -147,24 +149,24 @@ helium = {
 };
 ```
 
-Profile `helium` import NixOS module từ input và bật các flag Wayland/accelerated video cần cho máy hiện tại. fileciteturn82file0L2-L2 fileciteturn113file0L2-L2
+Profile `helium` import NixOS module từ input và bật các flag Wayland/accelerated video cần cho máy hiện tại.
 
-`helium-nix` có package `x86_64-linux` và `aarch64-linux`, nhưng cấu hình cá nhân này chỉ chọn `x86_64-linux` cho profile Helium.
+`helium-nix` hiện chỉ hỗ trợ `x86_64-linux`, phù hợp với binary AMD64 upstream mà package sử dụng. `nixos-portable` cũng chỉ đánh giá profile Helium trên `x86_64-linux`.
 
-**Trạng thái lockfile:** `flake.nix` đã chuyển sang `projectofwang/helium-nix`, nhưng `flake.lock` hiện vẫn chứa node Helium cũ (`oxcl/nix-flake-helium-browser`). Cần chạy trên máy có Nix/network:
+**Trạng thái lockfile:** `flake.lock` pin một revision cụ thể của `projectofwang/helium-nix`; lockfile phải được cập nhật bằng Nix khi muốn đưa revision mới nhất của package vào parent flake:
 
 ```bash
 nix flake lock --update-input helium
 nix flake check
 ```
 
-Không tự đoán hoặc điền `narHash`.
+Không tự đoán hoặc điền `narHash` bằng tay.
 
 ## Hardware và networking
 
-Hardware thật nằm trong `hosts/machine/`; module dùng lại nằm trong `hardware/`. GPU hiện tại dùng module AMD RX 580 2048SP với graphics 32-bit. fileciteturn122file0L2-L2 fileciteturn123file0L2-L2
+Hardware thật nằm trong `hosts/machine/`; module dùng lại nằm trong `hardware/`. GPU hiện tại dùng module AMD RX 580 2048SP với graphics 32-bit.
 
-Networking dùng NetworkManager và `dnscrypt-proxy`. DNS của host đi qua `127.0.0.1:53` và `[::1]:53`; `1.1.1.1:53` chỉ được dùng làm bootstrap cho encrypted DNS. Firewall được bật. fileciteturn104file0L2-L2
+Networking dùng NetworkManager và `dnscrypt-proxy`. DNS của host đi qua `127.0.0.1:53` và `[::1]:53`; `1.1.1.1:53` chỉ được dùng làm bootstrap cho encrypted DNS. Firewall được bật.
 
 ## CI
 
@@ -174,7 +176,9 @@ CI gồm:
 2. profile × architecture matrix;
 3. build production host.
 
-GitHub Actions trong workflow kiểm tra chính được pin bằng commit SHA, checkout không giữ credentials, và cache dùng GitHub Actions cache. fileciteturn98file0L2-L2
+Architecture matrix hiện chỉ có một architecture: `x86_64-linux`.
+
+GitHub Actions trong workflow kiểm tra chính được pin bằng commit SHA, checkout không giữ credentials, và cache dùng GitHub Actions cache.
 
 CodeQL chỉ phân tích GitHub Actions và cũng đã được pin bằng commit SHA.
 
@@ -187,7 +191,7 @@ nix flake check --no-write-lock-file
 
 ## Bảo trì
 
-Development shell cung cấp `nil`, `nixfmt`, `statix`, `pre-commit` và CLI. fileciteturn152file0L2-L2
+Development shell cung cấp `nil`, `nixfmt`, `statix`, `pre-commit` và CLI.
 
 ```bash
 nix develop
@@ -203,7 +207,6 @@ nix flake check
 ```
 
 Không cập nhật lockfile mù quáng, đặc biệt với binary package và các repository cá nhân được dùng làm flake input.
-
 
 Các repository cá nhân được dùng làm input cũng là trust boundary. Khi đổi revision, cần xem xét diff và chạy lại `nix flake check`.
 
