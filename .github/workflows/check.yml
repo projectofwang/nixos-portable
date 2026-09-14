@@ -41,7 +41,7 @@ jobs:
           nix flake lock \
             --override-input helium github:projectofwang/helium-nix/4c4a9bbcbcb81b7463b3bf36333aaa1da2a2037e \
             --output-lock-file /tmp/flake.lock
-          jq '{helium: .nodes.helium, heliumHomeManager: .nodes[.nodes.helium.inputs.home-manager], heliumRootInput: .nodes.root.inputs.helium}' /tmp/flake.lock
+          jq '{helium: .nodes.helium, homeManager: .nodes[.nodes.helium.inputs["home-manager"]], heliumRootInput: .nodes.root.inputs.helium}' /tmp/flake.lock
 
       - name: Check Nix formatting
         run: nix fmt --no-write-lock-file --no-update-lock-file -- --check $(git ls-files '*.nix')
