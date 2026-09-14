@@ -1,4 +1,4 @@
-{ profiles }:
+{ lib, profiles }:
 
 let
   # The CI system itself must be buildable on every declared CI architecture.
