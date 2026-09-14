@@ -109,5 +109,4 @@ jobs:
           use-flakehub: disabled
 
       - name: Build production machine
-        run: nix build .#nixosConfigurations.production.config.system.build.toplevel --no-link --no-write-lock-file
-
+        run: nix build .#nixosConfigurations.${{ needs.framework.outputs.production-host }}.config.system.build.toplevel --no-link --no-write-lock-file
