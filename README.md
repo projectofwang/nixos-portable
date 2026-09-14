@@ -1,72 +1,82 @@
 # nixos-portable
 
-Cấu hình **NixOS cá nhân** dùng để quản lý máy chính của tôi. Repository này chứa host, hardware, profile, role, Home Manager, module dùng lại, kiểm tra framework và CLI triển khai.
+**Personal NixOS infrastructure** dùng để xây dựng, quản lý và triển khai cấu hình NixOS cho các máy tôi trực tiếp sử dụng.
 
-Đây là **personal infrastructure**, không phải framework public có API ổn định. Cấu trúc, profile, module, input và workflow có thể thay đổi bất cứ lúc nào theo nhu cầu cá nhân.
+Đây là một project **personal-use first**. Repository public chủ yếu để version control, backup và truy cập thuận tiện; nó không phải một NixOS distribution, framework public có API ổn định, hay package collection có compatibility/support contract.
 
-## Cấu trúc
+## Mục đích
+
+`nixos-portable` gom system configuration vào một Nix flake có cấu trúc rõ ràng:
+
+- quản lý host và hardware;
+- tổ chức phần mềm thành profile và role;
+- dùng lại NixOS/Home Manager modules;
+- validate metadata và composition framework;
+- cung cấp CLI cho `check`, `build`, `switch`, `deploy`;
+- evaluate toàn bộ profile bằng CI;
+- build production host;
+- tách binary packaging của Helium sang `helium-nix`.
+
+Ưu tiên thiết kế là **reproducibility, maintainability và cấu hình đúng với máy cá nhân**, không phải portability tối đa.
+
+## Kiến trúc
 
 ```text
 nixos-portable
-├── hosts/       cấu hình riêng của từng host
-├── hardware/    hardware module dùng lại
-├── profiles/    capability có thể chọn
-├── roles/       nhóm profile
-├── modules/     NixOS/Home Manager module
-├── home/        cấu hình Home Manager cơ sở
-├── lib/         composition framework và CLI
-└── tests/       kiểm tra framework
+│
+├── hosts/ ───────────── host identity + system configuration
+│     ├── machine/ ───── production host
+│     └── ci/ ─────────── CI/evaluation host
+│
+├── profiles/ ─────────── capabilities / software groups
+├── roles/ ────────────── collections of profiles
+├── hardware/ ─────────── reusable hardware modules
+├── modules/ ──────────── reusable NixOS/Home Manager modules
+├── home/ ─────────────── base Home Manager configuration
+├── lib/ ───────────────── discovery, validation, composition, CLI
+├── tests/ ─────────────── framework tests
+└── .github/workflows/ ─── CI + security checks
 ```
 
-Host production là `machine`. Host `ci` là host không phụ thuộc hardware, dùng để kiểm tra profile trên **`x86_64-linux`**.
+Luồng composition chính:
 
-Repository hiện chỉ có một system target: **`x86_64-linux`**. ARM, i686 và các kiến trúc khác nằm ngoài phạm vi hỗ trợ của framework này.
-
-## Sử dụng
-
-Tại thư mục repository:
-
-```bash
-nix develop
-nixos-portable check
-nixos-portable build machine
-nixos-portable switch machine
+```text
+host identity
+     │
+     ├── roles ──► profiles
+     ├── hardware
+     └── modules
+           │
+           ▼
+     lib/ validation + composition
+           │
+           ▼
+     NixOS + Home Manager configuration
+           │
+           ▼
+       x86_64-linux
 ```
 
-Hoặc chạy CLI trực tiếp từ flake:
+`lib/` tự phát hiện host/profile và kiểm tra metadata trước khi tạo configuration. Framework reject host không hợp lệ, architecture ngoài phạm vi, hostname trùng và các cấu trúc bắt buộc bị thiếu.
 
-```bash
-nix run .#nixos-portable -- check
-nix run .#nixos-portable -- build machine
-```
+## Cấu trúc host
 
-Deploy tới máy khác:
-
-```bash
-nixos-portable deploy machine root@server
-nixos-portable deploy machine root@server root@builder
-```
-
-CLI hiện có bốn thao tác: `check`, `build`, `switch`, `deploy`. Nó dùng `set -euo pipefail` và chuyển các thao tác hệ thống cho `nixos-rebuild --flake`.
-
-## Host
-
-Host được tự động phát hiện nếu có `identity.nix`:
+Mỗi host được phát hiện thông qua:
 
 ```text
 hosts/<name>/
 ├── identity.nix
-└── default.nix
+├── default.nix
+└── hardware-configuration.nix   # nếu cần
 ```
 
-Host vật lý có thể có thêm `hardware-configuration.nix`, `boot.nix`, `networking.nix` và `gpu.nix`.
+`identity.nix` mô tả hostname, username, system, timezone, state versions, roles và profiles. `machine` là production host; `ci` là host không phụ thuộc hardware thực tế để CI evaluate/build profiles.
 
-Ví dụ identity:
+Ví dụ tối giản:
 
 ```nix
 {
   hostname = "nixos";
-  username = "chicoarun";
   system = "x86_64-linux";
   timeZone = "Asia/Ho_Chi_Minh";
   nixosStateVersion = "26.05";
@@ -76,71 +86,57 @@ Ví dụ identity:
 }
 ```
 
-`architectures` là tùy chọn và phải chứa `system` chính nếu được khai báo. Framework kiểm tra field bắt buộc, kiểu dữ liệu, architecture, hostname trùng và `default.nix` trước khi tạo NixOS configuration.
-
-## Role và profile
+## Profile và role
 
 **Profile** là một capability. **Role** là một tập profile.
 
-| Role | Hành vi |
-|---|---|
-| `completed` | tự động chọn toàn bộ `profiles/*.nix` |
-| `ci` | tự động chọn toàn bộ profile cho CI |
-
-`completed` và `ci` đều lấy từ `profiles.available`, vì vậy thêm hoặc xóa profile không cần sửa thêm danh sách role.
-
-Host chọn lọc có thể dùng:
-
-```nix
-roles = [ ];
-profiles = [
-  "base"
-  "desktop"
-  "terminal"
-];
+```text
+role
+ ├── profile
+ ├── profile
+ └── profile
 ```
 
-Profile được phát hiện từ `profiles/*.nix` và được kiểm tra tương thích với `x86_64-linux` khi build.
+Các role hiện tại:
 
-### Profile hiện tại
-
-| Profile | Mục đích |
+| Role | Mục đích |
 |---|---|
-| `ai` | llama.cpp Vulkan |
-| `base` | NixOS baseline |
-| `bitwarden` | Bitwarden Desktop |
-| `desktop` | Umbriel, Noctalia, Flatpak, PipeWire |
-| `downloads` | qBittorrent |
-| `firefox` | Firefox + Wayland defaults |
-| `gaming` | Steam, GameMode, MangoHud |
-| `helium` | Helium Browser |
-| `hermes-agent` | Hermes Agent |
-| `keepassxc` | KeePassXC |
-| `media` | mpv, mpvpaper, VLC, Stremio |
-| `opencode` | OpenCode |
-| `signal` | Signal Desktop |
-| `telegram` | Telegram Desktop |
-| `terminal` | WezTerm, Zellij, terminal tools |
-| `terminal-ide` | terminal + LazyVim |
-| `thunderbird` | Thunderbird |
-| `umbriel` | Umbriel |
-| `vesktop` | Vesktop |
-| `vietnamese-input` | Fcitx5 + Lotus |
+| `completed` | production host dùng toàn bộ profile hiện có |
+| `ci` | CI evaluate toàn bộ profile |
 
-Tất cả profile trong framework đều được đánh giá trong target `x86_64-linux` hiện tại.
+Profile được phát hiện tự động từ `profiles/*.nix`, nên thêm profile mới không cần cập nhật thủ công danh sách profile của các role này.
+
+Các profile hiện tại gồm: `ai`, `base`, `bitwarden`, `desktop`, `downloads`, `firefox`, `gaming`, `helium`, `hermes-agent`, `keepassxc`, `media`, `opencode`, `signal`, `telegram`, `terminal`, `terminal-ide`, `thunderbird`, `umbriel`, `vesktop` và `vietnamese-input`.
+
+## Architecture policy
+
+Project **chỉ hỗ trợ `x86_64-linux`**.
+
+```text
+Supported:
+  x86_64-linux
+
+Out of scope:
+  i686 / 32-bit
+  aarch64 / ARM
+  mọi architecture khác
+```
+
+Đây là policy có chủ đích. Không có mục tiêu mở rộng sang ARM, 32-bit hoặc architecture khác. Framework và CI đều enforce policy này.
 
 ## Helium
 
-Helium được tách thành repository cá nhân riêng:
+Helium được tách thành repository `helium-nix` để giữ ranh giới giữa system configuration và binary packaging:
 
 ```text
 nixos-portable
       │
       └── helium-nix
-             └── binary Helium upstream
+              │
+              └── official Helium Linux release
 ```
 
-Input trong `flake.nix` hiện là:
+Input:
 
 ```nix
 helium = {
@@ -149,69 +145,108 @@ helium = {
 };
 ```
 
-Profile `helium` import NixOS module từ input và bật các flag Wayland/accelerated video cần cho máy hiện tại.
-
-`helium-nix` hiện chỉ hỗ trợ `x86_64-linux`, phù hợp với binary AMD64 upstream mà package sử dụng. `nixos-portable` cũng chỉ đánh giá profile Helium trên `x86_64-linux`.
-
-**Trạng thái lockfile:** `flake.lock` pin một revision cụ thể của `projectofwang/helium-nix`; lockfile phải được cập nhật bằng Nix khi muốn đưa revision mới nhất của package vào parent flake:
+`helium-nix` tự theo dõi release upstream và tạo PR khi có version mới. `nixos-portable` vẫn pin một revision cụ thể trong `flake.lock`; muốn đưa revision mới vào parent flake thì cập nhật có chủ đích:
 
 ```bash
 nix flake lock --update-input helium
 nix flake check
 ```
 
-Không tự đoán hoặc điền `narHash` bằng tay.
+Không tự điền `narHash` bằng tay.
 
-## Hardware và networking
-
-Hardware thật nằm trong `hosts/machine/`; module dùng lại nằm trong `hardware/`. GPU hiện tại dùng module AMD RX 580 2048SP với graphics 32-bit.
-
-Networking dùng NetworkManager và `dnscrypt-proxy`. DNS của host đi qua `127.0.0.1:53` và `[::1]:53`; `1.1.1.1:53` chỉ được dùng làm bootstrap cho encrypted DNS. Firewall được bật.
-
-## CI
-
-CI gồm:
-
-1. framework/flake evaluation;
-2. profile × architecture matrix;
-3. build production host.
-
-Architecture matrix hiện chỉ có một architecture: `x86_64-linux`.
-
-GitHub Actions trong workflow kiểm tra chính được pin bằng commit SHA, checkout không giữ credentials, và cache dùng GitHub Actions cache.
-
-CodeQL chỉ phân tích GitHub Actions và cũng đã được pin bằng commit SHA.
-
-Chạy kiểm tra tại máy:
+## CLI
 
 ```bash
 nixos-portable check
-nix flake check --no-write-lock-file
+nixos-portable build machine
+nixos-portable switch machine
+nixos-portable deploy machine root@server
 ```
 
-## Bảo trì
+Có thể chạy từ flake:
 
-Development shell cung cấp `nil`, `nixfmt`, `statix`, `pre-commit` và CLI.
+```bash
+nix run .#nixos-portable -- check
+nix run .#nixos-portable -- build machine
+```
+
+`deploy` hỗ trợ optional build host:
+
+```bash
+nixos-portable deploy machine root@server root@builder
+```
+
+CLI dùng `set -euo pipefail`, validate arguments và chuyển thao tác hệ thống cho `nixos-rebuild --flake`.
+
+## Hardware và system configuration
+
+Hardware-specific configuration nằm dưới `hosts/machine/`; reusable hardware modules nằm dưới `hardware/`.
+
+Graphics, audio, networking, boot, desktop services và thiết bị ngoại vi hiện được tối ưu cho máy cá nhân. Chúng không được thiết kế như abstraction layer cho mọi hardware configuration.
+
+## CI và security
+
+CI kiểm tra:
+
+1. formatting;
+2. framework tests;
+3. CI host evaluation;
+4. flake structure;
+5. CLI;
+6. toàn bộ profile × architecture matrix;
+7. production host build.
+
+Matrix chỉ có `x86_64-linux`.
+
+GitHub Actions quan trọng được pin bằng commit SHA, checkout không giữ credentials và workflow permissions được giới hạn theo nhu cầu. CodeQL được dùng để kiểm tra GitHub Actions.
+
+Local validation:
 
 ```bash
 nix develop
+nixos-portable check
+nix flake check --no-write-lock-file
 pre-commit run --all-files
-nix flake check
 ```
 
-Cập nhật input có chủ đích:
+## Maintenance
+
+Development shell cung cấp các công cụ format, lint, validate và CLI.
+
+Cập nhật dependencies có chủ đích:
 
 ```bash
 nix flake update
 nix flake check
 ```
 
-Không cập nhật lockfile mù quáng, đặc biệt với binary package và các repository cá nhân được dùng làm flake input.
+Các flake input là trust boundary của hệ thống. Khi đổi revision, nên xem xét diff và chạy validation trước khi sử dụng.
 
-Các repository cá nhân được dùng làm input cũng là trust boundary. Khi đổi revision, cần xem xét diff và chạy lại `nix flake check`.
+## Personal-use scope
 
-## Phạm vi sử dụng
+Repository này được thiết kế **cho cá nhân tôi và các máy tôi trực tiếp quản lý**.
 
-Repository này public chỉ để version control và truy cập thuận tiện. Mục tiêu thiết kế là **chỉ phục vụ các máy cá nhân của tôi**.
+Không có cam kết về:
 
-Không có cam kết về backward compatibility, API ổn định, hỗ trợ máy khác, SLA hoặc release cadence. Nếu một thay đổi phá vỡ cấu trúc cũ nhưng phù hợp hơn với cấu hình cá nhân, thay đổi đó vẫn có thể được chấp nhận.
+- backward compatibility;
+- API stability;
+- compatibility với hardware khác;
+- release cadence;
+- SLA hoặc support;
+- khả năng sử dụng nguyên trạng bởi người khác.
+
+Nếu một thay đổi phá vỡ cấu trúc cũ nhưng làm cấu hình cá nhân tốt hơn, thay đổi đó vẫn có thể được chấp nhận.
+
+## License và third-party software
+
+Repository chủ yếu chứa configuration, modules, framework code và automation của project cá nhân. Dependency và phần mềm bên thứ ba vẫn chịu license riêng của chúng. Việc sử dụng một dependency/input không đồng nghĩa project này sở hữu hoặc cấp lại license cho phần mềm upstream.
+
+## Design principles
+
+- **Personal first** — ưu tiên nhu cầu thực tế của chủ repository.
+- **Reproducible** — lock inputs và fixed-output artifacts khi phù hợp.
+- **Explicit** — architecture, host và profile policy được khai báo rõ.
+- **Validated** — framework và production configuration đều được kiểm tra.
+- **Small abstractions** — chỉ abstraction những gì thực sự cần dùng lại.
+- **Upstream-aware** — dependency và binary input có nguồn gốc rõ ràng.
+- **No fake compatibility** — không giả lập support cho platform không thuộc phạm vi.
