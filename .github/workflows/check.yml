@@ -36,6 +36,13 @@ jobs:
         with:
           use-flakehub: disabled
 
+      - name: Resolve Helium lock metadata
+        run: |
+          nix flake lock \
+            --override-input helium github:projectofwang/helium-nix/4c4a9bbcbcb81b7463b3bf36333aaa1da2a2037e \
+            --output-lock-file /tmp/flake.lock
+          jq '.nodes.helium' /tmp/flake.lock
+
       - name: Check Nix formatting
         run: nix fmt --no-write-lock-file -- --check $(git ls-files '*.nix')
 
@@ -85,13 +92,12 @@ jobs:
         with:
           use-flakehub: disabled
 
-      - name: Build CI profile/architecture check
-        run: nix build ".#checks.${{ matrix.architecture }}.${{ matrix.host }}-${{ matrix.profile }}" --no-link --no-write-lock-file
+      - name: Build CI profile
+        run: nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --no-link --no-write-lock-file
 
   production:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -110,4 +116,5 @@ jobs:
           use-flakehub: disabled
 
       - name: Build production machine
-        run: nix build .#checks.x86_64-linux.production-machine --no-link --no-write-lock-file
+        run: nix build .#nixosConfigurations.production.config.system.build.toplevel --no-link --no-write-lock-file
+
