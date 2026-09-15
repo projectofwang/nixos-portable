@@ -106,6 +106,10 @@ Các role hiện tại:
 
 Profile được phát hiện tự động từ `profiles/*.nix`, nên thêm profile mới không cần cập nhật thủ công danh sách profile của các role này.
 
+> Lưu ý maintain mode: `completed` (production) và `ci` đều expand ra toàn bộ `profiles.available`.
+> Thêm `profiles/<name>.nix` là tự động lên production ở lần `switch` tiếp theo.
+> Đây là hành vi có chủ đích cho personal-use, không phải staging/canary.
+
 Các profile hiện tại gồm: `ai`, `base`, `bitwarden`, `desktop`, `downloads`, `firefox`, `gaming`, `helium`, `hermes-agent`, `keepassxc`, `media`, `opencode`, `signal`, `telegram`, `terminal`, `terminal-ide`, `thunderbird`, `umbriel`, `vesktop` và `vietnamese-input`.
 
 ## Architecture policy
@@ -184,6 +188,19 @@ Hardware-specific configuration nằm dưới `hosts/machine/`; reusable hardwar
 
 Graphics, audio, networking, boot, desktop services và thiết bị ngoại vi hiện được tối ưu cho máy cá nhân. Chúng không được thiết kế như abstraction layer cho mọi hardware configuration.
 
+`hosts/machine/networking.nix` dùng `dnscrypt-proxy` với `server_names = [ "sdns" ]`
+(self-hosted, xem `Serverless-Edge-DNS-Gateway`) và `ignore_system_dns = true`.
+Nếu resolver tự host down, máy mất DNS hoàn toàn. Fallback khẩn cấp:
+
+```nix
+# hosts/machine/networking.nix — tạm thời thay server_names
+server_names = [ "cloudflare" ];
+# hoặc: services.dnscrypt-proxy.enable = false;
+# và networking.networkmanager.dns = "default";
+```
+
+sau đó `nixos-rebuild switch --flake .#machine`.
+
 ## CI và security
 
 CI kiểm tra:
@@ -213,11 +230,23 @@ pre-commit run --all-files
 
 Development shell cung cấp các công cụ format, lint, validate và CLI.
 
-Cập nhật dependencies có chủ đích:
+Cập nhật dependencies có chủ đích (cadence khuyến nghị: monthly, hoặc khi cần security fix):
 
 ```bash
 nix flake update
 nix flake check
+```
+
+Sau mỗi `nix flake update`, kiểm tra lại `profiles/opencode.nix`:
+patch `opencode-compiled-filesystem-cycle.patch` chỉ là workaround cho
+`anomalyco/opencode#48397` (nixpkgs 1.18.30 + Bun 1.4.2). Nếu upstream đã fix,
+bỏ override `programs.opencode.package`.
+
+Quy trình vào maintain mode: giữ `main` xanh (`nixos-portable check` + CI),
+chỉ update inputs, không sửa `lib/`. Tag stable commit:
+
+```bash
+git tag stable-2026-09-15
 ```
 
 Các flake input là trust boundary của hệ thống. Khi đổi revision, nên xem xét diff và chạy validation trước khi sử dụng.
