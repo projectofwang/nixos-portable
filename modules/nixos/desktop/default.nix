@@ -49,7 +49,7 @@
   };
 
   # Start the graphical session with the configured default user.
-  programs.noctalia-greeter = {
+  services.displayManager.noctalia-greeter = {
     enable = true;
     settings = {
       session.default = "Umbriel";
