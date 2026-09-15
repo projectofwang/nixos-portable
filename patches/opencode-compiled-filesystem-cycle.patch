@@ -20,4 +20,3 @@
 +  readonly glob: (input: GlobInput) => Effect.Effect<readonly FileSystem.Entry[]>
 +  readonly grep: (input: GrepInput) => Effect.Effect<readonly FileSystem.Match[]>
  }
-*** End Patch
