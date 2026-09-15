@@ -53,7 +53,6 @@ in
 
       serviceConfig = {
         User = username;
-        Group = "users";
         WorkingDirectory = "/home/${username}";
         Environment = [
           "HOME=/home/${username}"
