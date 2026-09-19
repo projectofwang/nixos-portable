@@ -42,6 +42,9 @@ jobs:
       - name: Evaluate framework tests
         run: nix build .#checks.x86_64-linux.framework-tests --no-link --no-write-lock-file
 
+      - name: Evaluate production integration tests
+        run: nix build .#checks.x86_64-linux.integration-tests --no-link --no-write-lock-file
+
       - name: Evaluate CI system
         run: nix eval .#nixosConfigurations.ci.config.system.build.toplevel.drvPath --no-write-lock-file
 
