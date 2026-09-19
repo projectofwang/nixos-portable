@@ -82,11 +82,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789455803,
-        "narHash": "sha256-bWnHy1y+jQ7+5No2x1+v3B7JwwNnBI9zbv11pc7NgL4=",
+        "lastModified": 1789797101,
+        "narHash": "sha256-KUS0xZREcrTZ+UqJbjtpmirh9976ote5hQZC8cRhXJM=",
         "owner": "projectofwang",
         "repo": "helium-nix",
-        "rev": "6e67b58e1627feac703940b4d4756dc517d53981",
+        "rev": "35720b01f559c6d3a4335e0ba786cad4c8337352",
         "type": "github"
       },
       "original": {
@@ -116,18 +116,18 @@
         "type": "github"
       }
     },
-    "home-manager_3": {
+    "home-manager_2": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1789676441,
-        "narHash": "sha256-mOvO5VvycuBtOUe5EYI54vrLsWe+2KF/82fmwKooe48=",
+        "lastModified": 1789765459,
+        "narHash": "sha256-voJJ5IZR4w2149u2Jm/j2zifeWROlpZQ+JzmCQwjgn8=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "9d485f74cd27d17126ee34cb31005c39d20f741f",
+        "rev": "17903129f47656fa4d07e78ad87f6592ff4f2527",
         "type": "github"
       },
       "original": {
@@ -138,11 +138,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1789546076,
-        "narHash": "sha256-zVxLZiSnmaaPLwnhj7pwmqe3axBg/C6nG5JZsJMh2g4=",
+        "lastModified": 1789684949,
+        "narHash": "sha256-ZKhUe/2IJUq1JhKxKMu8rbkgSGmPP2ZCqlIPn40aGCM=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b1b875982b17dabde9b4a37f3e229e74913e6db3",
+        "rev": "e554fab72f81915600f3f449b786fd9af40439a5",
         "type": "github"
       },
       "original": {
@@ -159,11 +159,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789611680,
-        "narHash": "sha256-obiNV+juEjUYDDusgYQukjLyoVsJJPmYppmjvIEfkSg=",
+        "lastModified": 1789735339,
+        "narHash": "sha256-KjnprW4lpS4ISCBnoNxlI9++LACjxlsQV7WWNT4cju8=",
         "owner": "projectofwang",
         "repo": "noctalia",
-        "rev": "8c52cb71b5bcafbf67bfb8e659f1fc45f882a008",
+        "rev": "960d4d46bd3149a556504e7c40ecd87abb251a36",
         "type": "github"
       },
       "original": {
@@ -179,11 +179,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789367673,
-        "narHash": "sha256-EUAnyaH/qpAaNWrgtARuPK7Lnow2kwnZBwnQDmsIERU=",
+        "lastModified": 1789745917,
+        "narHash": "sha256-2hTzGtOgBz9KA8viAWdp/jYcZW8AtP8SA9Up8Mfplos=",
         "owner": "projectofwang",
         "repo": "noctalia-greeter",
-        "rev": "d9fe1d7851464a923020d39efae8a6e3561f0d63",
+        "rev": "cdc492abbca4ac6b6f757190bcac8256b6d5b113",
         "type": "github"
       },
       "original": {
@@ -196,7 +196,7 @@
       "inputs": {
         "fcitx5-lotus": "fcitx5-lotus",
         "helium": "helium",
-        "home-manager": "home-manager_3",
+        "home-manager": "home-manager_2",
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
         "noctalia-greeter": "noctalia-greeter",
@@ -250,11 +250,11 @@
         "xdg-desktop-portal-umbriel": "xdg-desktop-portal-umbriel"
       },
       "locked": {
-        "lastModified": 1789667019,
-        "narHash": "sha256-l7PaRFB5z7dOQfH4NE1xOyqbjf6njCsh7h6ADyGNh3c=",
+        "lastModified": 1789779226,
+        "narHash": "sha256-zm0edChb49wP5jrqjx5FppzczRtJNFv6vH2h9JAklDg=",
         "owner": "projectofwang",
         "repo": "umbriel",
-        "rev": "aa9d523cf91d239d68d13fca413ac39a9547c9f1",
+        "rev": "31601e0ae1e9119df16af01ea6b80ce02da9e1b8",
         "type": "github"
       },
       "original": {
