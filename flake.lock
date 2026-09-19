@@ -74,48 +74,6 @@
         "type": "github"
       }
     },
-    "helium": {
-      "inputs": {
-        "home-manager": "home-manager",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1789455803,
-        "narHash": "sha256-bWnHy1y+jQ7+5No2x1+v3B7JwwNnBI9zbv11pc7NgL4=",
-        "owner": "projectofwang",
-        "repo": "helium-nix",
-        "rev": "6e67b58e1627feac703940b4d4756dc517d53981",
-        "type": "github"
-      },
-      "original": {
-        "owner": "projectofwang",
-        "repo": "helium-nix",
-        "type": "github"
-      }
-    },
-    "home-manager": {
-      "inputs": {
-        "nixpkgs": [
-          "helium",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1789386765,
-        "narHash": "sha256-4hyLFBhzQC7+qPMELWc7J/sbdA6ckXZxXU9CYRsGhsc=",
-        "owner": "nix-community",
-        "repo": "home-manager",
-        "rev": "87c391f49a34660de6010f35bb50fb1bf811be9f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "home-manager",
-        "type": "github"
-      }
-    },
     "home-manager_3": {
       "inputs": {
         "nixpkgs": [
@@ -179,7 +137,6 @@
     "root": {
       "inputs": {
         "fcitx5-lotus": "fcitx5-lotus",
-        "helium": "helium",
         "home-manager": "home-manager_3",
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
