@@ -129,15 +129,18 @@
           "production desktop must enable the Noctalia greeter";
         assert lib.assertMsg (productionConfig.networking.hostName == productionMachine.hostname)
           "production hostname must match host identity";
-        assert lib.assertMsg productionConfig.users.users.${productionMachine.username}.isNormalUser
-          "production primary user must be a normal user";
-        assert lib.assertMsg (productionConfig.nixpkgs.hostPlatform.system == productionMachine.system)
-          "production architecture must match host identity";
+        assert lib.assertMsg (
+          productionConfig.users.users.${productionMachine.username}.isNormalUser
+        ) "production primary user must be a normal user";
+        assert lib.assertMsg (
+          productionConfig.nixpkgs.hostPlatform.system == productionMachine.system
+        ) "production architecture must match host identity";
         assert lib.assertMsg (
           productionConfig.services.dnscrypt-proxy.settings.server_names == [ "sdns" ]
         ) "production DNS policy must use the configured self-hosted resolver";
-        assert lib.assertMsg (productionHome.home.stateVersion == productionMachine.homeStateVersion)
-          "Home Manager state version must match host identity";
+        assert lib.assertMsg (
+          productionHome.home.stateVersion == productionMachine.homeStateVersion
+        ) "Home Manager state version must match host identity";
         assert lib.assertMsg productionConfig.home-manager.useGlobalPkgs
           "Home Manager must use the system package set";
         assert lib.assertMsg productionConfig.home-manager.useUserPackages
