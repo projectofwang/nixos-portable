@@ -114,23 +114,23 @@
       productionHome = productionConfig.home-manager.users.${productionMachine.username};
 
       integrationAssertions =
-        assert lib.assertMsg (productionConfig.security.polkit.enable == false)
-          "production policy must keep polkit disabled";
+        assert lib.assertMsg (
+          productionConfig.security.polkit.enable == false
+        ) "production policy must keep polkit disabled";
         assert lib.assertMsg productionConfig.services.pipewire.enable
           "production desktop must enable PipeWire";
         assert lib.assertMsg productionConfig.services.flatpak.enable
           "production desktop must enable Flatpak";
         assert lib.assertMsg productionConfig.xdg.portal.enable
           "production desktop must enable XDG desktop portals";
-        assert lib.assertMsg (
-          builtins.elem "gtk" productionConfig.xdg.portal.config.common.default
-        ) "production desktop portal default must include GTK";
+        assert lib.assertMsg (builtins.elem "gtk" productionConfig.xdg.portal.config.common.default)
+          "production desktop portal default must include GTK";
         assert lib.assertMsg productionConfig.services.displayManager.noctalia-greeter.enable
           "production desktop must enable the Noctalia greeter";
-        assert lib.assertMsg (productionConfig.networking.hostName == productionMachine.hostname)
-          "production hostname must match host identity";
         assert lib.assertMsg (
-          productionConfig.users.users.${productionMachine.username}.isNormalUser
+          productionConfig.networking.hostName == productionMachine.hostname
+        ) "production hostname must match host identity";
+        assert lib.assertMsg (productionConfig.users.users.${productionMachine.username}.isNormalUser
         ) "production primary user must be a normal user";
         assert lib.assertMsg (
           productionConfig.nixpkgs.hostPlatform.system == productionMachine.system
