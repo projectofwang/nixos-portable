@@ -123,8 +123,8 @@
           "production desktop must enable Flatpak";
         assert lib.assertMsg productionConfig.xdg.portal.enable
           "production desktop must enable XDG desktop portals";
-        assert lib.assertMsg (builtins.elem "gtk" productionConfig.xdg.portal.config.common.default)
-          "production desktop portal default must include GTK";
+        assert lib.assertMsg (productionConfig.xdg.portal.config.common.default == "gtk")
+          "production desktop portal default must be GTK";
         assert lib.assertMsg productionConfig.services.displayManager.noctalia-greeter.enable
           "production desktop must enable the Noctalia greeter";
         assert lib.assertMsg (
