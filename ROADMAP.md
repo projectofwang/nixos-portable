@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap tracks stabilization and validation work for `nixos-portable`.
+This roadmap tracks stabilization and validation work for `nixos-portable` and `helium-nix`.
 
 Current direction: **stabilization, verification, and operational maturity**, not a framework redesign.
 
@@ -15,6 +15,20 @@ Current direction: **stabilization, verification, and operational maturity**, no
 - `architecturesFor` remains a policy abstraction; do not create a redundant per-profile mapping until another architecture is supported.
 
 ## Phase 0 — Baseline correctness
+
+### P0.1 — Synchronize `helium-nix`
+
+**Repository:** `nixos-portable`
+
+Update the locked `helium-nix` input to the current stable revision, then verify:
+
+- `nix flake check`
+- framework evaluation
+- complete profile matrix
+- production `machine` build
+- resulting Helium package
+
+**Reason:** the lockfile currently lags behind the current `helium-nix` revision.
 
 ### P0.2 — Resolve and assert the final polkit policy
 
@@ -40,7 +54,28 @@ Choose the license deliberately before adding the file. Do not infer it from `he
 
 ## Phase 1 — Test quality and invariants
 
-### P1.1 — Add final-configuration integration assertions
+### P1.1 — Make the Helium NixOS package test identify the package explicitly
+
+**Repository:** `helium-nix`
+
+Replace positional selection such as `builtins.head environment.systemPackages` with a test that locates the intended package by a stable name/attribute.
+
+**Reason:** adding another system package must not cause the test to validate the wrong derivation.
+
+### P1.2 — Make the Helium Home Manager test execute the package
+
+**Repository:** `helium-nix`
+
+The current Home Manager test checks activation output for a flag string. Replace it with a runtime-oriented test:
+
+1. activate the Home Manager configuration;
+2. locate the installed custom package/wrapper;
+3. execute it with the test flag;
+4. verify successful behavior.
+
+**Reason:** text presence does not prove that the generated wrapper actually works.
+
+### P1.3 — Add final-configuration integration assertions
 
 **Repository:** `nixos-portable`
 
@@ -79,7 +114,18 @@ outside the existing production host and CI host.
 
 This validates the framework; it does not require a permanent second machine.
 
-### P2.2 — Define a disaster-recovery/backup strategy
+### P2.2 — Add manual version selection to the Helium updater
+
+**Repository:** `helium-nix`
+
+Extend `.github/workflows/update-helium.yml` so `workflow_dispatch` can optionally accept an explicit Helium version.
+
+Desired behavior:
+
+- no version → latest release;
+- explicit version → package exactly that release.
+
+### P2.3 — Define a disaster-recovery/backup strategy
 
 **Repository:** primarily `nixos-portable`
 
@@ -87,7 +133,7 @@ Document the distinction between declarative system recovery and user-data recov
 
 At minimum document the reinstall/recovery sequence. Introduce restic, Borg, or another backup system only when there is a concrete operational requirement.
 
-### P2.3 — Document the DNS availability/privacy trade-off
+### P2.4 — Document the DNS availability/privacy trade-off
 
 **Repository:** `nixos-portable`
 
@@ -150,23 +196,30 @@ This is not a blocker for the current packaging model.
 ## Recommended execution order
 
 ```
-1. Resolve final polkit policy
-2. Add polkit integration assertion
-3. Add LICENSE after choosing the license
-4. Add nixos-portable integration assertions
-5. Verify CI and production build
-6. Validate a second host/VM
-7. Document/implement backup strategy as required
-8. Handle deferred framework improvements
+1. Sync helium-nix
+2. Resolve final polkit policy
+3. Add polkit integration assertion
+4. Add LICENSE after choosing the license
+5. Fix Helium NixOS package test
+6. Fix Helium Home Manager runtime test
+7. Add nixos-portable integration assertions
+8. Verify CI and production build
+9. Validate a second host/VM
+10. Add updater version input
+11. Document/implement backup strategy as required
+12. Handle deferred framework and supply-chain improvements
 ```
 
 ## Definition of done
 
 The roadmap is substantially complete when:
 
+- the locked Helium dependency is intentionally current;
 - final polkit behavior is explicit and tested;
+- both Helium module tests exercise actual package behavior;
 - nixos-portable has integration-level assertions for important final configuration invariants;
 - a second host/evaluation target has validated the composition model;
+- the updater supports controlled version selection;
 - recovery and backup expectations are documented;
 - deferred items are either implemented when justified or explicitly kept deferred.
 
