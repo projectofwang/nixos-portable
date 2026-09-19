@@ -27,10 +27,6 @@
       url = "github:projectofwang/umbriel";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    helium = {
-      url = "github:projectofwang/helium-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
