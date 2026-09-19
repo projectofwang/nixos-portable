@@ -110,7 +110,7 @@ Profile được phát hiện tự động từ `profiles/*.nix`, nên thêm pro
 > Thêm `profiles/<name>.nix` là tự động lên production ở lần `switch` tiếp theo.
 > Đây là hành vi có chủ đích cho personal-use, không phải staging/canary.
 
-Các profile hiện tại gồm: `ai`, `base`, `bitwarden`, `desktop`, `firefox`, `gaming`, `media`, `terminal`, `terminal-ide`, `umbriel` và `vietnamese-input`.
+Các profile hiện tại gồm: `ai`, `base`, `bitwarden`, `desktop`, `downloads`, `firefox`, `gaming`, `helium`, `hermes-agent`, `keepassxc`, `media`, `opencode`, `signal`, `telegram`, `terminal`, `terminal-ide`, `thunderbird`, `umbriel`, `vesktop` và `vietnamese-input`.
 
 ## Architecture policy
 
@@ -127,6 +127,36 @@ Out of scope:
 ```
 
 Đây là policy có chủ đích. Không có mục tiêu mở rộng sang ARM, 32-bit hoặc architecture khác. Framework và CI đều enforce policy này.
+
+## Helium
+
+Helium được tách thành repository `helium-nix` để giữ ranh giới giữa system configuration và binary packaging:
+
+```text
+nixos-portable
+      │
+      └── helium-nix
+              │
+              └── official Helium Linux release
+```
+
+Input:
+
+```nix
+helium = {
+  url = "github:projectofwang/helium-nix";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+```
+
+`helium-nix` tự theo dõi release upstream và tạo PR khi có version mới. `nixos-portable` vẫn pin một revision cụ thể trong `flake.lock`; muốn đưa revision mới vào parent flake thì cập nhật có chủ đích:
+
+```bash
+nix flake lock --update-input helium
+nix flake check
+```
+
+Không tự điền `narHash` bằng tay.
 
 ## CLI
 
@@ -207,7 +237,10 @@ nix flake update
 nix flake check
 ```
 
-Sau mỗi `nix flake update`, kiểm tra lại các profile có override/package workaround nếu có thay đổi tương ứng trong nixpkgs.
+Sau mỗi `nix flake update`, kiểm tra lại `profiles/opencode.nix`:
+patch `opencode-compiled-filesystem-cycle.patch` chỉ là workaround cho
+`anomalyco/opencode#48397` (nixpkgs 1.18.30 + Bun 1.4.2). Nếu upstream đã fix,
+bỏ override `programs.opencode.package`.
 
 Quy trình vào maintain mode: giữ `main` xanh (`nixos-portable check` + CI),
 chỉ update inputs, không sửa `lib/`. Tag stable commit:
