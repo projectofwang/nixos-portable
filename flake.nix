@@ -115,8 +115,8 @@
 
       integrationAssertions =
         assert lib.assertMsg (
-          productionConfig.security.polkit.enable == false
-        ) "production policy must keep polkit disabled";
+          productionConfig.security.polkit.enable == true
+        ) "production desktop must enable polkit for the Noctalia greeter";
         assert lib.assertMsg productionConfig.services.pipewire.enable
           "production desktop must enable PipeWire";
         assert lib.assertMsg productionConfig.services.flatpak.enable
