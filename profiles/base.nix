@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   # Load the modules that define the shared system baseline.
@@ -13,5 +13,11 @@
     ../modules/nixos/core/security.nix
     # Install the base command-line toolset.
     ../modules/nixos/core/tools.nix
+  ];
+
+  # Temporary: keep Node.js available system-wide while investigating
+  # llama.cpp's build-time Web UI dependency on Node/npm.
+  environment.systemPackages = [
+    pkgs.nodejs
   ];
 }
