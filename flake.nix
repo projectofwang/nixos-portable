@@ -7,6 +7,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     fcitx5-lotus = {
       url = "github:projectofwang/fcitx5-lotus";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -25,6 +29,10 @@
     };
     umbriel = {
       url = "github:projectofwang/umbriel";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    helium = {
+      url = "github:projectofwang/helium-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
