@@ -1,9 +1,6 @@
 { pkgs, ... }:
 
 {
-  # Add user-local executables to PATH.
-  home.sessionPath = [ "$HOME/.npm-global/bin" ];
-
   programs = {
     # Keep Bash available for scripts and fallback shells.
     bash.enable = true;

@@ -5,13 +5,10 @@
   nix.channel.enable = false;
 
   # Enable flakes and the modern Nix command interface.
-  nix.settings = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
-    trusted-users = [ "root" ];
-  };
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Deduplicate identical store paths automatically.
   nix.optimise.automatic = true;

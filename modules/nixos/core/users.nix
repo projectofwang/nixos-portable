@@ -13,7 +13,4 @@
       "networkmanager"
     ];
   };
-
-  # Keep sudo password authentication enabled for wheel users.
-  security.sudo.wheelNeedsPassword = true;
 }

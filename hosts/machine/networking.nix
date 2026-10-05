@@ -19,9 +19,6 @@
       enable = true;
       dns = "none";
     };
-
-    # Keep the host firewall enabled by default.
-    firewall.enable = true;
   };
 
   # Disable systemd-resolved because dnscrypt-proxy owns the resolver service.

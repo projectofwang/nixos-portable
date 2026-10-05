@@ -1,5 +1,5 @@
 {
-  description = "Portable NixOS configuration framework";
+  description = "Personal NixOS configuration";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -51,7 +51,7 @@
       ) framework.hosts.definitions;
 
       hostnameAliases = lib.mapAttrs' (
-        _name: definition: lib.nameValuePair definition.machine.hostname (framework.mkHost definition)
+        name: definition: lib.nameValuePair definition.machine.hostname hostConfigurations.${name}
       ) framework.hosts.definitions;
 
       allConfigurations = hostConfigurations // hostnameAliases;

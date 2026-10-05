@@ -16,6 +16,11 @@
   # Enable the system-side Umbriel compositor integration.
   programs.umbriel.enable = true;
 
+  # Pin the portal to this repository's lockfile instead of the revision
+  # carried inside the umbriel input.
+  programs.umbriel.portalPackage =
+    inputs.xdg-desktop-portal-umbriel.packages.${pkgs.stdenv.hostPlatform.system}.default;
+
   # Enable Noctalia and its supporting services.
   programs.noctalia = {
     enable = true;
@@ -24,7 +29,6 @@
 
   # Install desktop utilities that are shared by all desktop sessions.
   environment.systemPackages = [
-    pkgs.flatpak
     pkgs.gpu-screen-recorder
     pkgs.krusader
   ];

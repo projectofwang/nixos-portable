@@ -23,6 +23,7 @@
         pane_frames = false;
         mouse_mode = true;
         copy_on_select = true;
+        # Requires Neovim, provided by the terminal-ide profile.
         scrollback_editor = "nvim";
         show_startup_tips = false;
       };
