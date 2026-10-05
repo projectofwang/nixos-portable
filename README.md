@@ -110,7 +110,7 @@ Profile được phát hiện tự động từ `profiles/*.nix`, nên thêm pro
 > Thêm `profiles/<name>.nix` là tự động lên production ở lần `switch` tiếp theo.
 > Đây là hành vi có chủ đích cho personal-use, không phải staging/canary.
 
-Các profile hiện tại gồm: `ai`, `base`, `bitwarden`, `desktop`, `downloads`, `firefox`, `gaming`, `helium`, `hermes-agent`, `keepassxc`, `media`, `opencode`, `signal`, `telegram`, `terminal`, `terminal-ide`, `thunderbird`, `umbriel`, `vesktop` và `vietnamese-input`.
+Các profile hiện tại gồm: `base`, `bitwarden`, `desktop`, `downloads`, `firefox`, `gaming`, `helium`, `keepassxc`, `media`, `opencode`, `signal`, `telegram`, `terminal`, `terminal-ide`, `thunderbird`, `umbriel`, `vesktop` và `vietnamese-input`.
 
 ## Architecture policy
 
@@ -236,11 +236,6 @@ Cập nhật dependencies có chủ đích (cadence khuyến nghị: monthly, ho
 nix flake update
 nix flake check
 ```
-
-Sau mỗi `nix flake update`, kiểm tra lại `profiles/opencode.nix`:
-patch `opencode-compiled-filesystem-cycle.patch` chỉ là workaround cho
-`anomalyco/opencode#48397` (nixpkgs 1.18.30 + Bun 1.4.2). Nếu upstream đã fix,
-bỏ override `programs.opencode.package`.
 
 Quy trình vào maintain mode: giữ `main` xanh (`nixos-portable check` + CI),
 chỉ update inputs, không sửa `lib/`. Tag stable commit:

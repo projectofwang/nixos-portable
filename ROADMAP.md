@@ -30,6 +30,8 @@ Update the locked `helium-nix` input to the current stable revision, then verify
 
 **Reason:** the lockfile currently lags behind the current `helium-nix` revision.
 
+**Status:** Reopened — upstream `helium-nix` is at 0.18.2.1 (`0ccdc14`, 2026-10-02) while the lock still pins `35720b01` (2026-09-19).
+
 ### P0.2 — Resolve and assert the final polkit policy
 
 **Repository:** `nixos-portable`
@@ -46,11 +48,15 @@ The desktop composition does not currently enable polkit explicitly.
 
 Do not rely on comments alone. Establish the intended final evaluated value and add an integration assertion so future module/input changes cannot silently alter it.
 
+**Status:** Completed — the final evaluated policy is `security.polkit.enable = true` on the production desktop: the Noctalia greeter module enables it, and the integration assertion in `flake.nix` fails evaluation if that value changes.
+
 ### P0.3 — Add a repository license
 
 **Repository:** `nixos-portable`
 
 Choose the license deliberately before adding the file. Do not infer it from `helium-nix`; the repositories may have different licensing terms.
+
+**Status:** Completed — MIT was chosen deliberately for this repository; see `LICENSE`.
 
 ## Phase 1 — Test quality and invariants
 
@@ -95,6 +101,8 @@ Candidate invariants:
 - Home Manager integration.
 
 Only assert intentional project policy.
+
+**Status:** Completed — the candidate invariants above are asserted in `flake.nix`: polkit, PipeWire, Flatpak, desktop portals, Noctalia greeter, hostname, primary user, architecture, DNS policy, and Home Manager integration.
 
 ## Phase 2 — Operational validation
 
