@@ -246,6 +246,8 @@ git tag stable-2026-09-15
 
 Các flake input là trust boundary của hệ thống. Khi đổi revision, nên xem xét diff và chạy validation trước khi sử dụng.
 
+Backup chia hai lớp — declarative (repo git) và user-data/secret (công cụ ngoài repo); xem [`docs/backup.md`](docs/backup.md).
+
 ## Personal-use scope
 
 Repository này được thiết kế **cho cá nhân tôi và các máy tôi trực tiếp quản lý**.
