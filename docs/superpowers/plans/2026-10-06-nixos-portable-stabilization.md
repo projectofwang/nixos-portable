@@ -43,10 +43,10 @@
 
 **Files chạm**: `docs/backup.md` (mới), `README.md` (link)
 
-- [ ] Viết `docs/backup.md`: lớp 1 declarative (repo git, khôi phục = clone + `nixos-rebuild switch --flake .#machine`), lớp 2 user-data/secret (ngoài Nix store, backup riêng bằng công cụ ngoài repo, nêu tên công cụ cụ thể), khẳng định không có automation trong scope.
-- [ ] Implement: link `docs/backup.md` từ README.
-- [ ] Verify: grep README có link `docs/backup.md`; docs có đủ 2 lớp + tên công cụ user-data.
-- [ ] Commit: `docs(backup): declarative vs user-data layers`.
+- [x] Viết `docs/backup.md`: lớp 1 declarative (repo git, khôi phục = clone + `nixos-rebuild switch --flake .#machine`), lớp 2 user-data/secret (ngoài Nix store, backup riêng bằng công cụ ngoài repo, nêu tên công cụ cụ thể), khẳng định không có automation trong scope.
+- [x] Implement: link `docs/backup.md` từ README.
+- [x] Verify: grep README có link `docs/backup.md`; docs có đủ 2 lớp + tên công cụ user-data.
+- [x] Commit: `docs(backup): declarative vs user-data layers`.
 
 ## Task P3 — Host/VM tạm thời
 
