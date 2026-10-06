@@ -77,6 +77,7 @@ Ví dụ tối giản:
 ```nix
 {
   hostname = "nixos";
+  username = "nixos";
   system = "x86_64-linux";
   timeZone = "Asia/Ho_Chi_Minh";
   nixosStateVersion = "26.05";
@@ -85,6 +86,26 @@ Ví dụ tối giản:
   profiles = [ ];
 }
 ```
+
+### Thêm host mới
+
+Discovery tự chạy: `lib/hosts.nix` quét mọi thư mục `hosts/<name>/` có `identity.nix` (qua `readDir`) rồi validate — không cần đăng ký host ở bất kỳ file nào khác.
+
+1. Tạo `hosts/<ten>/identity.nix` với đủ 8 field bắt buộc, thiếu field nào framework reject host đó:
+
+   - string: `hostname`, `username`, `system`, `timeZone`, `nixosStateVersion`, `homeStateVersion`;
+   - list of string: `roles`, `profiles`.
+
+   `system` phải là `x86_64-linux`; `roles` phải là role đã khai báo trong `roles/` (ví dụ `completed` hoặc `ci`).
+
+2. Tạo `hosts/<ten>/default.nix` — module NixOS của host, `imports` các file host-specific (xem `hosts/machine/default.nix`). Thêm `hardware-configuration.nix` bên cạnh nếu host có phần cứng thật.
+
+3. Kiểm thử bằng eval (không cần build):
+
+   ```bash
+   nix eval .#nixosConfigurations.<ten>.config.system.build.toplevel.drvPath --no-write-lock-file
+   nix flake check --no-write-lock-file
+   ```
 
 ## Profile và role
 
@@ -249,6 +270,8 @@ Các flake input là trust boundary của hệ thống. Khi đổi revision, nê
 Backup chia hai lớp — declarative (repo git) và user-data/secret (công cụ ngoài repo); xem [`docs/backup.md`](docs/backup.md).
 
 ## Personal-use scope
+
+Repo ở chế độ **personal-first, public mirror**: cấu hình cá nhân được mirror công khai chủ yếu để version control, backup và để người khác tham khảo. Người dùng tự pin rev của riêng mình và tự chịu rủi ro khi cập nhật.
 
 Repository này được thiết kế **cho cá nhân tôi và các máy tôi trực tiếp quản lý**.
 
