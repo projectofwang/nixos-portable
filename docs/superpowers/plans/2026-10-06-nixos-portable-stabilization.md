@@ -73,10 +73,10 @@
 
 **Files chạm**: `README.md`, `CHANGELOG.md` (mới)
 
-- [ ] Implement README: (a) mục scope personal-first-public-mirror — không SLA/back-compat; (b) guide "thêm host mới": các field bắt buộc của `identity.nix`, `default.nix`, discovery tự chạy, lệnh eval kiểm thử; (c) cập nhật phần DNS `README.md:191-202` cho khớp option opt-in P1, xóa snippet fallback thủ công.
-- [ ] Implement: tạo `CHANGELOG.md` liệt kê P0–P6.
-- [ ] Verify: grep README không còn snippet `server_names = [ "cloudflare" ]` thủ công; README có 3 mục scope/thêm host/DNS mới; `CHANGELOG.md` liệt kê đủ P0–P6.
-- [ ] Commit: `docs: scope, add-host guide, DNS fallback, CHANGELOG`.
+- [x] Implement README: (a) scope personal-first-public-mirror — không SLA/back-compat; (b) guide "thêm host mới" (field identity.nix, default.nix, discovery, lệnh eval); (c) DNS — DEFERRED post-P1 theo ruling P5-split, snippet thủ công giữ nguyên (review xác nhận).
+- [x] Implement: tạo `CHANGELOG.md` liệt kê P0–P6 với trạng thái thật (P2 done; P5 partial; P0/P1/P3/P4/P6 pending nix/CI).
+- [x] Verify: read-back README (scope/guide/link backup còn, không nhắc option P1) + CHANGELOG trạng thái thật.
+- [x] Commit: `docs: scope, add-host guide, CHANGELOG (DNS pending P1)` (a639b10, review clean).
 
 ## Task P6 — CI: flake check + 1 nixosTest boot minimal
 
